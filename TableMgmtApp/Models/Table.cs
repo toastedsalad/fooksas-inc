@@ -7,12 +7,33 @@ public enum TableState {
     Standby
 }
 
+public class PlaySession {
+    public Guid Id { get; private set; }
+    public DateTime StartTime { get; private set; }
+    public bool IsSessionActive { get; private set; }
+    public TimeSpan PlayTime { get; private set; }
+
+    public TimeSpan GetPlayTime() {
+        PlayTime = DateTime.Now - StartTime;
+
+        return PlayTime;
+    }
+
+    public void Start() {
+        Id = Guid.NewGuid();
+        StartTime = DateTime.Now;
+        IsSessionActive = true;
+    }
+
+    // We need methods to pause and to resume session.
+    // Time when paused should not count in PlayTime.
+}
+
 public class Table {
     public int Id { get; private set; }
-    public TableState State { get; private set; }
+    public TableState State { get; private set; } = TableState.Off;
     public int PauseTimer { get; private set; }
-    // We Probably need table time tracker
-    // And something that calcs the price
+    public PlaySession Session { get; private set; } = new PlaySession();
 
     public Table(int id, int pauseTimer = 1) {
         Id = id;
@@ -20,8 +41,9 @@ public class Table {
     }
 
     public void SetState(TableState newState) {
-        if (State == TableState.Off) {
+        if (State == TableState.Off && newState == TableState.PlayOn) {
             State = newState;
+            Session.Start();
         }
 
         if (State == TableState.PlayOn && newState == TableState.Off) {
@@ -31,6 +53,10 @@ public class Table {
 
         if (State == TableState.Paused && newState == TableState.PlayOn) {
             State = TableState.PlayOn;
+        }
+
+        if (State == TableState.Standby && newState == TableState.Off) {
+            State = TableState.Off;
         }
     }
 
