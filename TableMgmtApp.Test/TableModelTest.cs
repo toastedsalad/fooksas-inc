@@ -73,7 +73,13 @@ public class TableModetTest {
         table.SetState(TableState.PlayOn);
 
         Assert.That(table.State, Is.EqualTo(TableState.PlayOn));
+
+        Thread.Sleep(4 * 1000);
+
+        Assert.That(table.State, Is.EqualTo(TableState.PlayOn));
     }
+
+    // Should we reset the Pause timer or no?
 }
 
 

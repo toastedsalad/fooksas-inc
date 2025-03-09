@@ -11,6 +11,8 @@ public class Table {
     public int Id { get; private set; }
     public TableState State { get; private set; }
     public int PauseTimer { get; private set; }
+    // We Probably need table time tracker
+    // And something that calcs the price
 
     public Table(int id, int pauseTimer = 1) {
         Id = id;
