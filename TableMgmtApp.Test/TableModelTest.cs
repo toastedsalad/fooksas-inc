@@ -1,16 +1,18 @@
 namespace TableMgmtApp.Test;
 
 [Parallelizable(ParallelScope.All)]
-public class TableModetTest {
+public class TableModelTest {
     [Test]
     public void WhenNewTableInitializedItHasAttributes() {
-        var table = new Table(1);
+        var systemTimer = new SystemTimeProvider();
+        var table = new Table(1, systemTimer);
         Assert.That(table.Id, Is.EqualTo(1));
     }
 
     [Test]
     public void WhenNewTableInitializedFourStatesAreAllowed() {
-        var table = new Table(1);
+        var systemTimer = new SystemTimeProvider();
+        var table = new Table(1, systemTimer);
 
         table.SetState(TableState.PlayOn);
         Assert.That(Enum.IsDefined(typeof(TableState), table.State));
@@ -35,7 +37,8 @@ public class TableModetTest {
 
     [Test]
     public void WhenTableIsInPlayOnItCanOnlyBeSetToPausedFirstWhenOffIsSent() {
-        var table = new Table(1);
+        var systemTimer = new SystemTimeProvider();
+        var table = new Table(1, systemTimer);
         table.SetState(TableState.PlayOn);
         table.SetState(TableState.Off);
 
@@ -44,14 +47,16 @@ public class TableModetTest {
 
     [Test]
     public void TableHasAPauseTimer () {
-        var table = new Table(1, 5);
+        var systemTimer = new SystemTimeProvider();
+        var table = new Table(1, systemTimer, 5);
 
         Assert.That(table.PauseTimer, Is.EqualTo(5));
     }
 
     [Test]
     public void IfTableIsInPauseItCanTransitionToStandByAfterPauseTimerExpires() {
-        var table = new Table(1);
+        var systemTimer = new SystemTimeProvider();
+        var table = new Table(1, systemTimer);
         table.SetState(TableState.PlayOn);
         table.SetState(TableState.Off);
 
@@ -64,7 +69,8 @@ public class TableModetTest {
     
     [Test]
     public void WhenTableIsInPauseSendingPlayOnWillSetItToPlay() {
-        var table = new Table(1, 2);
+        var systemTimer = new SystemTimeProvider();
+        var table = new Table(1, systemTimer, 2);
         table.SetState(TableState.PlayOn);
         table.SetState(TableState.Off);
 
@@ -82,7 +88,8 @@ public class TableModetTest {
 
     [Test]
     public void WhenTableStateIsInStandbySendingOffWillOffTheTable() {
-        var table = new Table(1, 1);
+        var systemTimer = new SystemTimeProvider();
+        var table = new Table(1, systemTimer, 1);
         table.SetState(TableState.PlayOn);
         table.SetState(TableState.Off);
         Thread.Sleep(1 * 1100);
@@ -96,7 +103,8 @@ public class TableModetTest {
 
     [Test]
     public void WhenTableIsOffSettingOnSetsAGuid() {
-        var table = new Table(1, 1);
+        var systemTimer = new SystemTimeProvider();
+        var table = new Table(1, systemTimer, 1);
         table.SetState(TableState.PlayOn);
 
         Assert.That(table.Session.Id, Is.Not.EqualTo(Guid.Empty));
@@ -104,7 +112,8 @@ public class TableModetTest {
 
     [Test]
     public void WhenTableIsOffSettingOnSetsASessionTimer() {
-        var table = new Table(1, 1);
+        var systemTimer = new SystemTimeProvider();
+        var table = new Table(1, systemTimer, 1);
         table.SetState(TableState.PlayOn);
 
         Assert.That(table.Session.StartTime.Minute, Is.EqualTo(DateTime.Now.Minute));
@@ -113,7 +122,8 @@ public class TableModetTest {
     // Session Tests
     [Test]
     public void WhenSessionStartItStarts() {
-        var session = new PlaySession();
+        var systemTimer = new SystemTimeProvider();
+        var session = new PlaySession(systemTimer);
         session.Start();
 
         Assert.That(session.StartTime.Minute, Is.EqualTo(DateTime.Now.Minute));
@@ -123,12 +133,50 @@ public class TableModetTest {
 
     [Test]
     public void SessionElapsedTimeDisplayHowMuchTimeWasPlayed() {
-        var session = new PlaySession();
+        var systemTimer = new SystemTimeProvider();
+        var session = new PlaySession(systemTimer);
         session.Start();
         Thread.Sleep(1 * 1000);
-        var elapsedTime = session.GetPlayTime().TotalSeconds;
+        var gameTime = session.GetPlayTime().TotalSeconds;
 
-        Assert.That((int)elapsedTime, Is.EqualTo(1));
+        Assert.That((int)gameTime, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void PlaySessionTakesInCustomTimer() {
+        var fakeTimer = new FakeTimeProvider();
+        fakeTimer.Now = new DateTime(2025, 12, 28);
+        var session = new PlaySession(fakeTimer);
+        session.Start();
+
+        Assert.That(session.StartTime.Day, Is.EqualTo(28));
+    }
+
+    [Test]
+    public void WhenTimeIncreasesWithFakerTimerPlayTimeIncreasesAsWell() {
+        var fakeTimer = new FakeTimeProvider();
+        var session = new PlaySession(fakeTimer);
+
+        session.Start();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+
+        var gametime = session.GetPlayTime().TotalSeconds;
+
+        Assert.That((int)gametime, Is.EqualTo(5));
+    }
+
+    [Test]
+    public void WhenSessionIsPausedGameTimeDoesNotIncrease() {
+        var fakeTimer = new FakeTimeProvider();
+        var session = new PlaySession(fakeTimer);
+
+        session.Start();
+        session.Pause();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+
+        var gametime = session.GetPlayTime().TotalSeconds;
+
+        Assert.That((int)gametime, Is.EqualTo(0));
     }
 }
 
