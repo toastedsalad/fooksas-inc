@@ -15,12 +15,18 @@ public class PlaySession {
 
     private ITimeProvider _timeProvider;
     private DateTime _pauseStart;
+    private bool _isPauseActive;
 
     public PlaySession(ITimeProvider timeProvider) {
         _timeProvider = timeProvider;
     }
 
     public TimeSpan GetPlayTime() {
+        if (_isPauseActive) {
+            return PlayTime;
+        }
+
+        PlayTime = _timeProvider.Now - StartTime;
         return PlayTime;
     }
 
@@ -32,6 +38,7 @@ public class PlaySession {
 
     public void Pause() {
         _pauseStart = _timeProvider.Now;
+        _isPauseActive = true;
         PlayTime += _pauseStart - StartTime;
     }
 

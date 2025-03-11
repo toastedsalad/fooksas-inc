@@ -178,6 +178,20 @@ public class TableModelTest {
 
         Assert.That((int)gametime, Is.EqualTo(0));
     }
+
+    [Test]
+    public void SeesionCanBeResumedFromPause() {
+        var fakeTimer = new FakeTimeProvider();
+        var session = new PlaySession(fakeTimer);
+
+        session.Start();
+        session.Pause();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+
+        var gametime = session.GetPlayTime().TotalSeconds;
+
+        Assert.That((int)gametime, Is.EqualTo(0));
+    }
 }
 
 
