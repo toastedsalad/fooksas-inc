@@ -187,10 +187,70 @@ public class TableModelTest {
         session.Start();
         session.Pause();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        session.Resume();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
 
         var gametime = session.GetPlayTime().TotalSeconds;
 
-        Assert.That((int)gametime, Is.EqualTo(0));
+        Assert.That((int)gametime, Is.EqualTo(5));
+    }
+
+    [Test]
+    public void WhenSessionIsPausedReturnLastPlayTime() {
+        var fakeTimer = new FakeTimeProvider();
+        var session = new PlaySession(fakeTimer);
+
+        session.Start();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        session.Pause();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+
+        var gametime = session.GetPlayTime().TotalSeconds;
+
+        Assert.That((int)gametime, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void WhenPausingMultipleTimesItCountsAsOneTime() {
+        var fakeTimer = new FakeTimeProvider();
+        var session = new PlaySession(fakeTimer);
+
+        session.Start();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        session.Pause();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        session.Pause();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        session.Pause();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        session.Pause();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+
+        var gametime = session.GetPlayTime().TotalSeconds;
+
+        Assert.That((int)gametime, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void WhenResumingMultipleTimesItCountsAsOneTime() {
+        var fakeTimer = new FakeTimeProvider();
+        var session = new PlaySession(fakeTimer);
+
+        session.Start();
+        session.Pause();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        session.Resume();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        session.Resume();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        session.Resume();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        session.Resume();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+
+        var gametime = session.GetPlayTime().TotalSeconds;
+
+        Assert.That((int)gametime, Is.EqualTo(20));
     }
 }
 

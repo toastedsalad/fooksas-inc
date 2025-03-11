@@ -37,15 +37,23 @@ public class PlaySession {
     }
 
     public void Pause() {
+        if (_isPauseActive) {
+            return;
+        }
+
         _pauseStart = _timeProvider.Now;
         _isPauseActive = true;
         PlayTime += _pauseStart - StartTime;
     }
 
-    // We need methods to pause and to resume session.
-    // Time when paused should not count in PlayTime.
-    // I also need a better way to manage time...
-    // Create an interface and inject fake time perhaps.
+    public void Resume() {
+        if (!_isPauseActive) {
+            return;
+        }
+
+        _isPauseActive = false;
+        StartTime = _timeProvider.Now;
+    }
 }
 
 public class Table {
@@ -53,7 +61,7 @@ public class Table {
     public TableState State { get; private set; } = TableState.Off;
     public int PauseTimer { get; private set; }
     public PlaySession Session { get; private set; }
-    // Keep a record of last three sessions.
+    // TODO: Keep a record of last three sessions.
     
     public Table(int id, ITimeProvider timeProvider, int pauseTimer = 1) {
         Id = id;
