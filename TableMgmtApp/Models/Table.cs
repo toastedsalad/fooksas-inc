@@ -40,8 +40,10 @@ public class Table {
         }
     }
 
+    // TODO:
     // This is something I don't like.
-    // Let's change it instead to time maths so that we can use our fake timer.
+    // Let's change it instead to Task.Deelay we do time maths 
+    // so that we can use our fake timer.
     // Paused table state is to account for accidental switch on and off.
     // During this time the session should be live.
     private async void StartPauseTimer() {
