@@ -7,55 +7,6 @@ public enum TableState {
     Standby
 }
 
-public class PlaySession {
-    public Guid Id { get; private set; }
-    public bool IsSessionActive { get; private set; }
-    public DateTime StartTime { get; private set; }
-    public TimeSpan PlayTime { get; private set; }
-
-    private ITimeProvider _timeProvider;
-    private DateTime _pauseStart;
-    private bool _isPauseActive;
-
-    public PlaySession(ITimeProvider timeProvider) {
-        _timeProvider = timeProvider;
-    }
-
-    public TimeSpan GetPlayTime() {
-        if (_isPauseActive) {
-            return PlayTime;
-        }
-
-        PlayTime = _timeProvider.Now - StartTime;
-        return PlayTime;
-    }
-
-    public void Start() {
-        Id = Guid.NewGuid();
-        StartTime = _timeProvider.Now;
-        IsSessionActive = true;
-    }
-
-    public void Pause() {
-        if (_isPauseActive) {
-            return;
-        }
-
-        _pauseStart = _timeProvider.Now;
-        _isPauseActive = true;
-        PlayTime += _pauseStart - StartTime;
-    }
-
-    public void Resume() {
-        if (!_isPauseActive) {
-            return;
-        }
-
-        _isPauseActive = false;
-        StartTime = _timeProvider.Now;
-    }
-}
-
 public class Table {
     public int Id { get; private set; }
     public TableState State { get; private set; } = TableState.Off;
@@ -89,6 +40,9 @@ public class Table {
         }
     }
 
+    // This is something I don't like.
+    // Let's change it instead to time maths so that we can use our fake timer.
+    // Paused table state is to account for accidental switch on and off.
     private async void StartPauseTimer() {
         await Task.Delay(PauseTimer * 1000);
         if (State == TableState.Paused) {
