@@ -28,8 +28,7 @@ public class FakeTimeProvider : ITimeProvider {
         Now = Now.AddSeconds(seconds);
 
         var expiredDelays = _pendingDelays.Where(d => d.targetTime <= Now).ToList();
-        foreach (var delay in expiredDelays)
-        {
+        foreach (var delay in expiredDelays) {
             delay.tcs.SetResult(true);
             _pendingDelays.Remove(delay);
         }
