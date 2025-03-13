@@ -29,7 +29,7 @@ public class PlaySession {
         IsSessionActive = true;
     }
 
-    public void Pause() {
+    public void Stop() {
         if (_isPauseActive) {
             return;
         }

@@ -53,7 +53,7 @@ public class PlaysessionModelTest {
         var session = new PlaySession(fakeTimer);
 
         session.Start();
-        session.Pause();
+        session.Stop();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
 
         var gametime = session.GetPlayTime().TotalSeconds;
@@ -67,7 +67,7 @@ public class PlaysessionModelTest {
         var session = new PlaySession(fakeTimer);
 
         session.Start();
-        session.Pause();
+        session.Stop();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
@@ -84,7 +84,7 @@ public class PlaysessionModelTest {
 
         session.Start();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
-        session.Pause();
+        session.Stop();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
 
         var gametime = session.GetPlayTime().TotalSeconds;
@@ -99,13 +99,13 @@ public class PlaysessionModelTest {
 
         session.Start();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
-        session.Pause();
+        session.Stop();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
-        session.Pause();
+        session.Stop();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
-        session.Pause();
+        session.Stop();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
-        session.Pause();
+        session.Stop();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
 
         var gametime = session.GetPlayTime().TotalSeconds;
@@ -119,7 +119,7 @@ public class PlaysessionModelTest {
         var session = new PlaySession(fakeTimer);
 
         session.Start();
-        session.Pause();
+        session.Stop();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
         fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);

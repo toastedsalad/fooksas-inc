@@ -1,4 +1,4 @@
-﻿namespace TableMgmtApp;
+namespace TableMgmtApp;
 
 class Program {
     static void Main(string[] args) {

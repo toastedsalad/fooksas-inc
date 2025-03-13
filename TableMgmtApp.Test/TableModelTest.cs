@@ -55,44 +55,45 @@ public class TableModelTest {
 
     [Test]
     public void IfTableIsInPauseItCanTransitionToStandByAfterPauseTimerExpires() {
-        var systemTimer = new SystemTimeProvider();
-        var table = new Table(1, systemTimer);
+        var fakeTimer = new FakeTimeProvider();
+        var table = new Table(1, fakeTimer, 1); // Pause timer expires.
         table.SetState(TableState.PlayOn);
         table.SetState(TableState.Off);
 
         Assert.That(table.State, Is.EqualTo(TableState.Paused));
 
-        Thread.Sleep(2 * 1000);
+        fakeTimer.AdvanceTimeBySeconds(2);
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
     }
     
     [Test]
-    public void WhenTableIsInPauseSendingPlayOnWillSetItToPlay() {
-        var systemTimer = new SystemTimeProvider();
-        var table = new Table(1, systemTimer, 2);
+    public void WhenTableIsInPauseSendingPlayWithinTimerWillSetItToPlay() {
+        var fakeTimer = new FakeTimeProvider();
+        var table = new Table(1, fakeTimer, 2);
         table.SetState(TableState.PlayOn);
         table.SetState(TableState.Off);
 
         Assert.That(table.State, Is.EqualTo(TableState.Paused));
 
-        Thread.Sleep(1 * 1000);
+        fakeTimer.AdvanceTimeBySeconds(1);
         table.SetState(TableState.PlayOn);
 
         Assert.That(table.State, Is.EqualTo(TableState.PlayOn));
 
-        Thread.Sleep(3 * 1000);
+        fakeTimer.AdvanceTimeBySeconds(3);
 
         Assert.That(table.State, Is.EqualTo(TableState.PlayOn));
     }
 
     [Test]
     public void WhenTableStateIsInStandbySendingOffWillOffTheTable() {
-        var systemTimer = new SystemTimeProvider();
-        var table = new Table(1, systemTimer, 1);
+        var fakeTimer = new FakeTimeProvider();
+        var table = new Table(1, fakeTimer, 1);
         table.SetState(TableState.PlayOn);
         table.SetState(TableState.Off);
-        Thread.Sleep(1 * 1100);
+
+        fakeTimer.AdvanceTimeBySeconds(2);
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
         

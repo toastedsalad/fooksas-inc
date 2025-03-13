@@ -16,5 +16,24 @@ public class FakeTimeTest {
         Assert.That(fakeTime.Now.Month, Is.EqualTo(10));
         Assert.That(fakeTime.Now.Day, Is.EqualTo(28));
     }
+
+    [Test]
+    public void MockedTimerCanSimulateDelay() {
+        var fakeTime = new FakeTimeProvider();
+        var delay1 = fakeTime.DelayAsync(2000);
+        fakeTime.AdvanceTimeBySeconds(1);
+
+        Assert.That(delay1.IsCompleted, Is.False);
+
+        var delay2 = fakeTime.DelayAsync(4000);
+        fakeTime.AdvanceTimeBySeconds(1);
+
+        Assert.That(delay1.IsCompleted, Is.True);
+        Assert.That(delay2.IsCompleted, Is.False);
+
+        fakeTime.AdvanceTimeBySeconds(4);
+
+        Assert.That(delay2.IsCompleted, Is.True);
+    }
 }
 
