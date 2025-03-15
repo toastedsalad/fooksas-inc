@@ -119,6 +119,22 @@ public class TableModelTest {
 
         Assert.That(table.Session.StartTime.Minute, Is.EqualTo(DateTime.Now.Minute));
     }
+
+    [Test]
+    public void WhenTableIsInStandBySettingPlayOnWillContinueTheGame() {
+        var fakeTimer = new FakeTimeProvider();
+        var table = new Table(1, fakeTimer, 1);
+        table.SetState(TableState.PlayOn);
+        table.SetState(TableState.Off);
+
+        fakeTimer.AdvanceTimeBySeconds(2);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Standby));
+
+        table.SetState(TableState.PlayOn);
+
+        Assert.That(table.State, Is.EqualTo(TableState.PlayOn));
+    }
 }
 
 

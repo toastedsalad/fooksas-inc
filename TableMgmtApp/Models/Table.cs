@@ -47,7 +47,10 @@ public class Table {
             // TODO: And add a completed session to the list of sessions.
         }
 
-        // TODO: When on standby and play on is sent table is on play on.
+        if (State == TableState.Standby && newState == TableState.PlayOn) {
+            State = TableState.PlayOn;
+            Session.Resume();
+        }
     }
 
     public async void StartPauseTimer() {
