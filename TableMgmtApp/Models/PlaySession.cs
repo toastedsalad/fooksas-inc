@@ -8,14 +8,14 @@ public class PlaySession {
 
     private ITimeProvider _timeProvider;
     private DateTime _pauseStart;
-    private bool _isPauseActive;
+    private bool _isStopActive;
 
     public PlaySession(ITimeProvider timeProvider) {
         _timeProvider = timeProvider;
     }
 
     public TimeSpan GetPlayTime() {
-        if (_isPauseActive) {
+        if (_isStopActive) {
             return PlayTime;
         }
 
@@ -30,21 +30,21 @@ public class PlaySession {
     }
 
     public void Stop() {
-        if (_isPauseActive) {
+        if (_isStopActive) {
             return;
         }
 
         _pauseStart = _timeProvider.Now;
-        _isPauseActive = true;
+        _isStopActive = true;
         PlayTime += _pauseStart - StartTime;
     }
 
     public void Resume() {
-        if (!_isPauseActive) {
+        if (!_isStopActive) {
             return;
         }
 
-        _isPauseActive = false;
+        _isStopActive = false;
         StartTime = _timeProvider.Now;
     }
 }

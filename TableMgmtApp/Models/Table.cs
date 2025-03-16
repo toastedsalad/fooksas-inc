@@ -2,7 +2,7 @@
 namespace TableMgmtApp;
 
 public enum TableState {
-    PlayOn,
+    Play,
     Off,
     Paused,
     Standby
@@ -26,28 +26,45 @@ public class Table {
         _timeProvider = timeProvider;
     }
 
-    // And then I think I need explicit methods which can be envoked straight 
-    // from an API.
-    // SetPlayOn()
-    // SetPause()
-    // SetStandBy()
-    // SetOff()
+    public void SetPlay() {
+        if (State == TableState.Off) {
+            State = TableState.Play;
+            Session.Start();
+        }
+        else {
+            Session.Resume();
+        }
+    }
 
-    // This method should provide enough control via physical buttons.
-    // that can only send on of off.
+    public void SetStanby() {
+        if (State == TableState.Play || State == TableState.Paused) {
+            State = TableState.Standby;
+            Session.Stop();
+        }
+    }
+
+    public void SetOff() {
+        if (State == TableState.Standby) {
+            State = TableState.Off;
+            LatestSessions.EnQueue(Session);
+            Session.Stop();
+        }
+    }
+
+    // We are not creating new sesssions?
     public void SetStateBySwitch(TableState newState) {
-        if (State == TableState.Off && newState == TableState.PlayOn) {
+        if (State == TableState.Off && newState == TableState.Play) {
             State = newState;
             Session.Start();
         }
 
-        if (State == TableState.PlayOn && newState == TableState.Off) {
+        if (State == TableState.Play && newState == TableState.Off) {
             State = TableState.Paused;
             StartPauseTimer();
         }
 
-        if (State == TableState.Paused && newState == TableState.PlayOn) {
-            State = TableState.PlayOn;
+        if (State == TableState.Paused && newState == TableState.Play) {
+            State = TableState.Play;
             Session.Resume();
         }
 
@@ -57,8 +74,8 @@ public class Table {
             Session.Stop();
         }
 
-        if (State == TableState.Standby && newState == TableState.PlayOn) {
-            State = TableState.PlayOn;
+        if (State == TableState.Standby && newState == TableState.Play) {
+            State = TableState.Play;
             Session.Resume();
         }
     }
@@ -70,5 +87,6 @@ public class Table {
             Session.Stop();
         }
     }
+
 }
 
