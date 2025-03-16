@@ -26,7 +26,16 @@ public class Table {
         _timeProvider = timeProvider;
     }
 
-    public void SetState(TableState newState) {
+    // And then I think I need explicit methods which can be envoked straight 
+    // from an API.
+    // SetPlayOn()
+    // SetPause()
+    // SetStandBy()
+    // SetOff()
+
+    // This method should provide enough control via physical buttons.
+    // that can only send on of off.
+    public void SetStateBySwitch(TableState newState) {
         if (State == TableState.Off && newState == TableState.PlayOn) {
             State = newState;
             Session.Start();
