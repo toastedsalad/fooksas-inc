@@ -135,6 +135,66 @@ public class TableModelTest {
 
         Assert.That(table.State, Is.EqualTo(TableState.PlayOn));
     }
+
+    [Test]
+    public void TableHoldsLatestThreeSessions() {
+        var fakeTimer = new FakeTimeProvider();
+        var table = new Table(1, fakeTimer, 1);
+
+        Assert.That(table.LatestSessions.circularArray.Length, Is.EqualTo(3));
+        Assert.That(table.LatestSessions.IsEmpty, Is.True);
+    }
+
+    [Test]
+    public void WhenTableSessionIsStoppedItIsAddedToRingBuffer() {
+        var fakeTimer = new FakeTimeProvider();
+        var table = new Table(1, fakeTimer, 1);
+
+        table.SetState(TableState.PlayOn);
+        table.SetState(TableState.Off);
+
+        fakeTimer.AdvanceTimeBySeconds(2);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Standby));
+        
+        table.SetState(TableState.Off);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Off));
+
+        Assert.That(table.LatestSessions.IsEmpty, Is.False);
+    }
+
+    [Test]
+    public void OneTableCanCreateManySesssions() {
+        var fakeTimer = new FakeTimeProvider();
+        var table = new Table(1, fakeTimer, 1);
+
+        table.SetState(TableState.PlayOn);
+        table.SetState(TableState.Off);
+
+        fakeTimer.AdvanceTimeBySeconds(2);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Standby));
+        
+        table.SetState(TableState.Off);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Off));
+
+        Assert.That(table.LatestSessions.IsEmpty, Is.False);
+        Assert.That(table.LatestSessions.usageCount, Is.EqualTo(1));
+
+        table.SetState(TableState.PlayOn);
+        table.SetState(TableState.Off);
+
+        fakeTimer.AdvanceTimeBySeconds(2);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Standby));
+        
+        table.SetState(TableState.Off);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Off));
+        Assert.That(table.LatestSessions.usageCount, Is.EqualTo(2));
+    }
 }
 
 

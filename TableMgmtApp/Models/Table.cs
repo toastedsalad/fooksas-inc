@@ -13,10 +13,11 @@ public class Table {
     public TableState State { get; private set; } = TableState.Off;
     public int PauseTimer { get; private set; }
     public PlaySession Session { get; private set; }
-    public DateTime PauseStart { get; set; }
+    public DateTime PauseStart { get; private set; }
+    public RingBuffer<PlaySession> LatestSessions { get; private set; } = 
+        new RingBuffer<PlaySession>(3);
 
     ITimeProvider _timeProvider;
-    // TODO: Keep a record of last three sessions.
 
     public Table(int id, ITimeProvider timeProvider, int pauseTimer = 1) {
         Id = id;
@@ -43,8 +44,8 @@ public class Table {
 
         if (State == TableState.Standby && newState == TableState.Off) {
             State = TableState.Off;
+            LatestSessions.EnQueue(Session);
             Session.Stop();
-            // TODO: And add a completed session to the list of sessions.
         }
 
         if (State == TableState.Standby && newState == TableState.PlayOn) {
