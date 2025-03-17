@@ -234,14 +234,38 @@ public class TableModelTest {
         Assert.That(table.State, Is.EqualTo(TableState.Off));
     }
 
-    // We are reusing the same session each time.
-    // We must create new session.
     [Test]
     public void WhenStoppedAndStartedANewUniqueSessionIsCreated() {
         var fakeTimer = new FakeTimeProvider();
         var table = new Table(1, fakeTimer, 1);
 
+        table.SetStateBySwitch(TableState.Play);
+        table.SetStateBySwitch(TableState.Off);
+
+        fakeTimer.AdvanceTimeBySeconds(2);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Standby));
+        
+        table.SetStateBySwitch(TableState.Off);
+
         Assert.That(table.State, Is.EqualTo(TableState.Off));
+
+        Assert.That(table.LatestSessions.IsEmpty, Is.False);
+        Assert.That(table.LatestSessions.usageCount, Is.EqualTo(1));
+
+        table.SetStateBySwitch(TableState.Play);
+        table.SetStateBySwitch(TableState.Off);
+
+        fakeTimer.AdvanceTimeBySeconds(2);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Standby));
+        
+        table.SetStateBySwitch(TableState.Off);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Off));
+        Assert.That(table.LatestSessions.usageCount, Is.EqualTo(2));
+        Assert.That(table.LatestSessions.circularArray[0].Id, 
+                Is.Not.EqualTo(table.LatestSessions.circularArray[1].Id));
     }
 }
 
