@@ -10,6 +10,7 @@ public class PlaySession {
     private ITimeProvider _timeProvider;
     private DateTime _pauseStart;
     private bool _isTimedSession;
+    private TimeSpan _remainingTime;
 
     public PlaySession(ITimeProvider timeProvider) {
         _timeProvider = timeProvider;
@@ -18,6 +19,7 @@ public class PlaySession {
     public PlaySession(ITimeProvider timeProvider, TimeSpan timedSessionSpan) {
         _timeProvider = timeProvider;
         _isTimedSession = true;
+        _remainingTime = new TimeSpan();
         TimedSessionSpan = timedSessionSpan;
     }
 
@@ -31,19 +33,17 @@ public class PlaySession {
     }
 
     public TimeSpan GetRemainingPlayTime() {
-        var remainingTime = new TimeSpan();
-
         if (IsStopActive) {
-            remainingTime = TimedSessionSpan.Subtract(PlayTime);
+            _remainingTime = TimedSessionSpan.Subtract(PlayTime);
         }
         else {
-            remainingTime = TimedSessionSpan.Subtract(_timeProvider.Now - StartTime);
+            _remainingTime = TimedSessionSpan.Subtract(_timeProvider.Now - StartTime);
         }
 
-        if (remainingTime.TotalSeconds <= 0) {
+        if (_remainingTime.TotalSeconds <= 0) {
             Stop();
         }
-        return remainingTime;
+        return _remainingTime;
     }
 
     public void Start() {
