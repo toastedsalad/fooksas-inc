@@ -1,4 +1,3 @@
-
 namespace TableMgmtApp;
 
 public enum TableState {
