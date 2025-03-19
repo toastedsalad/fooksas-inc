@@ -306,6 +306,27 @@ public class PlaysessionModelTest {
         Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(9));
         Assert.That(session.IsStopActive, Is.False);
     }
+
+    // Time calcs here are messed up.
+    [Test]
+    public void TimedSessionTracksProperlyWhenTimePasses() {
+        var fakeTimer = new FakeTimeProvider();
+        var timedSessionSpan = new TimeSpan(0, 0, 10);
+        var session = new PlaySession(fakeTimer, timedSessionSpan);
+
+        session.Start();
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+
+        Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(7));
+        Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(3));
+        Assert.That(session.IsStopActive, Is.False);
+
+        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+
+        Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
+        Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(6));
+        Assert.That(session.IsStopActive, Is.False);
+    }
 }
 
 

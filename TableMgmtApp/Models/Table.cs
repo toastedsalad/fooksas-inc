@@ -34,7 +34,7 @@ public class Table {
         }
     }
 
-    public void SetStanby() {
+    public void SetStandby() {
         if (State == TableState.Play || State == TableState.Paused) {
             Standby();
         }

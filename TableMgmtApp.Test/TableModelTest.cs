@@ -217,7 +217,7 @@ public class TableModelTest {
         var table = new Table(1, fakeTimer, 1);
 
         table.SetPlay();
-        table.SetStanby();
+        table.SetStandby();
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
     }
@@ -228,7 +228,7 @@ public class TableModelTest {
         var table = new Table(1, fakeTimer, 1);
 
         table.SetPlay();
-        table.SetStanby();
+        table.SetStandby();
         table.SetOff();
 
         Assert.That(table.State, Is.EqualTo(TableState.Off));
@@ -268,7 +268,6 @@ public class TableModelTest {
                 Is.Not.EqualTo(table.LatestSessions.circularArray[1].Id));
     }
 
-    // Test session control from table more.
     [Test]
     public void TableCanRunAndTrackATimedSession() {
         var fakeTimer = new FakeTimeProvider();
@@ -283,6 +282,67 @@ public class TableModelTest {
         fakeTimer.AdvanceTimeBySeconds(2);
         Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(8));
     }
+
+    [Test]
+    public void WhenTableStopsTimedSessionPlayTimeDoesntCount() {
+        var fakeTimer = new FakeTimeProvider();
+        var table = new Table(1, fakeTimer, 1);
+
+        table.SetPlay(10);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Play));
+        Assert.That((int)table.Session.TimedSessionSpan.TotalSeconds, Is.EqualTo(10));
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(10));
+
+        fakeTimer.AdvanceTimeBySeconds(2);
+
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(8));
+
+        table.SetStandby();
+
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(8));
+        Assert.That(table.State, Is.EqualTo(TableState.Standby));
+
+        table.SetPlay();
+        fakeTimer.AdvanceTimeBySeconds(2);
+
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(6));
+        Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(4));
+        Assert.That(table.State, Is.EqualTo(TableState.Play));
+        
+        table.SetStandby();
+        fakeTimer.AdvanceTimeBySeconds(2);
+
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
+        Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(6));
+        Assert.That(table.State, Is.EqualTo(TableState.Standby));
+
+        table.SetPlay();
+        fakeTimer.AdvanceTimeBySeconds(2);
+
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(2));
+        Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(8));
+        Assert.That(table.State, Is.EqualTo(TableState.Play));
+    }
+
+    // [Test]
+    // public void WhenTimedSessionExpiresTableGoesToStandby() {
+    //     var fakeTimer = new FakeTimeProvider();
+    //     var table = new Table(1, fakeTimer, 1);
+
+    //     table.SetPlay(10);
+    //     fakeTimer.AdvanceTimeBySeconds(2);
+
+    //     Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(8));
+    //     Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(2));
+    //     Assert.That(table.State, Is.EqualTo(TableState.Play));
+
+    //     fakeTimer.AdvanceTimeBySeconds(8);
+
+    //     Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(0));
+    //     // Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(10));
+    //     // Assert.That(table.State, Is.EqualTo(TableState.Standby));
+    // }
 }
 
 
