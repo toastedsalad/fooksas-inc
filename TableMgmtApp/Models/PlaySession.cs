@@ -23,21 +23,26 @@ public class PlaySession {
         TimedSessionSpan = timedSessionSpan;
     }
 
-    public TimeSpan GetPlayTime() {
+    public TimeSpan GetPlayTime(bool setTime = true) {
         if (IsStopActive) {
             return PlayTime;
         }
 
-        PlayTime += _timeProvider.Now - StartTime;
-        return PlayTime;
+        if (setTime) {
+            PlayTime += _timeProvider.Now - StartTime;
+            return PlayTime;
+        }
+        else {
+            return _timeProvider.Now - StartTime + PlayTime;
+        }
     }
 
     public TimeSpan GetRemainingPlayTime() {
         if (IsStopActive) {
             _remainingTime = TimedSessionSpan.Subtract(PlayTime);
-        }
+        } 
         else {
-            _remainingTime = TimedSessionSpan.Subtract(_timeProvider.Now - StartTime);
+            _remainingTime = TimedSessionSpan.Subtract(GetPlayTime(false));
         }
 
         if (_remainingTime.TotalSeconds <= 0) {

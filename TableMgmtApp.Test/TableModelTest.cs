@@ -267,6 +267,22 @@ public class TableModelTest {
         Assert.That(table.LatestSessions.circularArray[0].Id, 
                 Is.Not.EqualTo(table.LatestSessions.circularArray[1].Id));
     }
+
+    // Test session control from table more.
+    [Test]
+    public void TableCanRunAndTrackATimedSession() {
+        var fakeTimer = new FakeTimeProvider();
+        var table = new Table(1, fakeTimer, 1);
+
+        table.SetPlay(10);
+
+        Assert.That(table.State, Is.EqualTo(TableState.Play));
+        Assert.That((int)table.Session.TimedSessionSpan.TotalSeconds, Is.EqualTo(10));
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(10));
+
+        fakeTimer.AdvanceTimeBySeconds(2);
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(8));
+    }
 }
 
 

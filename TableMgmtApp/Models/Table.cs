@@ -24,10 +24,10 @@ public class Table {
         _timeProvider = timeProvider;
     }
 
-    public void SetPlay() {
+    public void SetPlay(int timedSeconds = 0) {
         if (State == TableState.Off) {
-            Play();
-        }
+            Play(timedSeconds);
+        } 
         else {
             State = TableState.Play;
             Session.Resume();
@@ -48,7 +48,7 @@ public class Table {
 
     public void SetStateBySwitch(TableState newState) {
         if (State == TableState.Off && newState == TableState.Play) {
-            Play();
+            Play(0);
         }
 
         if (State == TableState.Play && newState == TableState.Off) {
@@ -71,9 +71,14 @@ public class Table {
         }
     }
 
-    private void Play() {
+    private void Play(int timedSeconds) {
         State = TableState.Play;
-        Session = new PlaySession(_timeProvider);
+        if (timedSeconds == 0) {
+            Session = new PlaySession(_timeProvider);
+        }
+        else {
+            Session = new PlaySession(_timeProvider, new TimeSpan(0, 0, timedSeconds));
+        }
         Session.Start();
     }
 
@@ -94,6 +99,5 @@ public class Table {
             Standby();
         }
     }
-
 }
 
