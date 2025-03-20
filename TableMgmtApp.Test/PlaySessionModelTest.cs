@@ -4,8 +4,9 @@ namespace TableMgmtApp.Test;
 public class PlaysessionModelTest {
     [Test]
     public void WhenSessionStartItStarts() {
-        var systemTimer = new SystemTimeProvider();
-        var session = new PlaySession(systemTimer);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
         session.Start();
 
         Assert.That(session.StartTime.Minute, Is.EqualTo(DateTime.Now.Minute));
@@ -15,10 +16,11 @@ public class PlaysessionModelTest {
 
     [Test]
     public void SessionElapsedTimeDisplayHowMuchTimeWasPlayed() {
-        var systemTimer = new SystemTimeProvider();
-        var session = new PlaySession(systemTimer);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
         session.Start();
-        Thread.Sleep(1 * 1000);
+        fakeTimer.TriggerElapsed();
         var gameTime = session.GetPlayTime().TotalSeconds;
 
         Assert.That((int)gameTime, Is.EqualTo(1));
@@ -26,9 +28,10 @@ public class PlaysessionModelTest {
 
     [Test]
     public void PlaySessionTakesInCustomTimer() {
-        var fakeTimer = new FakeTimeProvider();
-        fakeTimer.Now = new DateTime(2025, 12, 28);
-        var session = new PlaySession(fakeTimer);
+        var fakeTimeProvider = new FakeTimeProvider();
+        fakeTimeProvider.Now = new DateTime(2025, 12, 28);
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
         session.Start();
 
         Assert.That(session.StartTime.Day, Is.EqualTo(28));
@@ -36,25 +39,29 @@ public class PlaysessionModelTest {
 
     [Test]
     public void WhenTimeIncreasesWithFakerTimerPlayTimeIncreasesAsWell() {
-        var fakeTimer = new FakeTimeProvider();
-        var session = new PlaySession(fakeTimer);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
 
         session.Start();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         var gametime = session.GetPlayTime().TotalSeconds;
 
-        Assert.That((int)gametime, Is.EqualTo(5));
+        Assert.That((int)gametime, Is.EqualTo(3));
     }
 
     [Test]
     public void WhenSessionIsPausedGameTimeDoesNotIncrease() {
-        var fakeTimer = new FakeTimeProvider();
-        var session = new PlaySession(fakeTimer);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
 
         session.Start();
+        // TODO: Can we somehow check timer state?
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
 
         var gametime = session.GetPlayTime().TotalSeconds;
 
@@ -62,30 +69,34 @@ public class PlaysessionModelTest {
     }
 
     [Test]
-    public void SeesionCanBeResumedFromPause() {
-        var fakeTimer = new FakeTimeProvider();
-        var session = new PlaySession(fakeTimer);
+    public void SesionCanBeResumedFromPause() {
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
 
         session.Start();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         var gametime = session.GetPlayTime().TotalSeconds;
 
-        Assert.That((int)gametime, Is.EqualTo(5));
+        Assert.That((int)gametime, Is.EqualTo(3));
     }
 
     [Test]
     public void WhenSessionIsPausedReturnLastPlayTime() {
-        var fakeTimer = new FakeTimeProvider();
-        var session = new PlaySession(fakeTimer);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
 
         session.Start();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
 
         var gametime = session.GetPlayTime().TotalSeconds;
 
@@ -94,15 +105,19 @@ public class PlaysessionModelTest {
 
     [Test]
     public void WhenSessionIsPausedAndResumedReturnPlayTimeWithoutPause() {
-        var fakeTimer = new FakeTimeProvider();
-        var session = new PlaySession(fakeTimer);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
 
         session.Start();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         var gametime = session.GetPlayTime().TotalSeconds;
 
@@ -111,19 +126,24 @@ public class PlaysessionModelTest {
 
     [Test]
     public void WhenSessionIsPausedAndResumedAndStoppedReturnPlayTimeWithoutPauses() {
-        var fakeTimer = new FakeTimeProvider();
-        var session = new PlaySession(fakeTimer);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
 
         session.Start();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         var gametime = session.GetPlayTime().TotalSeconds;
 
@@ -132,21 +152,25 @@ public class PlaysessionModelTest {
 
     [Test]
     public void WhenSessionIsResumedMultipleTimesAndStoppedAtTheEndItReturnsPlayTime() {
-        var fakeTimer = new FakeTimeProvider();
-        var session = new PlaySession(fakeTimer);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
 
         session.Start();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
 
         var gametime = session.GetPlayTime().TotalSeconds;
 
@@ -155,19 +179,18 @@ public class PlaysessionModelTest {
 
     [Test]
     public void WhenPausingMultipleTimesItCountsAsOneTime() {
-        var fakeTimer = new FakeTimeProvider();
-        var session = new PlaySession(fakeTimer);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
 
         session.Start();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
 
         var gametime = session.GetPlayTime().TotalSeconds;
 
@@ -176,20 +199,36 @@ public class PlaysessionModelTest {
 
     [Test]
     public void WhenResumingMultipleTimesItCountsAsOneTime() {
-        var fakeTimer = new FakeTimeProvider();
-        var session = new PlaySession(fakeTimer);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
 
         session.Start();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         var gametime = session.GetPlayTime().TotalSeconds;
 
@@ -198,33 +237,44 @@ public class PlaysessionModelTest {
 
     [Test]
     public void PlaySessionHasTimedSessionSpan() {
-        var fakeTimer = new FakeTimeProvider();
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 5);
-        var session = new PlaySession(fakeTimer, timedSessionSpan);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
         
         Assert.That(session.TimedSessionSpan.TotalSeconds, Is.EqualTo(5));
     }
 
     [Test]
     public void WhenTimeProceedsRemainingTimesGoesDown() {
-        var fakeTimer = new FakeTimeProvider();
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 5);
-        var session = new PlaySession(fakeTimer, timedSessionSpan);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
         session.Start();
 
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
     
         Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(0));
     }
 
     [Test]
     public void WhenTimedSessionExpiresItIsStopped() {
-        var fakeTimer = new FakeTimeProvider();
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 5);
-        var session = new PlaySession(fakeTimer, timedSessionSpan);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
         session.Start();
 
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
     
         Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(0));
         Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(5));
@@ -233,14 +283,16 @@ public class PlaysessionModelTest {
 
     [Test]
     public void WhenTimerIsStoppedTimedSessionCounterDoesntGoDown() {
-        var fakeTimer = new FakeTimeProvider();
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var session = new PlaySession(fakeTimer, timedSessionSpan);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
 
         session.Start();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
 
         Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(7));
         Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(3));
@@ -249,16 +301,20 @@ public class PlaysessionModelTest {
 
     [Test]
     public void WhenTimedSessionIsStoppedAndResumedPausedTimeDoesntCount() {
-        var fakeTimer = new FakeTimeProvider();
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var session = new PlaySession(fakeTimer, timedSessionSpan);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
 
         session.Start();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
         Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(6));
@@ -267,18 +323,21 @@ public class PlaysessionModelTest {
 
     [Test]
     public void WhenTimedSessionIsStoppedAndResumedAndStoppedPausedTimeDoesntCount() {
-        var fakeTimer = new FakeTimeProvider();
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var session = new PlaySession(fakeTimer, timedSessionSpan);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
 
         session.Start();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
 
         Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
         Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(6));
@@ -287,41 +346,50 @@ public class PlaysessionModelTest {
 
     [Test]
     public void WhenSessionsIsStoppedAndResumedMultipleTimesPausedTimeDoesntCount() {
-        var fakeTimer = new FakeTimeProvider();
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var session = new PlaySession(fakeTimer, timedSessionSpan);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
 
         session.Start();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         session.Stop();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(5);
         session.Resume();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(1));
         Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(9));
         Assert.That(session.IsStopActive, Is.False);
     }
 
-    // Time calcs here are messed up.
     [Test]
     public void TimedSessionTracksProperlyWhenTimePasses() {
-        var fakeTimer = new FakeTimeProvider();
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var session = new PlaySession(fakeTimer, timedSessionSpan);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
 
         session.Start();
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(7));
         Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(3));
         Assert.That(session.IsStopActive, Is.False);
 
-        fakeTimer.Now = fakeTimer.Now + TimeSpan.FromSeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
         Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(6));

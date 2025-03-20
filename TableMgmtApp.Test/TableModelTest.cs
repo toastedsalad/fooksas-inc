@@ -4,15 +4,17 @@ namespace TableMgmtApp.Test;
 public class TableModelTest {
     [Test]
     public void WhenNewTableInitializedItHasAttributes() {
-        var systemTimer = new SystemTimeProvider();
-        var table = new Table(1, systemTimer);
+        var systemTimeProvider = new SystemTimeProvider();
+        var systemTimer = new RealTimer(1000);
+        var table = new Table(1, systemTimeProvider, systemTimer);
         Assert.That(table.Id, Is.EqualTo(1));
     }
 
     [Test]
     public void WhenNewTableInitializedFourStatesAreAllowed() {
-        var systemTimer = new SystemTimeProvider();
-        var table = new Table(1, systemTimer);
+        var systemTimeProvider = new SystemTimeProvider();
+        var systemTimer = new RealTimer(1000);
+        var table = new Table(1, systemTimeProvider, systemTimer);
 
         table.SetStateBySwitch(TableState.Play);
         Assert.That(Enum.IsDefined(typeof(TableState), table.State));
@@ -37,8 +39,10 @@ public class TableModelTest {
 
     [Test]
     public void WhenTableIsInPlayOnItCanOnlyBeSetToPausedFirstWhenOffIsSent() {
-        var systemTimer = new SystemTimeProvider();
-        var table = new Table(1, systemTimer);
+        var systemTimeProvider = new SystemTimeProvider();
+        var systemTimer = new RealTimer(1000);
+        var table = new Table(1, systemTimeProvider, systemTimer);
+
         table.SetStateBySwitch(TableState.Play);
         table.SetStateBySwitch(TableState.Off);
 
@@ -47,53 +51,59 @@ public class TableModelTest {
 
     [Test]
     public void TableHasAPauseTimer () {
-        var systemTimer = new SystemTimeProvider();
-        var table = new Table(1, systemTimer, 5);
+        var systemTimeProvider = new SystemTimeProvider();
+        var systemTimer = new RealTimer(1000);
+        var table = new Table(1, systemTimeProvider, systemTimer, 5);
 
         Assert.That(table.PauseTimer, Is.EqualTo(5));
     }
 
     [Test]
     public void IfTableIsInPauseItCanTransitionToStandByAfterPauseTimerExpires() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1); // Pause timer expires.
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1); // Pause timer expires.
         table.SetStateBySwitch(TableState.Play);
         table.SetStateBySwitch(TableState.Off);
 
         Assert.That(table.State, Is.EqualTo(TableState.Paused));
 
-        fakeTimer.AdvanceTimeBySeconds(2);
+        fakeTimeProvider.AdvanceTimeBySeconds(2);
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
     }
     
     [Test]
     public void WhenTableIsInPauseSendingPlayWithinTimerWillSetItToPlay() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 2);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 2);
         table.SetStateBySwitch(TableState.Play);
         table.SetStateBySwitch(TableState.Off);
 
         Assert.That(table.State, Is.EqualTo(TableState.Paused));
 
-        fakeTimer.AdvanceTimeBySeconds(1);
+        fakeTimer.TriggerElapsed();
         table.SetStateBySwitch(TableState.Play);
 
         Assert.That(table.State, Is.EqualTo(TableState.Play));
 
-        fakeTimer.AdvanceTimeBySeconds(3);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         Assert.That(table.State, Is.EqualTo(TableState.Play));
     }
 
     [Test]
     public void WhenTableStateIsInStandbySendingOffWillOffTheTable() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
         table.SetStateBySwitch(TableState.Play);
         table.SetStateBySwitch(TableState.Off);
 
-        fakeTimer.AdvanceTimeBySeconds(2);
+        fakeTimeProvider.AdvanceTimeBySeconds(2);
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
         
@@ -104,8 +114,9 @@ public class TableModelTest {
 
     [Test]
     public void WhenTableIsOffSettingOnSetsAGuid() {
-        var systemTimer = new SystemTimeProvider();
-        var table = new Table(1, systemTimer, 1);
+        var systemTimeProvider = new SystemTimeProvider();
+        var systemTimer = new RealTimer(1000);
+        var table = new Table(1, systemTimeProvider, systemTimer, 1);
         table.SetStateBySwitch(TableState.Play);
 
         Assert.That(table.Session.Id, Is.Not.EqualTo(Guid.Empty));
@@ -113,8 +124,9 @@ public class TableModelTest {
 
     [Test]
     public void WhenTableIsOffSettingOnSetsASessionTimer() {
-        var systemTimer = new SystemTimeProvider();
-        var table = new Table(1, systemTimer, 1);
+        var systemTimeProvider = new SystemTimeProvider();
+        var systemTimer = new RealTimer(1000);
+        var table = new Table(1, systemTimeProvider, systemTimer, 1);
         table.SetStateBySwitch(TableState.Play);
 
         Assert.That(table.Session.StartTime.Minute, Is.EqualTo(DateTime.Now.Minute));
@@ -122,12 +134,13 @@ public class TableModelTest {
 
     [Test]
     public void WhenTableIsInStandBySettingPlayOnWillContinueTheGame() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
         table.SetStateBySwitch(TableState.Play);
         table.SetStateBySwitch(TableState.Off);
 
-        fakeTimer.AdvanceTimeBySeconds(2);
+        fakeTimeProvider.AdvanceTimeBySeconds(2);
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
 
@@ -138,8 +151,9 @@ public class TableModelTest {
 
     [Test]
     public void TableHoldsLatestThreeSessions() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
 
         Assert.That(table.LatestSessions.circularArray.Length, Is.EqualTo(3));
         Assert.That(table.LatestSessions.IsEmpty, Is.True);
@@ -147,13 +161,16 @@ public class TableModelTest {
 
     [Test]
     public void WhenTableSessionIsStoppedItIsAddedToRingBuffer() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
 
         table.SetStateBySwitch(TableState.Play);
         table.SetStateBySwitch(TableState.Off);
+        
+        Assert.That(table.State, Is.EqualTo(TableState.Paused));
 
-        fakeTimer.AdvanceTimeBySeconds(2);
+        fakeTimeProvider.AdvanceTimeBySeconds(2);
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
         
@@ -166,13 +183,14 @@ public class TableModelTest {
 
     [Test]
     public void OneTableCanCreateManySesssions() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
 
         table.SetStateBySwitch(TableState.Play);
         table.SetStateBySwitch(TableState.Off);
 
-        fakeTimer.AdvanceTimeBySeconds(2);
+        fakeTimeProvider.AdvanceTimeBySeconds(2);
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
         
@@ -186,7 +204,7 @@ public class TableModelTest {
         table.SetStateBySwitch(TableState.Play);
         table.SetStateBySwitch(TableState.Off);
 
-        fakeTimer.AdvanceTimeBySeconds(2);
+        fakeTimeProvider.AdvanceTimeBySeconds(2);
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
         
@@ -195,11 +213,12 @@ public class TableModelTest {
         Assert.That(table.State, Is.EqualTo(TableState.Off));
         Assert.That(table.LatestSessions.usageCount, Is.EqualTo(2));
     }
-    
+
     [Test]
     public void WhenTableIsSetToPlayOnNewSessionStartsOrItDoesNoting() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
 
         table.SetPlay();
 
@@ -213,8 +232,9 @@ public class TableModelTest {
 
     [Test]
     public void WhenTableIsSetToStandByTheSessionIsStopped() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
 
         table.SetPlay();
         table.SetStandby();
@@ -224,8 +244,9 @@ public class TableModelTest {
 
     [Test]
     public void WhenTableIsSetToOffSessionIsStoppedAndMovedToArchive() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
 
         table.SetPlay();
         table.SetStandby();
@@ -236,13 +257,16 @@ public class TableModelTest {
 
     [Test]
     public void WhenStoppedAndStartedANewUniqueSessionIsCreated() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
 
         table.SetStateBySwitch(TableState.Play);
         table.SetStateBySwitch(TableState.Off);
 
-        fakeTimer.AdvanceTimeBySeconds(2);
+        Assert.That(table.State, Is.EqualTo(TableState.Paused));
+
+        fakeTimeProvider.AdvanceTimeBySeconds(2);
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
         
@@ -256,7 +280,9 @@ public class TableModelTest {
         table.SetStateBySwitch(TableState.Play);
         table.SetStateBySwitch(TableState.Off);
 
-        fakeTimer.AdvanceTimeBySeconds(2);
+        Assert.That(table.State, Is.EqualTo(TableState.Paused));
+
+        fakeTimeProvider.AdvanceTimeBySeconds(2);
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
         
@@ -270,8 +296,9 @@ public class TableModelTest {
 
     [Test]
     public void TableCanRunAndTrackATimedSession() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
 
         table.SetPlay(10);
 
@@ -279,14 +306,16 @@ public class TableModelTest {
         Assert.That((int)table.Session.TimedSessionSpan.TotalSeconds, Is.EqualTo(10));
         Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(10));
 
-        fakeTimer.AdvanceTimeBySeconds(2);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
         Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(8));
     }
 
     [Test]
     public void WhenTableStopsTimedSessionPlayTimeDoesntCount() {
-        var fakeTimer = new FakeTimeProvider();
-        var table = new Table(1, fakeTimer, 1);
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
 
         table.SetPlay(10);
 
@@ -294,7 +323,8 @@ public class TableModelTest {
         Assert.That((int)table.Session.TimedSessionSpan.TotalSeconds, Is.EqualTo(10));
         Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(10));
 
-        fakeTimer.AdvanceTimeBySeconds(2);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(8));
 
@@ -304,45 +334,58 @@ public class TableModelTest {
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
 
         table.SetPlay();
-        fakeTimer.AdvanceTimeBySeconds(2);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(6));
         Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(4));
         Assert.That(table.State, Is.EqualTo(TableState.Play));
         
         table.SetStandby();
-        fakeTimer.AdvanceTimeBySeconds(2);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
         Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(6));
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
 
         table.SetPlay();
-        fakeTimer.AdvanceTimeBySeconds(2);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
         Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(2));
         Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(8));
         Assert.That(table.State, Is.EqualTo(TableState.Play));
     }
 
-    // [Test]
-    // public void WhenTimedSessionExpiresTableGoesToStandby() {
-    //     var fakeTimer = new FakeTimeProvider();
-    //     var table = new Table(1, fakeTimer, 1);
+    // Back to this test...
+    [Test]
+    public void WhenTimedSessionExpiresTableGoesToStandby() {
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new Table(1, fakeTimeProvider, fakeTimer, 1);
 
-    //     table.SetPlay(10);
-    //     fakeTimer.AdvanceTimeBySeconds(2);
+        table.SetPlay(10);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
-    //     Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(8));
-    //     Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(2));
-    //     Assert.That(table.State, Is.EqualTo(TableState.Play));
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(8));
+        Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(2));
+        Assert.That(table.State, Is.EqualTo(TableState.Play));
 
-    //     fakeTimer.AdvanceTimeBySeconds(8);
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
 
-    //     Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(0));
-    //     // Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(10));
-    //     // Assert.That(table.State, Is.EqualTo(TableState.Standby));
-    // }
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(0));
+        Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(10));
+        Assert.That(table.State, Is.EqualTo(TableState.Standby));
+    }
 }
 
 

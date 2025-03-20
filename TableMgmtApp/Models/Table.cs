@@ -17,11 +17,13 @@ public class Table {
         new RingBuffer<PlaySession>(3);
 
     ITimeProvider _timeProvider;
+    ITimer _timer;
 
-    public Table(int id, ITimeProvider timeProvider, int pauseTimer = 1) {
+    public Table(int id, ITimeProvider timeProvider, ITimer timer, int pauseTimer = 1) {
         Id = id;
         PauseTimer = pauseTimer;
         _timeProvider = timeProvider;
+        _timer = timer;
     }
 
     public void SetPlay(int timedSeconds = 0) {
@@ -74,10 +76,10 @@ public class Table {
     private void Play(int timedSeconds) {
         State = TableState.Play;
         if (timedSeconds == 0) {
-            Session = new PlaySession(_timeProvider);
+            Session = new PlaySession(_timeProvider, _timer);
         }
         else {
-            Session = new PlaySession(_timeProvider, new TimeSpan(0, 0, timedSeconds));
+            Session = new PlaySession(_timeProvider, new TimeSpan(0, 0, timedSeconds), _timer);
         }
         Session.Start();
     }
