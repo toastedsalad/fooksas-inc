@@ -19,7 +19,8 @@ public class Table {
     ITimeProvider _timeProvider;
     ITimer _timer;
 
-    public Table(int id, ITimeProvider timeProvider, ITimer timer, int pauseTimer = 1) {
+    public Table(int id, ITimeProvider timeProvider, ITimer timer, 
+                 int pauseTimer = 1) {
         Id = id;
         PauseTimer = pauseTimer;
         _timeProvider = timeProvider;
@@ -79,7 +80,7 @@ public class Table {
             Session = new PlaySession(_timeProvider, _timer);
         }
         else {
-            Session = new PlaySession(_timeProvider, new TimeSpan(0, 0, timedSeconds), _timer);
+            Session = new PlaySession(_timeProvider, new TimeSpan(0, 0, timedSeconds), _timer, this);
         }
         Session.Start();
     }
@@ -93,6 +94,7 @@ public class Table {
         State = TableState.Off;
         LatestSessions.EnQueue(Session);
         Session.Stop();
+        Session = null!;
     }
 
     public async void StartPauseTimer() {

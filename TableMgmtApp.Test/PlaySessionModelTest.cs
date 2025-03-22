@@ -240,7 +240,8 @@ public class PlaysessionModelTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 5);
-        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
+        var table = new Table(1, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer, table);
         
         Assert.That(session.TimedSessionSpan.TotalSeconds, Is.EqualTo(5));
     }
@@ -250,7 +251,8 @@ public class PlaysessionModelTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 5);
-        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
+        var table = new Table(1, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer, table);
         session.Start();
 
         fakeTimer.TriggerElapsed();
@@ -267,7 +269,8 @@ public class PlaysessionModelTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 5);
-        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
+        var table = new Table(1, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer, table);
         session.Start();
 
         fakeTimer.TriggerElapsed();
@@ -286,7 +289,8 @@ public class PlaysessionModelTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
+        var table = new Table(1, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer, table);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -304,7 +308,8 @@ public class PlaysessionModelTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
+        var table = new Table(1, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer, table);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -326,7 +331,8 @@ public class PlaysessionModelTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
+        var table = new Table(1, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer, table);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -349,7 +355,8 @@ public class PlaysessionModelTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
+        var table = new Table(1, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer, table);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -376,7 +383,8 @@ public class PlaysessionModelTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer);
+        var table = new Table(1, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, timedSessionSpan, fakeTimer, table);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -394,6 +402,20 @@ public class PlaysessionModelTest {
         Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
         Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(6));
         Assert.That(session.IsStopActive, Is.False);
+    }
+    
+    [Test]
+    public void WhenSessionIsArchivedTheTimersAreDisposed() {
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var session = new PlaySession(fakeTimeProvider, fakeTimer);
+
+        session.Start();
+        fakeTimer.TriggerElapsed();
+
+        session.Stop(true);
+        Assert.That(session.IsStopActive, Is.True);
+        Assert.That(session.Timer, Is.EqualTo(null));
     }
 }
 

@@ -240,6 +240,7 @@ public class TableModelTest {
         table.SetStandby();
 
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
+        Assert.That(table.Session.IsStopActive, Is.True);
     }
 
     [Test]
@@ -253,6 +254,7 @@ public class TableModelTest {
         table.SetOff();
 
         Assert.That(table.State, Is.EqualTo(TableState.Off));
+        Assert.That(table.Session, Is.EqualTo(null));
     }
 
     [Test]
@@ -342,23 +344,20 @@ public class TableModelTest {
         Assert.That(table.State, Is.EqualTo(TableState.Play));
         
         table.SetStandby();
-        fakeTimer.TriggerElapsed();
-        fakeTimer.TriggerElapsed();
 
-        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
-        Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(6));
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(6));
+        Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(4));
         Assert.That(table.State, Is.EqualTo(TableState.Standby));
 
         table.SetPlay();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
 
-        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(2));
-        Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(8));
+        Assert.That((int)table.Session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
+        Assert.That((int)table.Session.GetPlayTime().TotalSeconds, Is.EqualTo(6));
         Assert.That(table.State, Is.EqualTo(TableState.Play));
     }
 
-    // Back to this test...
     [Test]
     public void WhenTimedSessionExpiresTableGoesToStandby() {
         var fakeTimeProvider = new FakeTimeProvider();

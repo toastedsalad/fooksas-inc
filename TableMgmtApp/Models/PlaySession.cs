@@ -7,25 +7,28 @@ public class PlaySession {
     public DateTime StartTime { get; private set; }
     public TimeSpan PlayTime { get; private set; } = TimeSpan.Zero;
     public TimeSpan TimedSessionSpan { get; }
-    public bool IsStopActive {get; private set; }
+    public bool IsStopActive { get; private set; }
+    public ITimer Timer { get; private set; }
 
     private ITimeProvider _timeProvider;
     private bool _isTimedSession;
     private TimeSpan _remainingTime;
-    private ITimer _timer;
+    private Table _table;
 
     public PlaySession(ITimeProvider timeProvider, ITimer timer) {
         _timeProvider = timeProvider;
-        _timer = timer;
+        Timer = timer;
+        _table = null!;
     }
 
     public PlaySession(ITimeProvider timeProvider, TimeSpan timedSessionSpan,
-                       ITimer timer) {
+                       ITimer timer, Table table) {
         _timeProvider = timeProvider;
         _isTimedSession = true;
         _remainingTime = new TimeSpan();
         TimedSessionSpan = timedSessionSpan;
-        _timer = timer;
+        Timer = timer;
+        _table = table;
     }
 
     public TimeSpan GetPlayTime(bool setTime = true) {
@@ -36,13 +39,14 @@ public class PlaySession {
         _remainingTime = TimedSessionSpan.Subtract(PlayTime);
 
         if (_remainingTime.TotalSeconds <= 0) {
+            _table.SetStandby();
             Stop();
         }
 
         return _remainingTime;
     }
 
-    private void TimedEvent(Object source, ElapsedEventArgs args) {
+    private void TimedEvent(Object? source, ElapsedEventArgs args) {
         PlayTime += TimeSpan.FromSeconds(1);
     }
 
@@ -50,19 +54,24 @@ public class PlaySession {
         Id = Guid.NewGuid();
         StartTime = _timeProvider.Now;
         IsStopActive = false;
-        _timer.Elapsed += TimedEvent;
-        _timer.AutoReset = true;
-        _timer.Enabled = true;
+        Timer.Elapsed += TimedEvent;
+        Timer.AutoReset = true;
+        Timer.Enabled = true;
     }
 
-    public void Stop() {
+    public void Stop(bool disposeTimers = false) {
         if (IsStopActive) {
             return;
         }
 
         IsStopActive = true;
-        // TODO: When to dispose of the timer?
-        _timer.Stop();
+        Timer.Stop();
+
+        if (disposeTimers) {
+            Timer.Elapsed -= TimedEvent;
+            Timer.Dispose();
+            Timer = null!;
+        }
     }
 
     public void Resume() {
@@ -71,7 +80,7 @@ public class PlaySession {
         }
 
         IsStopActive = false;
-        _timer.Start();
+        Timer.Start();
     }
 }
 
