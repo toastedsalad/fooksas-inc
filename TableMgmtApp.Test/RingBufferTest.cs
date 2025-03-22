@@ -1,4 +1,4 @@
-namespace TableMgmtApp;
+namespace TableMgmtApp.Test;
 
 [Parallelizable(ParallelScope.All)]
 public class RingBufferTest {
