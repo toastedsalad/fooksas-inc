@@ -135,7 +135,8 @@ public class ScheduleTest {
                 "Price": 10.50
               }
             ]
-          }
+          },
+          "DefaultRate": 5.0,
         }
         """;
 
