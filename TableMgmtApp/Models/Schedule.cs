@@ -22,34 +22,30 @@ public class TimeRate {
 
 // Make Schedule a record.
 // Have Schedule service to get current rate and serialize.
-public class Schedule {
+public record Schedule {
     public Dictionary<DayOfWeek, List<TimeRate>> WeeklyRates { get; set; } = new();
     public decimal DefaultRate { get; set; } = 5.0m;
-    public ITimeProvider TimeProvider { get; set; } = new SystemTimeProvider();
 
-    public Schedule (ITimeProvider timeprovider) {
-        TimeProvider = timeprovider;
-    }
-
-    [JsonConstructor] 
     public Schedule () {}
+}
 
-    public decimal GetCurrentRate() {
-        var today = TimeProvider.Now.DayOfWeek;
+public class ScheduleService {
+    public static decimal GetCurrentRate(Schedule schedule, ITimeProvider timeProvider) {
+        var today = timeProvider.Now.DayOfWeek;
 
-        if (WeeklyRates.TryGetValue(today, out var timeRates)) {
+        if (schedule.WeeklyRates.TryGetValue(today, out var timeRates)) {
             foreach (var rate in timeRates) {
-                if (rate.IsNowInRange(TimeProvider)) {
+                if (rate.IsNowInRange(timeProvider)) {
                     return rate.Price;
                 }
             }
         }
 
-        return DefaultRate;
+        return schedule.DefaultRate;
     }
 
-    public string ToJson() {
-        return JsonSerializer.Serialize(this, new JsonSerializerOptions {WriteIndented = true});
+    public static string ToJson(Schedule schedule) {
+        return JsonSerializer.Serialize(schedule, new JsonSerializerOptions {WriteIndented = true});
     }
 
     public static Schedule FromJson(string json) {

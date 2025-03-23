@@ -33,7 +33,7 @@ public class ScheduleTest {
         
         var fakeTimeProvider = new FakeTimeProvider();
         fakeTimeProvider.Now = new DateTime(2025, 12, 28, 9, 30, 0);
-        var schedule = new Schedule(fakeTimeProvider);
+        var schedule = new Schedule();
         var mondaySchedule = new List<TimeRate> {
             timeRangeRate
         };
@@ -51,20 +51,20 @@ public class ScheduleTest {
         
         var fakeTimeProvider = new FakeTimeProvider();
         fakeTimeProvider.Now = new DateTime(2025, 03, 17, 9, 30, 0);
-        var schedule = new Schedule(fakeTimeProvider);
+        var schedule = new Schedule();
         var mondaySchedule = new List<TimeRate> {
             timeRangeRate
         };
 
         schedule.WeeklyRates.Add(DayOfWeek.Monday, mondaySchedule);
 
-        var currentRate = schedule.GetCurrentRate();
+        var currentRate = ScheduleService.GetCurrentRate(schedule, fakeTimeProvider);
 
         Assert.That(schedule.WeeklyRates.ContainsKey(DayOfWeek.Monday), Is.True);
         Assert.That(currentRate, Is.EqualTo(10.50m));
 
         fakeTimeProvider.Now = new DateTime(2025, 03, 17, 12, 30, 0);
-        currentRate = schedule.GetCurrentRate();
+        currentRate = ScheduleService.GetCurrentRate(schedule, fakeTimeProvider);
         Assert.That(currentRate, Is.EqualTo(5.0m));
     }
 
@@ -87,7 +87,7 @@ public class ScheduleTest {
                                            10.50m);
 
         var fakeTimeProvider = new FakeTimeProvider();
-        var schedule = new Schedule(fakeTimeProvider);
+        var schedule = new Schedule();
 
         var mondaySchedule = new List<TimeRate> {
             timeRangeRate11
@@ -136,11 +136,11 @@ public class ScheduleTest {
               }
             ]
           },
-          "DefaultRate": 5.0,
+          "DefaultRate": 5.0
         }
         """;
 
-        string actualJson = schedule.ToJson();
+        string actualJson = ScheduleService.ToJson(schedule);
 
         Assert.That(actualJson, Is.EqualTo(expectedJson));
     }
@@ -180,7 +180,7 @@ public class ScheduleTest {
         }
         """;
 
-        var actualSchedule = Schedule.FromJson(actualJson);
+        var actualSchedule = ScheduleService.FromJson(actualJson);
 
         Assert.That(actualSchedule.WeeklyRates.Count(), Is.EqualTo(3));
         Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Monday][0].Start, Is.EqualTo(new TimeSpan(9, 0, 0)));
@@ -197,10 +197,9 @@ public class ScheduleTest {
         Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][1].Price, Is.EqualTo(13.50m));
 
         var fakeTimeProvider = new FakeTimeProvider();
-        actualSchedule.TimeProvider = fakeTimeProvider; 
-
         fakeTimeProvider.Now = new DateTime(2025, 03, 26, 14, 30, 0);
-        var currentRate = actualSchedule.GetCurrentRate();
+        var currentRate = ScheduleService.GetCurrentRate(actualSchedule, fakeTimeProvider);
+
         Assert.That(currentRate, Is.EqualTo(13.50m));
     }
 }
