@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TableMgmtApp;
 
@@ -22,11 +24,14 @@ public class Schedule {
     public Dictionary<DayOfWeek, List<TimeRate>> WeeklyRates { get; set; } = new();
     public decimal DefaultRate = 5.0m;
 
-    private ITimeProvider _timeProvider;
+    private ITimeProvider _timeProvider = new SystemTimeProvider();
 
     public Schedule (ITimeProvider timeprovider) {
         _timeProvider = timeprovider;
     }
+
+    [JsonConstructor] 
+    public Schedule () {}
 
     public decimal GetCurrentRate() {
         var today = _timeProvider.Now.DayOfWeek;
@@ -40,6 +45,14 @@ public class Schedule {
         }
 
         return DefaultRate;
+    }
+
+    public string ToJson() {
+        return JsonSerializer.Serialize(this, new JsonSerializerOptions {WriteIndented = true});
+    }
+
+    public static Schedule FromJson(string json) {
+        return JsonSerializer.Deserialize<Schedule>(json);
     }
 }
 

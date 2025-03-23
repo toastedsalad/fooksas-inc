@@ -79,10 +79,10 @@ public class ScheduleTest {
                                            12.50m);
 
         var timeRangeRate31 = new TimeRate(new TimeSpan(9, 0, 0),
-                                           new TimeSpan(14, 0, 0),
+                                           new TimeSpan(13, 59, 59),
                                            10.50m);
 
-        var timeRangeRate32 = new TimeRate(new TimeSpan(14, 0, 1),
+        var timeRangeRate32 = new TimeRate(new TimeSpan(14, 0, 0),
                                            new TimeSpan(23, 59, 59),
                                            10.50m);
 
@@ -106,10 +106,93 @@ public class ScheduleTest {
         schedule.WeeklyRates.Add(DayOfWeek.Tuesday, tuesdaySchedule);
         schedule.WeeklyRates.Add(DayOfWeek.Wednesday, wednesdaySchedule);
 
-        var currentRate = schedule.GetCurrentRate();
+        string expectedJson = """
+        {
+          "WeeklyRates": {
+            "Monday": [
+              {
+                "Start": "09:00:00",
+                "End": "22:00:00",
+                "Price": 8.50
+              }
+            ],
+            "Tuesday": [
+              {
+                "Start": "10:00:00",
+                "End": "23:00:00",
+                "Price": 12.50
+              }
+            ],
+            "Wednesday": [
+              {
+                "Start": "09:00:00",
+                "End": "13:59:59",
+                "Price": 10.50
+              },
+              {
+                "Start": "14:00:00",
+                "End": "23:59:59",
+                "Price": 10.50
+              }
+            ]
+          }
+        }
+        """;
 
-        Assert.That(schedule.WeeklyRates.ContainsKey(DayOfWeek.Monday), Is.True);
-        Assert.That(currentRate, Is.EqualTo(10.50m));
+        string actualJson = schedule.ToJson();
+
+        Assert.That(actualJson, Is.EqualTo(expectedJson));
+    }
+
+    [Test]
+    public void ScheduleCanDeserializeFromJson() {
+        string actualJson = """
+        {
+          "WeeklyRates": {
+            "Monday": [
+              {
+                "Start": "09:00:00",
+                "End": "22:00:00",
+                "Price": 8.50
+              }
+            ],
+            "Tuesday": [
+              {
+                "Start": "10:00:00",
+                "End": "23:00:00",
+                "Price": 12.50
+              }
+            ],
+            "Wednesday": [
+              {
+                "Start": "09:00:00",
+                "End": "13:59:59",
+                "Price": 10.50
+              },
+              {
+                "Start": "14:00:00",
+                "End": "23:59:59",
+                "Price": 10.50
+              }
+            ]
+          }
+        }
+        """;
+
+        var actualSchedule = Schedule.FromJson(actualJson);
+
+        Assert.That(actualSchedule.WeeklyRates.Count(), Is.EqualTo(3));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Monday][0].Start, Is.EqualTo(new TimeSpan(9, 0, 0)));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Monday][0].End, Is.EqualTo(new TimeSpan(22, 0, 0)));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Monday][0].Price, Is.EqualTo(8.50m));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Tuesday][0].Start, Is.EqualTo(new TimeSpan(10, 0, 0)));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Tuesday][0].End, Is.EqualTo(new TimeSpan(23, 0, 0)));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Tuesday][0].Price, Is.EqualTo(12.50m));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][0].Start, Is.EqualTo(new TimeSpan(9, 0, 0)));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][0].End, Is.EqualTo(new TimeSpan(13, 59, 59)));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][0].Price, Is.EqualTo(10.50m));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][1].Start, Is.EqualTo(new TimeSpan(14, 0, 0)));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][1].End, Is.EqualTo(new TimeSpan(23, 59, 59)));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][1].Price, Is.EqualTo(10.50m));
     }
 }
-
