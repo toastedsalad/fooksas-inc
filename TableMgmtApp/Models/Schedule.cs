@@ -22,23 +22,22 @@ public class TimeRate {
 
 public class Schedule {
     public Dictionary<DayOfWeek, List<TimeRate>> WeeklyRates { get; set; } = new();
-    public decimal DefaultRate = 5.0m;
-
-    private ITimeProvider _timeProvider = new SystemTimeProvider();
+    public decimal DefaultRate { get; set; } = 5.0m;
+    public ITimeProvider TimeProvider { get; set; } = new SystemTimeProvider();
 
     public Schedule (ITimeProvider timeprovider) {
-        _timeProvider = timeprovider;
+        TimeProvider = timeprovider;
     }
 
     [JsonConstructor] 
     public Schedule () {}
 
     public decimal GetCurrentRate() {
-        var today = _timeProvider.Now.DayOfWeek;
+        var today = TimeProvider.Now.DayOfWeek;
 
         if (WeeklyRates.TryGetValue(today, out var timeRates)) {
             foreach (var rate in timeRates) {
-                if (rate.IsNowInRange(_timeProvider)) {
+                if (rate.IsNowInRange(TimeProvider)) {
                     return rate.Price;
                 }
             }

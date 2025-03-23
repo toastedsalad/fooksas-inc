@@ -172,7 +172,7 @@ public class ScheduleTest {
               {
                 "Start": "14:00:00",
                 "End": "23:59:59",
-                "Price": 10.50
+                "Price": 13.50
               }
             ]
           }
@@ -193,6 +193,13 @@ public class ScheduleTest {
         Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][0].Price, Is.EqualTo(10.50m));
         Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][1].Start, Is.EqualTo(new TimeSpan(14, 0, 0)));
         Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][1].End, Is.EqualTo(new TimeSpan(23, 59, 59)));
-        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][1].Price, Is.EqualTo(10.50m));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][1].Price, Is.EqualTo(13.50m));
+
+        var fakeTimeProvider = new FakeTimeProvider();
+        actualSchedule.TimeProvider = fakeTimeProvider; 
+
+        fakeTimeProvider.Now = new DateTime(2025, 03, 26, 14, 30, 0);
+        var currentRate = actualSchedule.GetCurrentRate();
+        Assert.That(currentRate, Is.EqualTo(13.50m));
     }
 }
