@@ -10,25 +10,28 @@ public class PlaySession {
     public bool IsStopActive { get; private set; }
     public ITimer Timer { get; private set; }
 
+    private decimal _price = 0.00m;
     private ITimeProvider _timeProvider;
     private bool _isTimedSession;
     private TimeSpan _remainingTime;
-    private Table _table;
+    private Table _table = null!;
+    private Schedule _schedule;
 
-    public PlaySession(ITimeProvider timeProvider, ITimer timer) {
+    public PlaySession(ITimeProvider timeProvider, ITimer timer, Schedule schedule) {
         _timeProvider = timeProvider;
         Timer = timer;
-        _table = null!;
+        _schedule = schedule;
     }
 
     public PlaySession(ITimeProvider timeProvider, TimeSpan timedSessionSpan,
-                       ITimer timer, Table table) {
+                       ITimer timer, Table table, Schedule schedule) {
         _timeProvider = timeProvider;
         _isTimedSession = true;
         _remainingTime = new TimeSpan();
         TimedSessionSpan = timedSessionSpan;
         Timer = timer;
         _table = table;
+        _schedule = schedule;
     }
 
     public TimeSpan GetPlayTime(bool setTime = true) {
@@ -46,8 +49,13 @@ public class PlaySession {
         return _remainingTime;
     }
 
+    public decimal GetSessionPrice() {
+        return Math.Round(_price, 2, MidpointRounding.ToEven);
+    }
+
     private void TimedEvent(Object? source, ElapsedEventArgs args) {
         PlayTime += TimeSpan.FromSeconds(1);
+        _price += ScheduleService.GetCurrentRate(_schedule, _timeProvider) / 60 / 60;
     }
 
     public void Start() {

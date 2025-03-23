@@ -15,6 +15,9 @@ public class Table {
     public DateTime PauseStart { get; private set; }
     public RingBuffer<PlaySession> LatestSessions { get; private set; } = 
         new RingBuffer<PlaySession>(3);
+    // Do I really want this to be a prop?
+    // Maybe we can have something that gets the schedule...
+    public Schedule Schedule { get; set; } = default!;
 
     ITimeProvider _timeProvider;
     ITimer _timer;
@@ -77,10 +80,11 @@ public class Table {
     private void Play(int timedSeconds) {
         State = TableState.Play;
         if (timedSeconds == 0) {
-            Session = new PlaySession(_timeProvider, _timer);
+            Session = new PlaySession(_timeProvider, _timer, Schedule);
         }
         else {
-            Session = new PlaySession(_timeProvider, new TimeSpan(0, 0, timedSeconds), _timer, this);
+            Session = new PlaySession(_timeProvider, new TimeSpan(0, 0, timedSeconds), 
+                                      _timer, this, Schedule);
         }
         Session.Start();
     }

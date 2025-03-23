@@ -86,7 +86,6 @@ public class ScheduleTest {
                                            new TimeSpan(23, 59, 59),
                                            10.50m);
 
-        var fakeTimeProvider = new FakeTimeProvider();
         var schedule = new Schedule();
 
         var mondaySchedule = new List<TimeRate> {

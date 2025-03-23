@@ -34,8 +34,6 @@ public class TimeRate {
     }
 }
 
-// Make Schedule a record.
-// Have Schedule service to get current rate and serialize.
 public record Schedule {
     public Dictionary<DayOfWeek, List<TimeRate>> WeeklyRates { get; set; } = new();
     public decimal DefaultRate { get; set; } = 5.0m;
