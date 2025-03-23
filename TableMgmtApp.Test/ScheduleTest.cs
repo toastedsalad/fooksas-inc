@@ -112,14 +112,14 @@ public class ScheduleTest {
             "Monday": [
               {
                 "Start": "09:00:00",
-                "End": "22:00:00",
+                "End": "21:59:59",
                 "Price": 8.50
               }
             ],
             "Tuesday": [
               {
                 "Start": "10:00:00",
-                "End": "23:00:00",
+                "End": "22:59:59",
                 "Price": 12.50
               }
             ],
@@ -184,10 +184,10 @@ public class ScheduleTest {
 
         Assert.That(actualSchedule.WeeklyRates.Count(), Is.EqualTo(3));
         Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Monday][0].Start, Is.EqualTo(new TimeSpan(9, 0, 0)));
-        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Monday][0].End, Is.EqualTo(new TimeSpan(22, 0, 0)));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Monday][0].End, Is.EqualTo(new TimeSpan(21, 59, 59)));
         Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Monday][0].Price, Is.EqualTo(8.50m));
         Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Tuesday][0].Start, Is.EqualTo(new TimeSpan(10, 0, 0)));
-        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Tuesday][0].End, Is.EqualTo(new TimeSpan(23, 0, 0)));
+        Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Tuesday][0].End, Is.EqualTo(new TimeSpan(22, 59, 59)));
         Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Tuesday][0].Price, Is.EqualTo(12.50m));
         Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][0].Start, Is.EqualTo(new TimeSpan(9, 0, 0)));
         Assert.That(actualSchedule.WeeklyRates[DayOfWeek.Wednesday][0].End, Is.EqualTo(new TimeSpan(13, 59, 59)));
@@ -201,5 +201,66 @@ public class ScheduleTest {
         var currentRate = ScheduleService.GetCurrentRate(actualSchedule, fakeTimeProvider);
 
         Assert.That(currentRate, Is.EqualTo(13.50m));
+    }
+
+    [Test]
+    public void WhenUserEntersEqualHourAsEndTimeTimeRateSubtractsOneSecond(){
+        var timeRangeRate = new TimeRate(new TimeSpan(9, 0, 0),
+                                         new TimeSpan(10, 0, 0),
+                                         10.50m);
+
+        Assert.That(timeRangeRate.End, Is.EqualTo(new TimeSpan(9, 59, 59)));
+    }
+
+    [Test]
+    public void WhenUserEntersEqualHourAsEndTimeTimeRateTheRateAtEqualHourIsNextRate(){
+        string scheduleJson = """
+        {
+          "WeeklyRates": {
+            "Wednesday": [
+              {
+                "Start": "09:00:00",
+                "End": "14:00:00",
+                "Price": 10.50
+              },
+              {
+                "Start": "14:00:00",
+                "End": "23:59:59",
+                "Price": 15.50
+              }
+            ]
+          }
+        }
+        """;
+
+        var schedule = ScheduleService.FromJson(scheduleJson);
+
+        var fakeTimeProvider = new FakeTimeProvider();
+        fakeTimeProvider.Now = new DateTime(2025, 03, 26, 14, 0, 0);
+
+        var currentRate = ScheduleService.GetCurrentRate(schedule, fakeTimeProvider);
+
+        Assert.That(currentRate, Is.EqualTo(15.50));
+    }
+
+    [Test]
+    public void WhenEndTimeForCurrentDayIsEnteredAs0000ThenItIsSetAs2359(){
+        string scheduleJson = """
+        {
+          "WeeklyRates": {
+            "Wednesday": [
+              {
+                "Start": "09:00:00",
+                "End": "00:00:00",
+                "Price": 10.50
+              }
+            ]
+          }
+        }
+        """;
+
+        var schedule = ScheduleService.FromJson(scheduleJson);
+
+        Assert.That(schedule.WeeklyRates[DayOfWeek.Wednesday][0].End, Is.EqualTo(new TimeSpan(23, 59, 59)));
     }
 }

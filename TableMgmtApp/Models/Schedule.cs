@@ -1,12 +1,26 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace TableMgmtApp;
 
 public class TimeRate {
     public TimeSpan Start { get; set; }
-    public TimeSpan End { get; set; }
+    public TimeSpan End { 
+        get => _end; 
+        set {
+            if (value.Hours == 0 && value.Minutes == 0 && value.Seconds == 0) {
+                _end = new TimeSpan(23, 59, 59);
+            }
+            else if (value.Minutes == 0 && value.Seconds == 0) {
+                 _end = value - TimeSpan.FromSeconds(1);
+            }
+            else {
+                _end = value;
+            }
+        } 
+    }
     public decimal Price { get; set; }
+
+    private TimeSpan _end;
 
     public TimeRate(TimeSpan start, TimeSpan end, decimal price) {
         Start = start;
@@ -25,8 +39,6 @@ public class TimeRate {
 public record Schedule {
     public Dictionary<DayOfWeek, List<TimeRate>> WeeklyRates { get; set; } = new();
     public decimal DefaultRate { get; set; } = 5.0m;
-
-    public Schedule () {}
 }
 
 public class ScheduleService {
