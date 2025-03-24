@@ -17,7 +17,7 @@ public class Table {
         new RingBuffer<PlaySession>(3);
     // Do I really want this to be a prop?
     // Maybe we can have something that gets the schedule...
-    public Schedule Schedule { get; set; } = default!;
+    public Schedule Schedule { get; set; } = new Schedule();
 
     ITimeProvider _timeProvider;
     ITimer _timer;
