@@ -23,4 +23,25 @@ public class TableServiceTest {
         Assert.That(tableFailResult.IsFailure, Is.True);
         Assert.That(tableFailResult.Error, Does.Contain("with id 5"));
     }
+
+    [Test]
+    public void TableServiceCanSwitchTablesOnAndOff() {
+        var tableService = new TableService();
+        tableService.Tables = new List<Table>();
+        var timeProvider = new FakeTimeProvider();
+        var timer = new FakeTimer();
+
+        tableService.Tables.Add(new Table(1, timeProvider, timer, 15));
+        tableService.Tables.Add(new Table(2, timeProvider, timer, 15));
+        tableService.Tables.Add(new Table(3, timeProvider, timer, 15));
+        tableService.Tables.Add(new Table(4, timeProvider, timer, 15));
+
+        var customSwitch = new VirtualSwitch();
+
+        tableService.SwitchTable(1, customSwitch, SwitchState.On);
+
+        var table1 = tableService.GetTable(1);
+
+        Assert.That(table1.Value.State, Is.EqualTo(TableState.Play));
+    }
 };

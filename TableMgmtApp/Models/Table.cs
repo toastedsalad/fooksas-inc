@@ -33,8 +33,7 @@ public class Table {
     public void SetPlay(int timedSeconds = 0) {
         if (State == TableState.Off) {
             Play(timedSeconds);
-        } 
-        else {
+        } else {
             State = TableState.Play;
             Session.Resume();
         }
@@ -81,8 +80,7 @@ public class Table {
         State = TableState.Play;
         if (timedSeconds == 0) {
             Session = new PlaySession(_timeProvider, _timer, Schedule);
-        }
-        else {
+        } else {
             Session = new PlaySession(_timeProvider, new TimeSpan(0, 0, timedSeconds), 
                                       _timer, this, Schedule);
         }

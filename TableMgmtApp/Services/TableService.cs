@@ -1,15 +1,11 @@
 namespace TableMgmtApp;
 
+public enum SwitchState {
+    On,
+    Off
+}
+
 public class TableService {
-    // Table service has a list of tables.
-    // Table service can interact with switches...
-    // It can take a virtual switch or a different implementation.
-    // It can also take in API calls.
-    //
-    //
-    // So for inputs
-    // Table service can select a table from a list by Id
-    // It can set state for that specific table
     public List<Table> Tables { get; set; } = default!;
 
     public Result<Table> GetTable(int id) {
@@ -24,4 +20,21 @@ public class TableService {
             return Result<Table>.Fail($"An error occurred: {ex.Message}");
         }
     }
+
+    // TODO: perhaps Switch should be part of table? Idk.
+    public void SwitchTable(int id, ISwitch customSwitch, SwitchState switchState) {
+        var tableResult = GetTable(id);
+        if (tableResult.IsSuccess) {
+            if (switchState == SwitchState.On) {
+                tableResult.Value!.SetStateBySwitch(TableState.Play);
+                customSwitch.SetSwitch(switchState);
+            } else if (switchState == SwitchState.Off) {
+                tableResult.Value!.SetStateBySwitch(TableState.Off);
+                customSwitch.SetSwitch(switchState);
+            }
+        }
+        // TODO: What do we do on failure?
+        return;
+    } 
 };
+
