@@ -7,6 +7,8 @@ public enum TableState {
     Standby
 }
 
+// This should become a TableManager
+// A smaller object should Table will be stored and retrieved from a db
 public class Table {
     public int Id { get; private set; }
     public TableState State { get; private set; } = TableState.Off;
