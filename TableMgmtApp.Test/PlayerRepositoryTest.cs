@@ -21,7 +21,7 @@ public class PlayerRepositoryTests {
         _dbContext = new TableMgmtAppDbContext(options);
         _dbContext.Database.EnsureCreated();
 
-        _repository = new PlayerRepository(_dbContext);
+        _repository = new PlayerSQLRepository(_dbContext);
     }
 
     [TearDown]

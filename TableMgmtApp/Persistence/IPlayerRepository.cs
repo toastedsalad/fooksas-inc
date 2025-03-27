@@ -11,10 +11,10 @@ public interface IPlayerRepository {
     Task SaveAsync();
 }
 
-public class PlayerRepository : IPlayerRepository {
+public class PlayerSQLRepository : IPlayerRepository {
     private readonly TableMgmtAppDbContext _context;
 
-    public PlayerRepository(TableMgmtAppDbContext context) {
+    public PlayerSQLRepository(TableMgmtAppDbContext context) {
         _context = context;
     }
 

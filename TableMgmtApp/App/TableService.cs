@@ -6,18 +6,18 @@ public enum SwitchState {
 }
 
 public class TableService {
-    public List<Table> Tables { get; set; } = default!;
+    public List<TableManager> TableManagers { get; set; } = default!;
 
-    public Result<Table> GetTable(int id) {
+    public Result<TableManager> GetTable(int id) {
         try {
-            var table = Tables.Find(table => table.Id == id);
+            var table = TableManagers.Find(table => table.Id == id);
             if (table == null)
-                return Result<Table>.Fail($"Could not find table with id {id}");
+                return Result<TableManager>.Fail($"Could not find table with id {id}");
 
-            return Result<Table>.Ok(table);
+            return Result<TableManager>.Ok(table);
         }
         catch (Exception ex) {
-            return Result<Table>.Fail($"An error occurred: {ex.Message}");
+            return Result<TableManager>.Fail($"An error occurred: {ex.Message}");
         }
     }
 

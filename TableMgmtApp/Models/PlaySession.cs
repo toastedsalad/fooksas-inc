@@ -14,7 +14,7 @@ public class PlaySession {
     private ITimeProvider _timeProvider;
     private bool _isTimedSession;
     private TimeSpan _remainingTime;
-    private Table _table = null!;
+    private TableManager _table = null!;
     private Schedule _schedule;
 
     public PlaySession(ITimeProvider timeProvider, ITimer timer, Schedule schedule) {
@@ -24,7 +24,7 @@ public class PlaySession {
     }
 
     public PlaySession(ITimeProvider timeProvider, TimeSpan timedSessionSpan,
-                       ITimer timer, Table table, Schedule schedule) {
+                       ITimer timer, TableManager table, Schedule schedule) {
         _timeProvider = timeProvider;
         _isTimedSession = true;
         _remainingTime = new TimeSpan();

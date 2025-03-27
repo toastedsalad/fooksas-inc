@@ -5,7 +5,7 @@ namespace TableMgmtApp.Persistence;
 
 [TestFixture]
 public class TableRepositoryTests {
-    private IPlayerRepository _repository;
+    private ITableRepository _repository;
     private TableMgmtAppDbContext _dbContext;
     private SqliteConnection _connection;
 
@@ -21,7 +21,7 @@ public class TableRepositoryTests {
         _dbContext = new TableMgmtAppDbContext(options);
         _dbContext.Database.EnsureCreated();
 
-        // _repository = new TableRepository(_dbContext);
+        _repository = new TableSQLRepository(_dbContext);
     }
 
     [TearDown]
@@ -31,15 +31,19 @@ public class TableRepositoryTests {
     }
 
     [Test]
-    public async Task Can_Retrieve_Players_By_Surname() {
-        var fakeTimerProvider = new FakeTimeProvider();
-        var fakeTimer = new FakeTimer();
-        //var table1 = new Table();
+    public async Task Can_Retrieve_All_Tables() {
+        var table1 = new Table(1);
+        var table2 = new Table(2);
+        var table3 = new Table(3);
 
-        var playersWithDoeSurname = await _repository.GetBySurnameAsync("Doe");
+        await _repository.AddAsync(table1);
+        await _repository.AddAsync(table2);
+        await _repository.AddAsync(table3);
+        await _repository.SaveAsync();
 
-        Assert.That(playersWithDoeSurname.Count, Is.EqualTo(2));
-        Assert.That(playersWithDoeSurname.All(p => p.Surname == "Doe"));
+        var allTables = await _repository.GetAllAsync();
+
+        Assert.That(allTables.Count, Is.EqualTo(3));
     }
 }
 
