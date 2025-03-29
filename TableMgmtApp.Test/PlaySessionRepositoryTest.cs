@@ -4,7 +4,7 @@ using Microsoft.Data.Sqlite;
 namespace TableMgmtApp.Persistence;
 
 [TestFixture]
-public class PlayeSessionRepositoryTests {
+public class PlaySessionRepositoryTests {
     private IPlaySessionRepository _repository;
     private TableMgmtAppDbContext _dbContext;
     private SqliteConnection _connection;

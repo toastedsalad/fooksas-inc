@@ -1,22 +1,25 @@
 using System.Timers;
+using TableMgmtApp.Persistence;
 
 namespace TableMgmtApp;
 
 public class PlaySessionManager {
     public PlaySession Session { get; private set;} = new PlaySession();
-
     public TimeSpan TimedSessionSpan { get; }
     public bool IsStopActive { get; private set; }
     public TableManager TableManager {get; private set; }
+
     private ITimeProvider _timeProvider;
     private ITimer _timer;
     private bool _isTimedSession;
     private TimeSpan _remainingTime;
     private Schedule _schedule;
+    private IPlaySessionRepository _repository;
 
     public PlaySessionManager(Schedule schedule, TableManager tableManager) {
         _schedule = schedule;
         TableManager = tableManager;
+        _repository = tableManager.PlaySessionRepository;
         _timeProvider = tableManager.TimeProvider;
         _timer = tableManager.Timer;
     }
@@ -25,6 +28,7 @@ public class PlaySessionManager {
                               TimeSpan timedSessionSpan) {
         _schedule = schedule;
         TableManager = tableManager;
+        _repository = tableManager.PlaySessionRepository;
         _timeProvider = tableManager.TimeProvider;
         _timer = tableManager.Timer;
         TimedSessionSpan = timedSessionSpan;
@@ -64,7 +68,7 @@ public class PlaySessionManager {
         _timer.Enabled = true;
     }
 
-    public void Stop(bool stopFully = false) {
+    public async void Stop(bool stopFully = false) {
         if (IsStopActive) {
             return;
         }

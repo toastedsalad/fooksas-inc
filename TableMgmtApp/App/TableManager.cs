@@ -1,3 +1,5 @@
+using TableMgmtApp.Persistence;
+
 namespace TableMgmtApp;
 
 public enum TableState {
@@ -23,14 +25,16 @@ public class TableManager {
     public Schedule Schedule { get; set; } = new Schedule();
     public ITimeProvider TimeProvider { get; private set; }
     public ITimer Timer { get; private set; }
+    public IPlaySessionRepository PlaySessionRepository { get; private set; }
 
     public TableManager(Table table, ITimeProvider timeProvider, ITimer timer, 
-                        int pauseTimer = 1) {
+                        IPlaySessionRepository playSessionRepository, int pauseTimer = 1) {
         TableNumber = table.Number;
         Table = table;
-        PauseTimer = pauseTimer;
         TimeProvider = timeProvider;
         Timer = timer;
+        PlaySessionRepository = playSessionRepository;
+        PauseTimer = pauseTimer;
     }
 
     public void SetPlay(int timedSeconds = 0) {
@@ -84,7 +88,8 @@ public class TableManager {
         if (timedSeconds == 0) {
             SessionManager = new PlaySessionManager(Schedule, this);
         } else {
-            SessionManager = new PlaySessionManager(Schedule, this, new TimeSpan(0, 0, timedSeconds));
+            SessionManager = new PlaySessionManager(Schedule, this, 
+                                                    new TimeSpan(0, 0, timedSeconds));
         }
         SessionManager.Start();
     }

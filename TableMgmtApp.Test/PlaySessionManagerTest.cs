@@ -1,3 +1,6 @@
+using Moq;
+using TableMgmtApp.Persistence;
+
 namespace TableMgmtApp.Test;
 
 [Parallelizable(ParallelScope.All)]
@@ -47,6 +50,7 @@ public class PlaySessionManagerTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
+        var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
         sessionManager.Start();
