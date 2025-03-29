@@ -1,14 +1,14 @@
 namespace TableMgmtApp.Test;
 
 [Parallelizable(ParallelScope.All)]
-public class TableManagerTest {
+public class TableModelTest {
     [Test]
     public void WhenNewTableInitializedItHasAttributes() {
         var systemTimeProvider = new SystemTimeProvider();
         var systemTimer = new RealTimer(1000);
         var table = new Table(1);
         var tableManager = new TableManager(table, systemTimeProvider, systemTimer);
-        Assert.That(tableManager.Id, Is.EqualTo(1));
+        Assert.That(tableManager.Table.Id, Is.EqualTo(1));
     }
 
     [Test]
@@ -127,7 +127,7 @@ public class TableManagerTest {
         var tableManager = new TableManager(table, systemTimeProvider, systemTimer, 1);
         tableManager.SetStateBySwitch(TableState.Play);
 
-        Assert.That(tableManager.SessionManager.Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(tableManager.SessionManager.Session.Id, Is.Not.EqualTo(Guid.Empty));
     }
 
     [Test]
@@ -138,7 +138,7 @@ public class TableManagerTest {
         var tableManager = new TableManager(table, systemTimeProvider, systemTimer, 1);
         tableManager.SetStateBySwitch(TableState.Play);
 
-        Assert.That(tableManager.SessionManager.StartTime.Minute, Is.EqualTo(DateTime.Now.Minute));
+        Assert.That(tableManager.SessionManager.Session.StartTime.Minute, Is.EqualTo(DateTime.Now.Minute));
     }
 
     [Test]
