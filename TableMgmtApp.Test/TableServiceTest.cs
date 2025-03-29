@@ -20,7 +20,7 @@ public class TableServiceTest {
 
         var table1Result = tableService.GetTable(2);
 
-        Assert.That(table1Result.Value.Id, Is.EqualTo(2));
+        Assert.That(table1Result.Value.TableNumber, Is.EqualTo(2));
         Assert.That(table1Result.IsSuccess, Is.True);
 
         var tableFailResult = tableService.GetTable(5);

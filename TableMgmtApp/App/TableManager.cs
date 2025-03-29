@@ -10,6 +10,7 @@ public enum TableState {
 // This should become a TableManager
 // A smaller object should Table will be stored and retrieved from a db
 public class TableManager {
+    public int TableNumber { get; private set; }
     public Table Table { get; private set; }
     public TableState State { get; private set; } = TableState.Off;
     public int PauseTimer { get; private set; }
@@ -25,6 +26,7 @@ public class TableManager {
 
     public TableManager(Table table, ITimeProvider timeProvider, ITimer timer, 
                         int pauseTimer = 1) {
+        TableNumber = table.Number;
         Table = table;
         PauseTimer = pauseTimer;
         TimeProvider = timeProvider;
@@ -95,7 +97,7 @@ public class TableManager {
     private void Off() {
         State = TableState.Off;
         LatestSessions.EnQueue(SessionManager.Session);
-        SessionManager.Stop();
+        SessionManager.Stop(true);
         SessionManager = null!;
     }
 

@@ -8,11 +8,11 @@ public enum SwitchState {
 public class TableService {
     public List<TableManager> TableManagers { get; set; } = default!;
 
-    public Result<TableManager> GetTable(int id) {
+    public Result<TableManager> GetTable(int number) {
         try {
-            var table = TableManagers.Find(table => table.Id == id);
+            var table = TableManagers.Find(table => table.TableNumber == number);
             if (table == null)
-                return Result<TableManager>.Fail($"Could not find table with id {id}");
+                return Result<TableManager>.Fail($"Could not find table with id {number}");
 
             return Result<TableManager>.Ok(table);
         }

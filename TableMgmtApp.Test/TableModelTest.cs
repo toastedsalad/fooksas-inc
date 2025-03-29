@@ -8,7 +8,7 @@ public class TableModelTest {
         var systemTimer = new RealTimer(1000);
         var table = new Table(1);
         var tableManager = new TableManager(table, systemTimeProvider, systemTimer);
-        Assert.That(tableManager.Table.Id, Is.EqualTo(1));
+        Assert.That(tableManager.TableNumber, Is.EqualTo(1));
     }
 
     [Test]

@@ -48,12 +48,12 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
-        session.Start();
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
+        sessionManager.Start();
 
-        Assert.That(session.StartTime.Minute, Is.EqualTo(DateTime.Now.Minute));
-        Assert.That(session.Id, Is.Not.EqualTo(Guid.Empty));
-        Assert.That(session.IsStopActive, Is.False);
+        Assert.That(sessionManager.Session.StartTime.Minute, Is.EqualTo(DateTime.Now.Minute));
+        Assert.That(sessionManager.Session.Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(sessionManager.IsStopActive, Is.False);
     }
 
     [Test]
@@ -62,10 +62,10 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
-        session.Start();
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
-        var gameTime = session.GetPlayTime().TotalSeconds;
+        var gameTime = sessionManager.GetPlayTime().TotalSeconds;
 
         Assert.That((int)gameTime, Is.EqualTo(1));
     }
@@ -77,10 +77,10 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
-        session.Start();
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
+        sessionManager.Start();
 
-        Assert.That(session.StartTime.Day, Is.EqualTo(28));
+        Assert.That(sessionManager.Session.StartTime.Day, Is.EqualTo(28));
     }
 
     [Test]
@@ -89,14 +89,14 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
 
-        var gametime = session.GetPlayTime().TotalSeconds;
+        var gametime = sessionManager.GetPlayTime().TotalSeconds;
 
         Assert.That((int)gametime, Is.EqualTo(3));
     }
@@ -107,13 +107,13 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
 
-        session.Start();
+        sessionManager.Start();
         // TODO: Can we somehow check timer state?
-        session.Stop();
+        sessionManager.Stop();
 
-        var gametime = session.GetPlayTime().TotalSeconds;
+        var gametime = sessionManager.GetPlayTime().TotalSeconds;
 
         Assert.That((int)gametime, Is.EqualTo(0));
     }
@@ -124,16 +124,16 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
 
-        session.Start();
-        session.Stop();
-        session.Resume();
+        sessionManager.Start();
+        sessionManager.Stop();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
 
-        var gametime = session.GetPlayTime().TotalSeconds;
+        var gametime = sessionManager.GetPlayTime().TotalSeconds;
 
         Assert.That((int)gametime, Is.EqualTo(3));
     }
@@ -144,15 +144,15 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
+        sessionManager.Stop();
 
-        var gametime = session.GetPlayTime().TotalSeconds;
+        var gametime = sessionManager.GetPlayTime().TotalSeconds;
 
         Assert.That((int)gametime, Is.EqualTo(3));
     }
@@ -163,19 +163,19 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
-        session.Resume();
+        sessionManager.Stop();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
 
-        var gametime = session.GetPlayTime().TotalSeconds;
+        var gametime = sessionManager.GetPlayTime().TotalSeconds;
 
         Assert.That((int)gametime, Is.EqualTo(6));
     }
@@ -186,24 +186,24 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
-        session.Resume();
+        sessionManager.Stop();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
-        session.Resume();
+        sessionManager.Stop();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
 
-        var gametime = session.GetPlayTime().TotalSeconds;
+        var gametime = sessionManager.GetPlayTime().TotalSeconds;
 
         Assert.That((int)gametime, Is.EqualTo(9));
     }
@@ -214,25 +214,25 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
-        session.Resume();
+        sessionManager.Stop();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
-        session.Resume();
+        sessionManager.Stop();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
+        sessionManager.Stop();
 
-        var gametime = session.GetPlayTime().TotalSeconds;
+        var gametime = sessionManager.GetPlayTime().TotalSeconds;
 
         Assert.That((int)gametime, Is.EqualTo(9));
     }
@@ -243,18 +243,18 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
-        session.Stop();
-        session.Stop();
-        session.Stop();
+        sessionManager.Stop();
+        sessionManager.Stop();
+        sessionManager.Stop();
+        sessionManager.Stop();
 
-        var gametime = session.GetPlayTime().TotalSeconds;
+        var gametime = sessionManager.GetPlayTime().TotalSeconds;
 
         Assert.That((int)gametime, Is.EqualTo(3));
     }
@@ -265,36 +265,36 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
 
-        session.Start();
-        session.Stop();
-        session.Resume();
+        sessionManager.Start();
+        sessionManager.Stop();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Resume();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Resume();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Resume();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
 
-        var gametime = session.GetPlayTime().TotalSeconds;
+        var gametime = sessionManager.GetPlayTime().TotalSeconds;
 
         Assert.That((int)gametime, Is.EqualTo(20));
     }
@@ -306,9 +306,9 @@ public class PlaysessionModelTest {
         var timedSessionSpan = new TimeSpan(0, 0, 5);
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
         
-        Assert.That(session.TimedSessionSpan.TotalSeconds, Is.EqualTo(5));
+        Assert.That(sessionManager.TimedSessionSpan.TotalSeconds, Is.EqualTo(5));
     }
 
     [Test]
@@ -337,8 +337,8 @@ public class PlaysessionModelTest {
         var timedSessionSpan = new TimeSpan(0, 0, 5);
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
-        session.Start();
+        var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
+        sessionManager.Start();
 
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
@@ -346,9 +346,9 @@ public class PlaysessionModelTest {
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
     
-        Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(0));
-        Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(5));
-        Assert.That(session.IsStopActive, Is.True);
+        Assert.That((int)sessionManager.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(0));
+        Assert.That((int)sessionManager.GetPlayTime().TotalSeconds, Is.EqualTo(5));
+        Assert.That(sessionManager.IsStopActive, Is.True);
     }
 
     [Test]
@@ -358,17 +358,17 @@ public class PlaysessionModelTest {
         var timedSessionSpan = new TimeSpan(0, 0, 10);
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
+        sessionManager.Stop();
 
-        Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(7));
-        Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(3));
-        Assert.That(session.IsStopActive, Is.True);
+        Assert.That((int)sessionManager.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(7));
+        Assert.That((int)sessionManager.GetPlayTime().TotalSeconds, Is.EqualTo(3));
+        Assert.That(sessionManager.IsStopActive, Is.True);
     }
 
     [Test]
@@ -378,21 +378,21 @@ public class PlaysessionModelTest {
         var timedSessionSpan = new TimeSpan(0, 0, 10);
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
-        session.Resume();
+        sessionManager.Stop();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
 
-        Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
-        Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(6));
-        Assert.That(session.IsStopActive, Is.False);
+        Assert.That((int)sessionManager.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
+        Assert.That((int)sessionManager.GetPlayTime().TotalSeconds, Is.EqualTo(6));
+        Assert.That(sessionManager.IsStopActive, Is.False);
     }
 
     [Test]
@@ -402,22 +402,22 @@ public class PlaysessionModelTest {
         var timedSessionSpan = new TimeSpan(0, 0, 10);
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
-        session.Resume();
+        sessionManager.Stop();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
+        sessionManager.Stop();
 
-        Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
-        Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(6));
-        Assert.That(session.IsStopActive, Is.True);
+        Assert.That((int)sessionManager.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
+        Assert.That((int)sessionManager.GetPlayTime().TotalSeconds, Is.EqualTo(6));
+        Assert.That(sessionManager.IsStopActive, Is.True);
     }
 
     [Test]
@@ -427,26 +427,26 @@ public class PlaysessionModelTest {
         var timedSessionSpan = new TimeSpan(0, 0, 10);
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
-        session.Resume();
+        sessionManager.Stop();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
-        session.Stop();
-        session.Resume();
+        sessionManager.Stop();
+        sessionManager.Resume();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
 
-        Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(1));
-        Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(9));
-        Assert.That(session.IsStopActive, Is.False);
+        Assert.That((int)sessionManager.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(1));
+        Assert.That((int)sessionManager.GetPlayTime().TotalSeconds, Is.EqualTo(9));
+        Assert.That(sessionManager.IsStopActive, Is.False);
     }
 
     [Test]
@@ -456,24 +456,24 @@ public class PlaysessionModelTest {
         var timedSessionSpan = new TimeSpan(0, 0, 10);
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
 
-        session.Start();
-        fakeTimer.TriggerElapsed();
-        fakeTimer.TriggerElapsed();
-        fakeTimer.TriggerElapsed();
-
-        Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(7));
-        Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(3));
-        Assert.That(session.IsStopActive, Is.False);
-
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
 
-        Assert.That((int)session.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
-        Assert.That((int)session.GetPlayTime().TotalSeconds, Is.EqualTo(6));
-        Assert.That(session.IsStopActive, Is.False);
+        Assert.That((int)sessionManager.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(7));
+        Assert.That((int)sessionManager.GetPlayTime().TotalSeconds, Is.EqualTo(3));
+        Assert.That(sessionManager.IsStopActive, Is.False);
+
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+        fakeTimer.TriggerElapsed();
+
+        Assert.That((int)sessionManager.GetRemainingPlayTime().TotalSeconds, Is.EqualTo(4));
+        Assert.That((int)sessionManager.GetPlayTime().TotalSeconds, Is.EqualTo(6));
+        Assert.That(sessionManager.IsStopActive, Is.False);
     }
     
     [Test]
@@ -482,13 +482,13 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
 
-        session.Stop(true);
-        Assert.That(session.IsStopActive, Is.True);
+        sessionManager.Stop(true);
+        Assert.That(sessionManager.IsStopActive, Is.True);
     }
 
     [Test]
@@ -497,9 +497,10 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
+        sessionManager.Start();
 
-        Assert.That(session.GetSessionPrice(), Is.EqualTo(0.00m));
+        Assert.That(sessionManager.GetSessionPrice(), Is.EqualTo(0.00m));
     }
 
     [Test]
@@ -508,10 +509,10 @@ public class PlaysessionModelTest {
         var fakeTimer = new FakeTimer();
         var table = new Table(1);
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
-        var session = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager);
         fakeTimeProvider.Now = new DateTime(2025, 03, 24, 10, 0, 0);
 
-        session.Start();
+        sessionManager.Start();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
@@ -519,7 +520,7 @@ public class PlaysessionModelTest {
         fakeTimer.TriggerElapsed();
         fakeTimer.TriggerElapsed();
 
-        Assert.That(session.GetSessionPrice(), Is.EqualTo(0.02m));
+        Assert.That(sessionManager.GetSessionPrice(), Is.EqualTo(0.02m));
     }
 }
 

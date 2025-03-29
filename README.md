@@ -4,6 +4,7 @@ Title says it all.
 
 TODOs:
 
-1. Need some persistence.
-2. Frontend.
-3. How can I control wireless relays?
+1. Need session repo.
+2. Take note of todos.
+3. Bring the API endpoints, write controllers.
+4. Minimal frontend.

@@ -3,7 +3,7 @@ using System.Timers;
 namespace TableMgmtApp;
 
 public class PlaySessionManager {
-    public PlaySession Session { get; private set;} = default!;
+    public PlaySession Session { get; private set;} = new PlaySession();
 
     public TimeSpan TimedSessionSpan { get; }
     public bool IsStopActive { get; private set; }
@@ -57,7 +57,6 @@ public class PlaySessionManager {
     }
 
     public void Start() {
-        Session = new PlaySession();
         Session.StartTime = _timeProvider.Now;
         IsStopActive = false;
         _timer.Elapsed += TimedEvent;
