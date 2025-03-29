@@ -7,6 +7,7 @@ public class PlaySession {
     public DateTime StartTime { get; private set; }
     public TimeSpan PlayTime { get; private set; } = TimeSpan.Zero;
     public TimeSpan TimedSessionSpan { get; }
+    public TableManager TableManager {get; private set; }
     public bool IsStopActive { get; private set; }
     public ITimer Timer { get; private set; }
 
@@ -14,23 +15,24 @@ public class PlaySession {
     private ITimeProvider _timeProvider;
     private bool _isTimedSession;
     private TimeSpan _remainingTime;
-    private TableManager _table = null!;
     private Schedule _schedule;
 
-    public PlaySession(ITimeProvider timeProvider, ITimer timer, Schedule schedule) {
+    public PlaySession(ITimeProvider timeProvider, ITimer timer, Schedule schedule,
+                       TableManager tableManager) {
         _timeProvider = timeProvider;
         Timer = timer;
         _schedule = schedule;
+        TableManager = tableManager;
     }
 
     public PlaySession(ITimeProvider timeProvider, TimeSpan timedSessionSpan,
-                       ITimer timer, TableManager table, Schedule schedule) {
+                       ITimer timer, TableManager tableManager, Schedule schedule) {
         _timeProvider = timeProvider;
         _isTimedSession = true;
         _remainingTime = new TimeSpan();
         TimedSessionSpan = timedSessionSpan;
         Timer = timer;
-        _table = table;
+        TableManager = tableManager;
         _schedule = schedule;
     }
 
@@ -42,7 +44,7 @@ public class PlaySession {
         _remainingTime = TimedSessionSpan.Subtract(PlayTime);
 
         if (_remainingTime.TotalSeconds <= 0) {
-            _table.SetStandby();
+            TableManager.SetStandby();
             Stop();
         }
 

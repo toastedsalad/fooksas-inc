@@ -82,7 +82,7 @@ public class TableManager {
     private void Play(int timedSeconds) {
         State = TableState.Play;
         if (timedSeconds == 0) {
-            Session = new PlaySession(_timeProvider, _timer, Schedule);
+            Session = new PlaySession(_timeProvider, _timer, Schedule, this);
         } else {
             Session = new PlaySession(_timeProvider, new TimeSpan(0, 0, timedSeconds), 
                                       _timer, this, Schedule);

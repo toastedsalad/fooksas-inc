@@ -46,7 +46,9 @@ public class PlaysessionModelTest {
     public void WhenSessionStartItStarts() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
         session.Start();
 
         Assert.That(session.StartTime.Minute, Is.EqualTo(DateTime.Now.Minute));
@@ -58,7 +60,9 @@ public class PlaysessionModelTest {
     public void SessionElapsedTimeDisplayHowMuchTimeWasPlayed() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
         session.Start();
         fakeTimer.TriggerElapsed();
         var gameTime = session.GetPlayTime().TotalSeconds;
@@ -71,7 +75,9 @@ public class PlaysessionModelTest {
         var fakeTimeProvider = new FakeTimeProvider();
         fakeTimeProvider.Now = new DateTime(2025, 12, 28);
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
         session.Start();
 
         Assert.That(session.StartTime.Day, Is.EqualTo(28));
@@ -81,7 +87,9 @@ public class PlaysessionModelTest {
     public void WhenTimeIncreasesWithFakerTimerPlayTimeIncreasesAsWell() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -97,7 +105,9 @@ public class PlaysessionModelTest {
     public void WhenSessionIsPausedGameTimeDoesNotIncrease() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
 
         session.Start();
         // TODO: Can we somehow check timer state?
@@ -112,7 +122,9 @@ public class PlaysessionModelTest {
     public void SesionCanBeResumedFromPause() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
 
         session.Start();
         session.Stop();
@@ -130,7 +142,9 @@ public class PlaysessionModelTest {
     public void WhenSessionIsPausedReturnLastPlayTime() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -147,7 +161,9 @@ public class PlaysessionModelTest {
     public void WhenSessionIsPausedAndResumedReturnPlayTimeWithoutPause() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -168,7 +184,9 @@ public class PlaysessionModelTest {
     public void WhenSessionIsPausedAndResumedAndStoppedReturnPlayTimeWithoutPauses() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -194,7 +212,9 @@ public class PlaysessionModelTest {
     public void WhenSessionIsResumedMultipleTimesAndStoppedAtTheEndItReturnsPlayTime() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -221,7 +241,9 @@ public class PlaysessionModelTest {
     public void WhenPausingMultipleTimesItCountsAsOneTime() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -241,7 +263,9 @@ public class PlaysessionModelTest {
     public void WhenResumingMultipleTimesItCountsAsOneTime() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
 
         session.Start();
         session.Stop();
@@ -456,7 +480,9 @@ public class PlaysessionModelTest {
     public void WhenSessionIsArchivedTheTimersAreDisposed() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
 
         session.Start();
         fakeTimer.TriggerElapsed();
@@ -470,7 +496,9 @@ public class PlaysessionModelTest {
     public void SessionHoldsSessionPrice() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
 
         Assert.That(session.GetSessionPrice(), Is.EqualTo(0.00m));
     }
@@ -479,7 +507,9 @@ public class PlaysessionModelTest {
     public void WhenTicksSessionPriceIncreases() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule);
+        var table = new Table(1);
+        var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer);
+        var session = new PlaySession(fakeTimeProvider, fakeTimer, _schedule, tableManager);
         fakeTimeProvider.Now = new DateTime(2025, 03, 24, 10, 0, 0);
 
         session.Start();
