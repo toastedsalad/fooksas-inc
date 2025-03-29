@@ -6,6 +6,7 @@ namespace TableMgmtApp.Persistence;
 public class TableMgmtAppDbContext : DbContext {
     public DbSet<Player> Players { get; set; }
     public DbSet<Table> Tables { get; set; }
+    public DbSet<PlaySession> PlaySessions { get; set; }
 
     #nullable disable
     public TableMgmtAppDbContext(DbContextOptions<TableMgmtAppDbContext> options) : base(options) {}
@@ -31,7 +32,26 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player> {
 public class TableConfiguration : IEntityTypeConfiguration<Table> {
     public void Configure(EntityTypeBuilder<Table> builder) {
         builder.ToTable("Tables");
-        builder.HasKey(u => u.Number);
-        builder.Property(u => u.Id).IsRequired();
+        builder.HasKey(t => t.Number);
+        builder.Property(t => t.Id).IsRequired();
     }
 }
+
+public class PlaySessionConfiguration : IEntityTypeConfiguration<PlaySession> {
+    public void Configure(EntityTypeBuilder<PlaySession> builder) {
+        builder.ToTable("PlaySessions");
+        builder.HasKey(p => p.Id);
+        builder.Property(p => p.StartTime).IsRequired();
+        builder.Property(p => p.PlayTime).IsRequired();
+        builder.Property(p => p.Price).IsRequired();
+        builder.Property(p => p.TableNumber).IsRequired();
+        builder.Property(p => p.PlayerId);
+    }
+}
+
+
+
+
+
+
+

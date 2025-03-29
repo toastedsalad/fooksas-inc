@@ -1,7 +1,7 @@
 namespace TableMgmtApp.Test;
 
 [Parallelizable(ParallelScope.All)]
-public class PlaysessionModelTest {
+public class PlaySessionManagerTest {
     private Schedule _schedule = new Schedule {
         WeeklyRates = new Dictionary<DayOfWeek, List<TimeRate>> {
             { 
