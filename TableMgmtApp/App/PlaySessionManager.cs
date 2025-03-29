@@ -74,6 +74,8 @@ public class PlaySessionManager {
 
         if (stopFully) {
             // TODO write to repo when fully stopped.
+            await _repository.AddAsync(Session);
+            await _repository.SaveAsync();
             _timer.Elapsed -= TimedEvent;
             _timer.Dispose();
             _timer = null!;
