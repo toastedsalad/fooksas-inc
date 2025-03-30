@@ -25,15 +25,15 @@ public class TableManager {
     public Schedule Schedule { get; set; } = new Schedule();
     public ITimeProvider TimeProvider { get; private set; }
     public ICustomTimer Timer { get; private set; }
-    public IPlaySessionRepository PlaySessionRepository { get; private set; }
+    public IPlaySessionRepositoryFactory PlaySessionRepoFactory { get; private set; }
 
     public TableManager(PoolTable table, ITimeProvider timeProvider, ICustomTimer timer, 
-                        IPlaySessionRepository playSessionRepository, int pauseTimer = 1) {
+                        IPlaySessionRepositoryFactory playSessionRepoFactory, int pauseTimer = 1) {
         TableNumber = table.Number;
         Table = table;
         TimeProvider = timeProvider;
         Timer = timer;
-        PlaySessionRepository = playSessionRepository;
+        PlaySessionRepoFactory = playSessionRepoFactory;
         PauseTimer = pauseTimer;
     }
 

@@ -14,12 +14,12 @@ public class PlaySessionManager {
     private bool _isTimedSession;
     private TimeSpan _remainingTime;
     private Schedule _schedule;
-    private IPlaySessionRepository _repository;
+    private readonly IPlaySessionRepositoryFactory _playSessionRepoFactory;
 
     public PlaySessionManager(Schedule schedule, TableManager tableManager) {
         _schedule = schedule;
         TableManager = tableManager;
-        _repository = tableManager.PlaySessionRepository;
+        _playSessionRepoFactory = tableManager.PlaySessionRepoFactory;
         _timeProvider = tableManager.TimeProvider;
         _timer = tableManager.Timer;
     }
@@ -28,7 +28,7 @@ public class PlaySessionManager {
                               TimeSpan timedSessionSpan) {
         _schedule = schedule;
         TableManager = tableManager;
-        _repository = tableManager.PlaySessionRepository;
+        _playSessionRepoFactory = tableManager.PlaySessionRepoFactory;
         _timeProvider = tableManager.TimeProvider;
         _timer = tableManager.Timer;
         TimedSessionSpan = timedSessionSpan;
@@ -62,6 +62,7 @@ public class PlaySessionManager {
 
     public void Start() {
         Session.StartTime = _timeProvider.Now;
+        Session.TableNumber = TableManager.TableNumber;
         IsStopActive = false;
         _timer.Elapsed += TimedEvent;
         _timer.AutoReset = true;
@@ -80,8 +81,9 @@ public class PlaySessionManager {
 
     public async void Shutdown() {
         if (IsStopActive) {
-            await _repository.AddAsync(Session);
-            await _repository.SaveAsync();
+            var repo = _playSessionRepoFactory.CreateRepository();
+            await repo.AddAsync(Session);
+            await repo.SaveAsync();
             _timer.Elapsed -= TimedEvent;
             _timer.Dispose();
             _timer = null!;

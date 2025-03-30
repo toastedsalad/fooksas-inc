@@ -19,8 +19,9 @@ public class Program {
         // Add App services
         // TODO move timer settings to config.
         builder.Services.AddScoped<ITableRepository, TableSQLRepository>();
-        builder.Services.AddScoped<IPlaySessionRepository, PlaySessionSQLRepository>();
         builder.Services.AddScoped<IPlayerRepository, PlayerSQLRepository>();
+        builder.Services.AddScoped<IPlaySessionRepository, PlaySessionSQLRepository>();
+        builder.Services.AddSingleton<IPlaySessionRepositoryFactory, PlaySessionRepositoryFactory>();
         builder.Services.AddSingleton<ITimeProvider, SystemTimeProvider>();
         builder.Services.AddSingleton<TableManagerService>();
 
