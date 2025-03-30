@@ -10,6 +10,13 @@ public class TableMgmtAppDbContext : DbContext {
 
     #nullable disable
     public TableMgmtAppDbContext(DbContextOptions<TableMgmtAppDbContext> options) : base(options) {}
+
+    // DB configurations get initialized here
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        modelBuilder.ApplyConfiguration(new PlayerConfiguration());
+        modelBuilder.ApplyConfiguration(new TableConfiguration());
+        modelBuilder.ApplyConfiguration(new PlaySessionConfiguration());
+    }
 }
 
 public class PlayerConfiguration : IEntityTypeConfiguration<Player> {

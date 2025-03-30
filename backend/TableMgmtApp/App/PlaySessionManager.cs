@@ -10,7 +10,7 @@ public class PlaySessionManager {
     public TableManager TableManager {get; private set; }
 
     private ITimeProvider _timeProvider;
-    private ITimer _timer;
+    private ICustomTimer _timer;
     private bool _isTimedSession;
     private TimeSpan _remainingTime;
     private Schedule _schedule;

@@ -2,7 +2,7 @@ using System.Timers;
 
 namespace TableMgmtApp;
 
-public interface ITimer : IDisposable {
+public interface ICustomTimer : IDisposable {
     event ElapsedEventHandler Elapsed;
     void Start();
     void Stop();
@@ -10,7 +10,7 @@ public interface ITimer : IDisposable {
     bool AutoReset { get; set; }
 }
 
-public class RealTimer : ITimer {
+public class RealTimer : ICustomTimer {
     private readonly System.Timers.Timer _timer;
 
     public RealTimer(double interval) {
@@ -41,7 +41,7 @@ public class RealTimer : ITimer {
     }
 }
 
-public class FakeTimer : ITimer {
+public class FakeTimer : ICustomTimer {
     public event ElapsedEventHandler Elapsed;
     public bool Enabled { get; set; }
     public bool AutoReset { get; set; } = true;

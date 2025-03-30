@@ -24,10 +24,10 @@ public class TableManager {
     // Maybe we can have something that gets the schedule...
     public Schedule Schedule { get; set; } = new Schedule();
     public ITimeProvider TimeProvider { get; private set; }
-    public ITimer Timer { get; private set; }
+    public ICustomTimer Timer { get; private set; }
     public IPlaySessionRepository PlaySessionRepository { get; private set; }
 
-    public TableManager(PoolTable table, ITimeProvider timeProvider, ITimer timer, 
+    public TableManager(PoolTable table, ITimeProvider timeProvider, ICustomTimer timer, 
                         IPlaySessionRepository playSessionRepository, int pauseTimer = 1) {
         TableNumber = table.Number;
         Table = table;
