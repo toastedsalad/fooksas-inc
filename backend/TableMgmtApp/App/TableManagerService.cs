@@ -10,9 +10,7 @@ public class TableManagerService {
     // In-memory dictionary to track active TableManager instances
     private readonly ConcurrentDictionary<int, TableManager> _tableManagers = new();
 
-    public TableManagerService(
-        ITimeProvider timeProvider,
-        IServiceScopeFactory serviceScopeFactory) {
+    public TableManagerService(ITimeProvider timeProvider, IServiceScopeFactory serviceScopeFactory) {
         _timeProvider = timeProvider;
         _serviceScopeFactory = serviceScopeFactory;
     }
@@ -22,7 +20,7 @@ public class TableManagerService {
             if (!_tableManagers.ContainsKey(table.Number)) {
                 using var scope = _serviceScopeFactory.CreateScope();
                 var playSessionRepository = scope.ServiceProvider.GetRequiredService<IPlaySessionRepository>();
-
+                
                 // TODO move the timer elsewhere:
                 var timer = new RealTimer(1000);
                 var manager = new TableManager(table, _timeProvider, timer, playSessionRepository);

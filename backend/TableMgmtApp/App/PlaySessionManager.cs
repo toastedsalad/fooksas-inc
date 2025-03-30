@@ -68,16 +68,18 @@ public class PlaySessionManager {
         _timer.Enabled = true;
     }
 
-    public async void Stop(bool stopFully = false) {
+    public void Stop() {
         if (IsStopActive) {
             return;
         }
 
+        // but second time I don't get here cause stop is already on.
         IsStopActive = true;
         _timer.Stop();
+    }
 
-        if (stopFully) {
-            // TODO write to repo when fully stopped.
+    public async void Shutdown() {
+        if (IsStopActive) {
             await _repository.AddAsync(Session);
             await _repository.SaveAsync();
             _timer.Elapsed -= TimedEvent;

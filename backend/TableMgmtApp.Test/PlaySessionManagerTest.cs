@@ -511,7 +511,8 @@ public class PlaySessionManagerTest {
         sessionManager.Start();
         fakeTimer.TriggerElapsed();
 
-        sessionManager.Stop(true);
+        sessionManager.Stop();
+        sessionManager.Shutdown();
         Assert.That(sessionManager.IsStopActive, Is.True);
     }
 

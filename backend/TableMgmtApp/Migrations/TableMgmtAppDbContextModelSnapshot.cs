@@ -40,7 +40,7 @@ namespace TableMgmtApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PlaySessions");
+                    b.ToTable("PlaySessions", (string)null);
                 });
 
             modelBuilder.Entity("TableMgmtApp.Player", b =>
@@ -54,33 +54,36 @@ namespace TableMgmtApp.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Surname")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Players");
+                    b.ToTable("Players", (string)null);
                 });
 
             modelBuilder.Entity("TableMgmtApp.PoolTable", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("Number")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
 
-                    b.ToTable("PoolTables");
+                    b.HasKey("Number");
+
+                    b.ToTable("PoolTables", (string)null);
                 });
 #pragma warning restore 612, 618
         }

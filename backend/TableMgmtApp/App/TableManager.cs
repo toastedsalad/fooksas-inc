@@ -102,7 +102,7 @@ public class TableManager {
     private void Off() {
         State = TableState.Off;
         LatestSessions.EnQueue(SessionManager.Session);
-        SessionManager.Stop(true);
+        SessionManager.Shutdown();
         SessionManager = null!;
     }
 
