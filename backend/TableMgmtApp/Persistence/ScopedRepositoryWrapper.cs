@@ -11,7 +11,7 @@ public class ScopedRepositoryWrapper<T> : IDisposable where T : class {
 
     // Dispose both the scope and repository
     public void Dispose() {
-        _scope.Dispose();
+        _scope?.Dispose();
     }
 }
 
