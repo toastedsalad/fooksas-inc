@@ -1,3 +1,6 @@
+using Moq;
+using TableMgmtApp.Persistence;
+
 namespace TableMgmtApp.Test;
 
 public class TableServiceTest {
@@ -13,10 +16,12 @@ public class TableServiceTest {
         var table3 = new Table(3);
         var table4 = new Table(4);
 
-        tableService.TableManagers.Add(new TableManager(table1, timeProvider, timer, 15));
-        tableService.TableManagers.Add(new TableManager(table2, timeProvider, timer, 15));
-        tableService.TableManagers.Add(new TableManager(table3, timeProvider, timer, 15));
-        tableService.TableManagers.Add(new TableManager(table4, timeProvider, timer, 15));
+        var mockPSRepo = new Mock<IPlaySessionRepository>(); 
+
+        tableService.TableManagers.Add(new TableManager(table1, timeProvider, timer, mockPSRepo.Object, 15));
+        tableService.TableManagers.Add(new TableManager(table2, timeProvider, timer, mockPSRepo.Object, 15));
+        tableService.TableManagers.Add(new TableManager(table3, timeProvider, timer, mockPSRepo.Object, 15));
+        tableService.TableManagers.Add(new TableManager(table4, timeProvider, timer, mockPSRepo.Object, 15));
 
         var table1Result = tableService.GetTable(2);
 
@@ -41,10 +46,11 @@ public class TableServiceTest {
         var table3 = new Table(3);
         var table4 = new Table(4);
 
-        tableService.TableManagers.Add(new TableManager(table1, timeProvider, timer, 15));
-        tableService.TableManagers.Add(new TableManager(table2, timeProvider, timer, 15));
-        tableService.TableManagers.Add(new TableManager(table3, timeProvider, timer, 15));
-        tableService.TableManagers.Add(new TableManager(table4, timeProvider, timer, 15));
+        var mockPSRepo = new Mock<IPlaySessionRepository>(); 
+        tableService.TableManagers.Add(new TableManager(table1, timeProvider, timer, mockPSRepo.Object, 15));
+        tableService.TableManagers.Add(new TableManager(table2, timeProvider, timer, mockPSRepo.Object, 15));
+        tableService.TableManagers.Add(new TableManager(table3, timeProvider, timer, mockPSRepo.Object, 15));
+        tableService.TableManagers.Add(new TableManager(table4, timeProvider, timer, mockPSRepo.Object, 15));
 
         var customSwitch = new VirtualSwitch();
 

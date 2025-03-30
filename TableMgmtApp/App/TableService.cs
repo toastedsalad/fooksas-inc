@@ -21,6 +21,10 @@ public class TableService {
         }
     }
 
+    // TODO: Do I need a service that gets all the tables?
+    // 1. Get all the tables from DB.
+    // 2. Create all the table managers. 
+    // 3. Display table session data from the list of TableManagers.
     // TODO: perhaps Switch should be part of table? Idk.
     public void SwitchTable(int id, ISwitch customSwitch, SwitchState switchState) {
         var tableResult = GetTable(id);
