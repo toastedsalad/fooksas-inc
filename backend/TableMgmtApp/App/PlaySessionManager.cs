@@ -81,7 +81,8 @@ public class PlaySessionManager {
 
     public async void Shutdown() {
         if (IsStopActive) {
-            var repo = _playSessionRepoFactory.CreateRepository();
+            using var repoWrapper = _playSessionRepoFactory.CreateRepository();
+            var repo = repoWrapper.Repository;
             await repo.AddAsync(Session);
             await repo.SaveAsync();
             _timer.Elapsed -= TimedEvent;
