@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 namespace TableMgmtApp.Persistence;
 
 public interface ITableRepository {
-    Task<List<Table>> GetAllAsync();
-    Task AddAsync(Table table);
+    Task<List<PoolTable>> GetAllAsync();
+    Task AddAsync(PoolTable table);
     Task SaveAsync();
 }
 
@@ -15,12 +15,12 @@ public class TableSQLRepository : ITableRepository {
         _context = context;
     }
 
-    public async Task<List<Table>> GetAllAsync() {
-        return await _context.Tables.ToListAsync();
+    public async Task<List<PoolTable>> GetAllAsync() {
+        return await _context.PoolTables.ToListAsync();
     }
 
-    public async Task AddAsync(Table table) {
-        await _context.Tables.AddAsync(table);
+    public async Task AddAsync(PoolTable table) {
+        await _context.PoolTables.AddAsync(table);
     }
 
     public async Task SaveAsync() {

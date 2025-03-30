@@ -9,7 +9,7 @@ public class TableManagerTest {
     public void WhenNewTableInitializedItHasAttributes() {
         var systemTimeProvider = new SystemTimeProvider();
         var systemTimer = new RealTimer(1000);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, systemTimeProvider, systemTimer, mockPSRepo.Object);
         Assert.That(tableManager.TableNumber, Is.EqualTo(1));
@@ -19,7 +19,7 @@ public class TableManagerTest {
     public void WhenNewTableInitializedFourStatesAreAllowed() {
         var systemTimeProvider = new SystemTimeProvider();
         var systemTimer = new RealTimer(1000);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, systemTimeProvider, systemTimer, mockPSRepo.Object);
 
@@ -48,7 +48,7 @@ public class TableManagerTest {
     public void WhenTableIsInPlayOnItCanOnlyBeSetToPausedFirstWhenOffIsSent() {
         var systemTimeProvider = new SystemTimeProvider();
         var systemTimer = new RealTimer(1000);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, systemTimeProvider, systemTimer, mockPSRepo.Object);
 
@@ -62,7 +62,7 @@ public class TableManagerTest {
     public void TableHasAPauseTimer () {
         var systemTimeProvider = new SystemTimeProvider();
         var systemTimer = new RealTimer(1000);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, systemTimeProvider, systemTimer, 
                                             mockPSRepo.Object, 5);
@@ -74,7 +74,7 @@ public class TableManagerTest {
     public void IfTableIsInPauseItCanTransitionToStandByAfterPauseTimerExpires() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, 
                                             mockPSRepo.Object, 1); // Pause timer expires.
@@ -92,7 +92,7 @@ public class TableManagerTest {
     public void WhenTableIsInPauseSendingPlayWithinTimerWillSetItToPlay() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, 
                                             mockPSRepo.Object, 2);
@@ -117,7 +117,7 @@ public class TableManagerTest {
     public void WhenTableStateIsInStandbySendingOffWillOffTheTable() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, 
                                             mockPSRepo.Object, 1);
@@ -138,7 +138,7 @@ public class TableManagerTest {
     public void WhenTableIsOffSettingOnSetsAGuid() {
         var systemTimeProvider = new SystemTimeProvider();
         var systemTimer = new RealTimer(1000);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, systemTimeProvider, systemTimer, 
                                             mockPSRepo.Object, 1);
@@ -151,7 +151,7 @@ public class TableManagerTest {
     public void WhenTableIsOffSettingOnSetsASessionTimer() {
         var systemTimeProvider = new SystemTimeProvider();
         var systemTimer = new RealTimer(1000);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, systemTimeProvider, systemTimer, mockPSRepo.Object, 1);
         tableManager.SetStateBySwitch(TableState.Play);
@@ -163,7 +163,7 @@ public class TableManagerTest {
     public void WhenTableIsInStandBySettingPlayOnWillContinueTheGame() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object, 1);
         tableManager.SetStateBySwitch(TableState.Play);
@@ -182,7 +182,7 @@ public class TableManagerTest {
     public void TableHoldsLatestThreeSessions() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object, 1);
 
@@ -194,7 +194,7 @@ public class TableManagerTest {
     public void WhenTableSessionIsStoppedItIsAddedToRingBuffer() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object, 1);
 
@@ -218,7 +218,7 @@ public class TableManagerTest {
     public void OneTableCanCreateManySesssions() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object, 1);
 
@@ -253,7 +253,7 @@ public class TableManagerTest {
     public void WhenTableIsSetToPlayOnNewSessionStartsOrItDoesNoting() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object, 1);
 
@@ -271,7 +271,7 @@ public class TableManagerTest {
     public void WhenTableIsSetToStandByTheSessionIsStopped() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object, 1);
 
@@ -286,7 +286,7 @@ public class TableManagerTest {
     public void WhenTableIsSetToOffSessionIsStoppedAndMovedToArchive() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object, 1);
 
@@ -302,7 +302,7 @@ public class TableManagerTest {
     public void WhenStoppedAndStartedANewUniqueSessionIsCreated() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object, 1);
 
@@ -343,7 +343,7 @@ public class TableManagerTest {
     public void TableCanRunAndTrackATimedSession() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object, 1);
 
@@ -362,7 +362,7 @@ public class TableManagerTest {
     public void WhenTableStopsTimedSessionPlayTimeDoesntCount() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object, 1);
 
@@ -409,7 +409,7 @@ public class TableManagerTest {
     public void WhenTimedSessionExpiresTableGoesToStandby() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>();
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object, 1);
 

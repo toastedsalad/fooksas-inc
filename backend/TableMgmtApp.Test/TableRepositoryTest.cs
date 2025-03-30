@@ -32,9 +32,9 @@ public class TableRepositoryTests {
 
     [Test]
     public async Task Can_Retrieve_All_Tables() {
-        var table1 = new Table(1);
-        var table2 = new Table(2);
-        var table3 = new Table(3);
+        var table1 = new PoolTable(1);
+        var table2 = new PoolTable(2);
+        var table3 = new PoolTable(3);
 
         await _repository.AddAsync(table1);
         await _repository.AddAsync(table2);

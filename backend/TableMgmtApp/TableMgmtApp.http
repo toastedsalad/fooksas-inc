@@ -1,0 +1,6 @@
+@TableMgmtApp_HostAddress = http://localhost:5267
+
+GET {{TableMgmtApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

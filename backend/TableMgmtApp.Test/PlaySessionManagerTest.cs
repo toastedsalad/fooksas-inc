@@ -49,7 +49,7 @@ public class PlaySessionManagerTest {
     public void WhenSessionStartItStarts() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -64,7 +64,7 @@ public class PlaySessionManagerTest {
     public void SessionElapsedTimeDisplayHowMuchTimeWasPlayed() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -80,7 +80,7 @@ public class PlaySessionManagerTest {
         var fakeTimeProvider = new FakeTimeProvider();
         fakeTimeProvider.Now = new DateTime(2025, 12, 28);
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -93,7 +93,7 @@ public class PlaySessionManagerTest {
     public void WhenTimeIncreasesWithFakerTimerPlayTimeIncreasesAsWell() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -112,7 +112,7 @@ public class PlaySessionManagerTest {
     public void WhenSessionIsPausedGameTimeDoesNotIncrease() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -130,7 +130,7 @@ public class PlaySessionManagerTest {
     public void SesionCanBeResumedFromPause() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -151,7 +151,7 @@ public class PlaySessionManagerTest {
     public void WhenSessionIsPausedReturnLastPlayTime() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -171,7 +171,7 @@ public class PlaySessionManagerTest {
     public void WhenSessionIsPausedAndResumedReturnPlayTimeWithoutPause() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -195,7 +195,7 @@ public class PlaySessionManagerTest {
     public void WhenSessionIsPausedAndResumedAndStoppedReturnPlayTimeWithoutPauses() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -224,7 +224,7 @@ public class PlaySessionManagerTest {
     public void WhenSessionIsResumedMultipleTimesAndStoppedAtTheEndItReturnsPlayTime() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -254,7 +254,7 @@ public class PlaySessionManagerTest {
     public void WhenPausingMultipleTimesItCountsAsOneTime() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -277,7 +277,7 @@ public class PlaySessionManagerTest {
     public void WhenResumingMultipleTimesItCountsAsOneTime() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -319,7 +319,7 @@ public class PlaySessionManagerTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 5);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
@@ -332,7 +332,7 @@ public class PlaySessionManagerTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 5);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var session = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
@@ -352,7 +352,7 @@ public class PlaySessionManagerTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 5);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
@@ -374,7 +374,7 @@ public class PlaySessionManagerTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
@@ -395,7 +395,7 @@ public class PlaySessionManagerTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
@@ -420,7 +420,7 @@ public class PlaySessionManagerTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
@@ -446,7 +446,7 @@ public class PlaySessionManagerTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
@@ -476,7 +476,7 @@ public class PlaySessionManagerTest {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
         var timedSessionSpan = new TimeSpan(0, 0, 10);
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager, timedSessionSpan);
@@ -503,7 +503,7 @@ public class PlaySessionManagerTest {
     public void WhenSessionIsArchivedTheTimersAreDisposed() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -519,7 +519,7 @@ public class PlaySessionManagerTest {
     public void SessionHoldsSessionPrice() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);
@@ -532,7 +532,7 @@ public class PlaySessionManagerTest {
     public void WhenTicksSessionPriceIncreases() {
         var fakeTimeProvider = new FakeTimeProvider();
         var fakeTimer = new FakeTimer();
-        var table = new Table(1);
+        var table = new PoolTable(1);
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         var tableManager = new TableManager(table, fakeTimeProvider, fakeTimer, mockPSRepo.Object);
         var sessionManager = new PlaySessionManager(_schedule, tableManager);

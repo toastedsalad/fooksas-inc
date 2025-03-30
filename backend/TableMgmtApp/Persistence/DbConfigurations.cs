@@ -5,17 +5,11 @@ namespace TableMgmtApp.Persistence;
 
 public class TableMgmtAppDbContext : DbContext {
     public DbSet<Player> Players { get; set; }
-    public DbSet<Table> Tables { get; set; }
+    public DbSet<PoolTable> PoolTables { get; set; }
     public DbSet<PlaySession> PlaySessions { get; set; }
 
     #nullable disable
     public TableMgmtAppDbContext(DbContextOptions<TableMgmtAppDbContext> options) : base(options) {}
-
-    // Tables get initialized here
-    protected override void OnModelCreating(ModelBuilder modelBuilder) {
-        modelBuilder.ApplyConfiguration(new PlayerConfiguration());
-        modelBuilder.ApplyConfiguration(new TableConfiguration());
-    }
 }
 
 public class PlayerConfiguration : IEntityTypeConfiguration<Player> {
@@ -29,9 +23,9 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player> {
     }
 }
 
-public class TableConfiguration : IEntityTypeConfiguration<Table> {
-    public void Configure(EntityTypeBuilder<Table> builder) {
-        builder.ToTable("Tables");
+public class TableConfiguration : IEntityTypeConfiguration<PoolTable> {
+    public void Configure(EntityTypeBuilder<PoolTable> builder) {
+        builder.ToTable("PoolTables");
         builder.HasKey(t => t.Number);
         builder.Property(t => t.Id).IsRequired();
     }

@@ -11,10 +11,10 @@ public class TableServiceTest {
         var timeProvider = new FakeTimeProvider();
         var timer = new FakeTimer();
         
-        var table1 = new Table(1);
-        var table2 = new Table(2);
-        var table3 = new Table(3);
-        var table4 = new Table(4);
+        var table1 = new PoolTable(1);
+        var table2 = new PoolTable(2);
+        var table3 = new PoolTable(3);
+        var table4 = new PoolTable(4);
 
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
 
@@ -41,10 +41,10 @@ public class TableServiceTest {
         var timeProvider = new FakeTimeProvider();
         var timer = new FakeTimer();
 
-        var table1 = new Table(1);
-        var table2 = new Table(2);
-        var table3 = new Table(3);
-        var table4 = new Table(4);
+        var table1 = new PoolTable(1);
+        var table2 = new PoolTable(2);
+        var table3 = new PoolTable(3);
+        var table4 = new PoolTable(4);
 
         var mockPSRepo = new Mock<IPlaySessionRepository>(); 
         tableService.TableManagers.Add(new TableManager(table1, timeProvider, timer, mockPSRepo.Object, 15));
