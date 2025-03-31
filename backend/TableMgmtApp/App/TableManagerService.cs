@@ -29,7 +29,9 @@ public class TableManagerService {
         return _tableManagers.Values
             .Select(manager => new {
                 TableId = manager.TableNumber,
+                TableStatus = manager.State.ToString(),
                 PlayTime = manager.SessionManager?.GetPlayTime(),
+                RemainingTime = manager.SessionManager?.GetRemainingPlayTime(),
                 Price = manager.SessionManager?.GetSessionPrice()
             })
             .ToList<object>();

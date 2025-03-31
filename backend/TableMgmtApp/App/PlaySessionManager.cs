@@ -41,13 +41,6 @@ public class PlaySessionManager {
     }
 
     public TimeSpan GetRemainingPlayTime() {
-        _remainingTime = TimedSessionSpan.Subtract(Session.PlayTime);
-
-        if (_remainingTime.TotalSeconds <= 0) {
-            TableManager.SetStandby();
-            Stop();
-        }
-
         return _remainingTime;
     }
 
@@ -58,6 +51,15 @@ public class PlaySessionManager {
     private void TimedEvent(Object? source, ElapsedEventArgs args) {
         Session.PlayTime += TimeSpan.FromSeconds(1);
         Session.Price += ScheduleService.GetCurrentRate(_schedule, _timeProvider) / 60 / 60;
+
+        if (_isTimedSession) {
+            _remainingTime = TimedSessionSpan.Subtract(Session.PlayTime);
+        }
+
+        if (_remainingTime.TotalSeconds <= 0 && _isTimedSession) {
+            TableManager.SetStandby();
+            Stop();
+        }
     }
 
     public void Start() {
