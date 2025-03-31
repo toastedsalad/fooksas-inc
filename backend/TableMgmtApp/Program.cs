@@ -29,6 +29,13 @@ public class Program {
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
+        // Register CORS services and define a policy
+        builder.Services.AddCors(options => {
+                options.AddPolicy("AllowReactApp",
+                        policy => policy.WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+                });
         var app = builder.Build();
 
         // Ensure database is created at app startup
@@ -62,6 +69,9 @@ public class Program {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        // Enable CORS with the specified policy
+        app.UseCors("AllowReactApp");
 
         app.UseHttpsRedirection();
         app.UseAuthorization();
