@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import axios from "axios";
 
 const fetchTableManagers = async () => {
@@ -6,12 +7,15 @@ const fetchTableManagers = async () => {
   return data;
 };
 
-const updateTableState = async ({ tableId, newState }: { tableId: number; newState: string }) => {
-  await axios.put(`http://localhost:5267/api/tablemanager/${tableId}/${newState}`);
+const updateTableState = async ({ tableId, newState, timedSeconds = 0 }: { tableId: number; newState: string; timedSeconds?: number }) => {
+  await axios.put(`http://localhost:5267/api/tablemanager/${tableId}/${newState}`, null, {
+    params: { timedSeconds },
+  });
 };
 
 export default function TableManagers() {
   const queryClient = useQueryClient();
+  const [timedSessions, setTimedSessions] = useState<{ [key: number]: string }>({});
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["tableManagers"],
@@ -27,7 +31,13 @@ export default function TableManagers() {
   });
 
   const handleStateChange = (tableId: number, newState: string) => {
-    mutation.mutate({ tableId, newState });
+    if (newState === "play") {
+      const timedSeconds = parseInt(timedSessions[tableId] || "0") * 60;
+      mutation.mutate({ tableId, newState, timedSeconds });
+      setTimedSessions((prev) => ({ ...prev, [tableId]: "" }));
+    } else {
+      mutation.mutate({ tableId, newState });
+    }
   };
 
   if (error) return <p className="text-center text-red-500">Error loading data</p>;
@@ -37,21 +47,20 @@ export default function TableManagers() {
     <div className="p-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
         {data.map((table: any, index: number) => {
-          // Conditionally set background color based on table status
           let boxColor = "";
 
           switch (table.tableStatus.toLowerCase()) {
             case "play":
-              boxColor = "bg-red-800"; // Darker Red
+              boxColor = "bg-red-800";
               break;
             case "standby":
-              boxColor = "bg-blue-800"; // Darker Blue
+              boxColor = "bg-blue-800";
               break;
             case "off":
-              boxColor = "bg-green-800"; // Darker Green
+              boxColor = "bg-green-800";
               break;
             default:
-              boxColor = "bg-gray-500"; // Default Gray
+              boxColor = "bg-gray-500";
               break;
           }
 
@@ -72,12 +81,25 @@ export default function TableManagers() {
               </p>
               <p className="text-3xl text-white font-bold mt-2">€ {table.price}</p>
 
+              {/* Timed Session Input */}
+              {table.tableStatus.toLowerCase() === "off" && (
+                <input
+                  type="number"
+                  value={timedSessions[table.tableId] || ""}
+                  onChange={(e) =>
+                    setTimedSessions((prev) => ({ ...prev, [table.tableId]: e.target.value }))
+                  }
+                  placeholder="Minutes (optional)"
+                  className="w-full p-2 mt-2 rounded-lg border border-gray-300 text-black"
+                />
+              )}
+
               {/* Control Buttons */}
-              <div className="mt-4 flex space-x-2">
+              <div className="mt-4 flex flex-col space-y-2">
                 {table.tableStatus.toLowerCase() === "off" && (
                   <button
                     onClick={() => handleStateChange(table.tableId, "play")}
-                    className="bg-white text-green-700 px-4 py-2 rounded-lg font-bold"
+                    className="bg-white text-green-700 px-4 py-2 rounded-lg font-bold w-full"
                   >
                     Play
                   </button>
@@ -85,7 +107,7 @@ export default function TableManagers() {
                 {table.tableStatus.toLowerCase() === "play" && (
                   <button
                     onClick={() => handleStateChange(table.tableId, "standby")}
-                    className="bg-white text-blue-700 px-4 py-2 rounded-lg font-bold"
+                    className="bg-white text-blue-700 px-4 py-2 rounded-lg font-bold w-full"
                   >
                     Standby
                   </button>
@@ -94,13 +116,13 @@ export default function TableManagers() {
                   <>
                     <button
                       onClick={() => handleStateChange(table.tableId, "play")}
-                      className="bg-white text-green-700 px-4 py-2 rounded-lg font-bold"
+                      className="bg-white text-green-700 px-4 py-2 rounded-lg font-bold w-full"
                     >
                       Play
                     </button>
                     <button
                       onClick={() => handleStateChange(table.tableId, "off")}
-                      className="bg-white text-red-700 px-4 py-2 rounded-lg font-bold"
+                      className="bg-white text-red-700 px-4 py-2 rounded-lg font-bold w-full"
                     >
                       Off
                     </button>
