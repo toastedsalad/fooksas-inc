@@ -63,6 +63,10 @@ public class PlaySessionManager {
     }
 
     public void Start() {
+        // TODO: Fix this
+        var timer = new RealTimer(1000);
+        _timer = timer;
+        //
         Session.StartTime = _timeProvider.Now;
         Session.TableNumber = TableManager.TableNumber;
         IsStopActive = false;
