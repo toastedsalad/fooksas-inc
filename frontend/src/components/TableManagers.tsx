@@ -67,7 +67,7 @@ export default function TableManagers() {
           return (
             <div
               key={index}
-              className={`${boxColor} p-4 rounded-xl shadow-md border border-gray-200`}
+              className={`${boxColor} p-4 rounded-xl shadow-md border border-gray-200 flex flex-col justify-between`}
             >
               <h3 className="text-3xl font-semibold text-white">Table {table.tableId}</h3>
               <p className="text-2xl text-white mt-2">
@@ -92,6 +92,16 @@ export default function TableManagers() {
                   placeholder="Minutes (optional)"
                   className="w-full p-2 mt-2 rounded-lg border border-gray-300 text-black"
                 />
+              )}
+
+              {/* Invisible Dummy Button for "play" state */}
+              {table.tableStatus.toLowerCase() === "play" && (
+                <button
+                  className="invisible opacity-0 w-full px-4 py-2 rounded-lg font-bold"
+                  style={{ height: '2.5rem' }} // Same height as other buttons
+                >
+                  Invisible Button
+                </button>
               )}
 
               {/* Control Buttons */}
@@ -136,3 +146,4 @@ export default function TableManagers() {
     </div>
   );
 }
+
