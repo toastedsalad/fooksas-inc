@@ -10,3 +10,7 @@ TODOs:
 4. Bring the API endpoints, write controllers.
 5. Minimal frontend.
 
+Instead of time reamining do play for money.
+Switch goes off on standby.
+Remainder of money should be accounted.`
+One card one discount.
