@@ -64,9 +64,9 @@ public class PlaySessionManager {
 
     public void Start() {
         // TODO: Fix this
+        // We need to pass in a timer here.
         var timer = new RealTimer(1000);
         _timer = timer;
-        //
         Session.StartTime = _timeProvider.Now;
         Session.TableNumber = TableManager.TableNumber;
         IsStopActive = false;
@@ -91,6 +91,9 @@ public class PlaySessionManager {
             var repo = repoWrapper.Repository;
             await repo.AddAsync(Session);
             await repo.SaveAsync();
+            // Why am I not disposing of repo here?
+            // I think I should:
+            repoWrapper.Dispose();
             _timer.Elapsed -= TimedEvent;
             _timer.Dispose();
             _timer = null!;
