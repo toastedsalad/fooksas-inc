@@ -24,17 +24,18 @@ public class TableManager {
     // Maybe we can have something that gets the schedule...
     public Schedule Schedule { get; set; } = new Schedule();
     public ITimeProvider TimeProvider { get; private set; }
-    public ICustomTimer Timer { get; private set; }
     public IPlaySessionRepositoryFactory PlaySessionRepoFactory { get; private set; }
+    private ICustomTimer _timer;
 
-    public TableManager(PoolTable table, ITimeProvider timeProvider, ICustomTimer timer, 
-                        IPlaySessionRepositoryFactory playSessionRepoFactory, int pauseTimer = 1) {
+    public TableManager(PoolTable table, ITimeProvider timeProvider, 
+                        IPlaySessionRepositoryFactory playSessionRepoFactory, 
+                        int pauseTimer = 1, ICustomTimer timer = null!) {
         TableNumber = table.Number;
         Table = table;
         TimeProvider = timeProvider;
-        Timer = timer;
         PlaySessionRepoFactory = playSessionRepoFactory;
         PauseTimer = pauseTimer;
+        _timer = timer;
     }
 
     public void SetPlay(int timedSeconds = 0) {
@@ -86,10 +87,11 @@ public class TableManager {
     private void Play(int timedSeconds) {
         State = TableState.Play;
         if (timedSeconds == 0) {
-            SessionManager = new PlaySessionManager(Schedule, this);
+            SessionManager = new PlaySessionManager(Schedule, this, _timer);
         } else {
             SessionManager = new PlaySessionManager(Schedule, this, 
-                                                    new TimeSpan(0, 0, timedSeconds));
+                                                    new TimeSpan(0, 0, timedSeconds),
+                                                    _timer);
         }
         SessionManager.Start();
     }
@@ -107,7 +109,6 @@ public class TableManager {
     }
 
     public async void StartPauseTimer() {
-        // This should probably work on a time provider from the session.
         await TimeProvider.DelayAsync(PauseTimer * 1000);
         if (State == TableState.Paused) {
             Standby();

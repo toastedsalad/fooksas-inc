@@ -16,24 +16,25 @@ public class PlaySessionManager {
     private Schedule _schedule;
     private readonly IPlaySessionRepositoryFactory _playSessionRepoFactory;
 
-    public PlaySessionManager(Schedule schedule, TableManager tableManager) {
+    public PlaySessionManager(Schedule schedule, TableManager tableManager, 
+                              ICustomTimer timer = null!) {
         _schedule = schedule;
         TableManager = tableManager;
         _playSessionRepoFactory = tableManager.PlaySessionRepoFactory;
         _timeProvider = tableManager.TimeProvider;
-        _timer = tableManager.Timer;
+        _timer = timer;
     }
 
     public PlaySessionManager(Schedule schedule, TableManager tableManager,
-                              TimeSpan timedSessionSpan) {
+                              TimeSpan timedSessionSpan, ICustomTimer timer = null!) {
         _schedule = schedule;
         TableManager = tableManager;
         _playSessionRepoFactory = tableManager.PlaySessionRepoFactory;
         _timeProvider = tableManager.TimeProvider;
-        _timer = tableManager.Timer;
+        _timer = timer;
         TimedSessionSpan = timedSessionSpan;
         _isTimedSession = true;
-        _remainingTime = new TimeSpan();
+        _remainingTime = timedSessionSpan;
     }
 
     public TimeSpan GetPlayTime(bool setTime = true) {
@@ -69,8 +70,13 @@ public class PlaySessionManager {
         // Timers need to be created here?
         // I probably need a session factory that provides the timer we need.
         // var timer = TimerFactory.CreateTimer(realTimer)
+        // "fakeTimer" "realTimer" is the default
+        // if (_timer == null) {
+        //     _timer = TimerFactory.CreateTimer();
+        // }
         var timer = new RealTimer(1000);
         _timer = timer;
+
         Session.StartTime = _timeProvider.Now;
         Session.TableNumber = TableManager.TableNumber;
         IsStopActive = false;
