@@ -65,6 +65,10 @@ public class PlaySessionManager {
     public void Start() {
         // TODO: Fix this
         // We need to pass in a timer here.
+        // Okay seems like we need a timer per session.
+        // Timers need to be created here?
+        // I probably need a session factory that provides the timer we need.
+        // var timer = TimerFactory.CreateTimer(realTimer)
         var timer = new RealTimer(1000);
         _timer = timer;
         Session.StartTime = _timeProvider.Now;

@@ -1,7 +1,3 @@
-using Moq;
-using TableMgmtApp.Persistence;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace TableMgmtApp.Test;
 
 [Parallelizable(ParallelScope.All)]

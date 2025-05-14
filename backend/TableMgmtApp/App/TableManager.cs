@@ -107,6 +107,7 @@ public class TableManager {
     }
 
     public async void StartPauseTimer() {
+        // This should probably work on a time provider from the session.
         await TimeProvider.DelayAsync(PauseTimer * 1000);
         if (State == TableState.Paused) {
             Standby();
