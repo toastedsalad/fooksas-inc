@@ -7,6 +7,7 @@ public class TableMgmtAppDbContext : DbContext {
     public DbSet<Player> Players { get; set; }
     public DbSet<PoolTable> PoolTables { get; set; }
     public DbSet<PlaySession> PlaySessions { get; set; }
+    public DbSet<ScheduleDTO> Schedules { get; set; }
 
     #nullable disable
     public TableMgmtAppDbContext(DbContextOptions<TableMgmtAppDbContext> options) : base(options) {}
@@ -16,6 +17,7 @@ public class TableMgmtAppDbContext : DbContext {
         modelBuilder.ApplyConfiguration(new PlayerConfiguration());
         modelBuilder.ApplyConfiguration(new TableConfiguration());
         modelBuilder.ApplyConfiguration(new PlaySessionConfiguration());
+        modelBuilder.ApplyConfiguration(new ScheduleConfiguration());
     }
 }
 
@@ -50,8 +52,15 @@ public class PlaySessionConfiguration : IEntityTypeConfiguration<PlaySession> {
     }
 }
 
-
-
+public class ScheduleConfiguration : IEntityTypeConfiguration<ScheduleDTO> {
+    public void Configure(EntityTypeBuilder<ScheduleDTO> builder) {
+        builder.ToTable("Schedules");
+        builder.HasKey(s => s.Id);
+        builder.Property(s => s.Name).IsRequired().HasMaxLength(100);
+        builder.Property(s => s.WeeklyRates).IsRequired();
+        builder.Property(s => s.DefaultRate).IsRequired();
+    }
+}
 
 
 

@@ -1,7 +1,50 @@
+using System.Text.Json;
+
 namespace TableMgmtApp.Test;
 
 [Parallelizable(ParallelScope.All)]
 public class ScheduleTest {
+    private static Schedule GetSchedule()
+    {
+        var timeRangeRate11 = new TimeRate(new TimeSpan(9, 0, 0),
+                                           new TimeSpan(22, 0, 0),
+                                           8.50m);
+
+        var timeRangeRate21 = new TimeRate(new TimeSpan(10, 0, 0),
+                                           new TimeSpan(23, 0, 0),
+                                           12.50m);
+
+        var timeRangeRate31 = new TimeRate(new TimeSpan(9, 0, 0),
+                                           new TimeSpan(13, 59, 59),
+                                           10.50m);
+
+        var timeRangeRate32 = new TimeRate(new TimeSpan(14, 0, 0),
+                                           new TimeSpan(23, 59, 59),
+                                           10.50m);
+
+        var schedule = new Schedule();
+        schedule.Id = Guid.Empty;
+
+
+        var mondaySchedule = new List<TimeRate> {
+            timeRangeRate11
+        };
+
+        var tuesdaySchedule = new List<TimeRate> {
+            timeRangeRate21
+        };
+
+        var wednesdaySchedule = new List<TimeRate> {
+            timeRangeRate31,
+            timeRangeRate32
+        };
+
+        schedule.WeeklyRates.Add(DayOfWeek.Monday, mondaySchedule);
+        schedule.WeeklyRates.Add(DayOfWeek.Tuesday, tuesdaySchedule);
+        schedule.WeeklyRates.Add(DayOfWeek.Wednesday, wednesdaySchedule);
+        return schedule;
+    }
+
     [Test]
     public void DailyRateHasStartEndAndPrice(){
         var timeRangeRate = new TimeRate(new TimeSpan(9, 0, 0),
@@ -69,44 +112,14 @@ public class ScheduleTest {
     }
 
     [Test]
-    public void ScheduleCanSerializeIntoJson() {
-        var timeRangeRate11 = new TimeRate(new TimeSpan(9, 0, 0),
-                                           new TimeSpan(22, 0, 0),
-                                           8.50m);
-        
-        var timeRangeRate21 = new TimeRate(new TimeSpan(10, 0, 0),
-                                           new TimeSpan(23, 0, 0),
-                                           12.50m);
-
-        var timeRangeRate31 = new TimeRate(new TimeSpan(9, 0, 0),
-                                           new TimeSpan(13, 59, 59),
-                                           10.50m);
-
-        var timeRangeRate32 = new TimeRate(new TimeSpan(14, 0, 0),
-                                           new TimeSpan(23, 59, 59),
-                                           10.50m);
-
-        var schedule = new Schedule();
-
-        var mondaySchedule = new List<TimeRate> {
-            timeRangeRate11
-        };
-
-        var tuesdaySchedule = new List<TimeRate> {
-            timeRangeRate21
-        };
-
-        var wednesdaySchedule = new List<TimeRate> {
-            timeRangeRate31,
-            timeRangeRate32
-        };
-
-        schedule.WeeklyRates.Add(DayOfWeek.Monday, mondaySchedule);
-        schedule.WeeklyRates.Add(DayOfWeek.Tuesday, tuesdaySchedule);
-        schedule.WeeklyRates.Add(DayOfWeek.Wednesday, wednesdaySchedule);
+    public void ScheduleCanSerializeIntoJson()
+    {
+        Schedule schedule = GetSchedule();
 
         string expectedJson = """
         {
+          "Id": "00000000-0000-0000-0000-000000000000",
+          "Name": "Default",
           "WeeklyRates": {
             "Monday": [
               {
@@ -262,4 +275,39 @@ public class ScheduleTest {
 
         Assert.That(schedule.WeeklyRates[DayOfWeek.Wednesday][0].End, Is.EqualTo(new TimeSpan(23, 59, 59)));
     }
+
+    [Test]
+    public void WhenScheduleIsTransformedToDTOWeeklyRatesBecomeString(){
+        var schedule = GetSchedule();
+        var scheduleDTO = ScheduleService.ToScheduleDTO(schedule);
+
+        Assert.That(scheduleDTO.Name, Is.EqualTo("Default"));
+        
+        var weeklyRates = JsonSerializer.Deserialize<Dictionary<DayOfWeek, List<TimeRate>>>(scheduleDTO.WeeklyRates);
+
+        Assert.That(weeklyRates[DayOfWeek.Wednesday][1].End, Is.EqualTo(new TimeSpan(23, 59, 59)));
+    }
+
+    [Test]
+    public void WhenScheduleIsTransformedDTOWeeklyRatesBecomeDict(){
+        var schedule = GetSchedule();
+        var scheduleDTO = ScheduleService.ToScheduleDTO(schedule);
+
+        var scheduleFromDTO = ScheduleService.FromScheduleDTO(scheduleDTO);
+
+        Assert.That(scheduleFromDTO.WeeklyRates[DayOfWeek.Wednesday][1].End, Is.EqualTo(new TimeSpan(23, 59, 59)));
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
