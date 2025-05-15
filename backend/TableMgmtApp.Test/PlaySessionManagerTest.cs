@@ -80,7 +80,7 @@ public class PlaySessionManagerTest {
         var table = new PoolTable(1);
 
         var tableManager = new TableManager(table, fakeTimeProvider, TestHelpers.GetRepoFactoryMock().Object);
-        var sessionManager = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager, fakeTimer);
         sessionManager.Start();
 
         Assert.That(sessionManager.Session.StartTime.Day, Is.EqualTo(28));
@@ -112,7 +112,7 @@ public class PlaySessionManagerTest {
         var table = new PoolTable(1);
 
         var tableManager = new TableManager(table, fakeTimeProvider, TestHelpers.GetRepoFactoryMock().Object);
-        var sessionManager = new PlaySessionManager(_schedule, tableManager);
+        var sessionManager = new PlaySessionManager(_schedule, tableManager, fakeTimer);
 
         sessionManager.Start();
         // TODO: Can we somehow check timer state?

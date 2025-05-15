@@ -71,12 +71,9 @@ public class PlaySessionManager {
         // I probably need a session factory that provides the timer we need.
         // var timer = TimerFactory.CreateTimer(realTimer)
         // "fakeTimer" "realTimer" is the default
-        // if (_timer == null) {
-        //     _timer = TimerFactory.CreateTimer();
-        // }
-        var timer = new RealTimer(1000);
-        _timer = timer;
-
+        if (_timer == null) {
+            _timer = TimerFactory.CreateTimer();
+        }
         Session.StartTime = _timeProvider.Now;
         Session.TableNumber = TableManager.TableNumber;
         IsStopActive = false;
