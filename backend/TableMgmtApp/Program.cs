@@ -38,14 +38,13 @@ public class Program {
                 });
         var app = builder.Build();
 
-        // Ensure database is created at app startup
+        //Ensure database is created at app startup
         // using (var scope = app.Services.CreateScope()) {
         //     var dbContext = scope.ServiceProvider.GetRequiredService<TableMgmtAppDbContext>();
         //     dbContext.Database.EnsureCreated();  // Ensure the schema is created
         // }
-        // Ensure database is up to date with the latest migrations at app startup
-        //
-
+        //Ensure database is up to date with the latest migrations at app startup
+        
         using (var scope = app.Services.CreateScope()) {
             var dbContext = scope.ServiceProvider.GetRequiredService<TableMgmtAppDbContext>();
             dbContext.Database.Migrate();  // Apply any pending migrations
