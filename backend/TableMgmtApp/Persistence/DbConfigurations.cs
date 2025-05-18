@@ -63,5 +63,3 @@ public class ScheduleConfiguration : IEntityTypeConfiguration<ScheduleDTO> {
 }
 
 
-
-

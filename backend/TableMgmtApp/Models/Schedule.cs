@@ -76,7 +76,7 @@ public class ScheduleService {
     public static Schedule FromScheduleDTO(ScheduleDTO scheduleDTO) {
         var schedule = new Schedule();
         schedule.Id = scheduleDTO.Id;
-        schedule.Name = schedule.Name;
+        schedule.Name = scheduleDTO.Name;
         schedule.WeeklyRates = JsonSerializer.Deserialize<Dictionary<DayOfWeek, List<TimeRate>>>(scheduleDTO.WeeklyRates);
         schedule.DefaultRate = scheduleDTO.DefaultRate;
 

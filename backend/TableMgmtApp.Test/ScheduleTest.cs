@@ -4,7 +4,7 @@ namespace TableMgmtApp.Test;
 
 [Parallelizable(ParallelScope.All)]
 public class ScheduleTest {
-    private static Schedule GetSchedule()
+    public static Schedule GetSchedule()
     {
         var timeRangeRate11 = new TimeRate(new TimeSpan(9, 0, 0),
                                            new TimeSpan(22, 0, 0),

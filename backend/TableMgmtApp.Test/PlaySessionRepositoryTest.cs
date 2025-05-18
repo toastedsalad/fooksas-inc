@@ -31,7 +31,7 @@ public class PlaySessionRepositoryTests {
     }
 
     [Test]
-    public async Task Can_Retrieve_Players_By_Surname() {
+    public async Task Can_Retrieve_Session_By_Table_Number() {
         var session1 = new PlaySession();
         session1.StartTime = DateTime.Now;
         session1.PlayTime = TimeSpan.Zero;
