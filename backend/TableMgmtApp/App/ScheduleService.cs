@@ -1,8 +1,24 @@
 using System.Text.Json;
+using TableMgmtApp.Persistence;
 
 namespace TableMgmtApp;
 
 public class ScheduleService {
+    private readonly IScheduleRepository _repo;
+
+    public ScheduleService(IScheduleRepository repo) {
+        _repo = repo;
+    }
+
+    public async Task<List<ScheduleDTO>> GetAllScheduleDTOs() {
+        return await _repo.GetAllAsync();
+    }
+
+    public async Task<List<Schedule>> GetAllSchedules() {
+        var scheduleDTOs = await _repo.GetAllAsync();
+        return GetSchedulesFromDTOs(scheduleDTOs);
+    }
+
     public static decimal GetCurrentRate(Schedule schedule, ITimeProvider timeProvider) {
         var today = timeProvider.Now.DayOfWeek;
 
