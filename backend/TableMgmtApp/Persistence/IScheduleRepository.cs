@@ -23,7 +23,6 @@ public class ScheduleSQLRepository : IScheduleRepository {
         return scheduleDTOs;
     }
 
-
     public async Task<ScheduleDTO> GetByIdAsync(Guid id) {
         var scheduleDTO = await _context.Schedules.FindAsync(id);
         return scheduleDTO;
