@@ -57,7 +57,7 @@ public class ScheduleConfiguration : IEntityTypeConfiguration<ScheduleDTO> {
         builder.ToTable("Schedules");
         builder.HasKey(s => s.Id);
         builder.Property(s => s.Name).IsRequired().HasMaxLength(100);
-        builder.Property(s => s.WeeklyRates).IsRequired();
+        builder.Property(s => s.WeeklyRates);
         builder.Property(s => s.DefaultRate).IsRequired();
     }
 }

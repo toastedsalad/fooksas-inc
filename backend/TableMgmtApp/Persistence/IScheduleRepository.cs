@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 namespace TableMgmtApp.Persistence;
 
 public interface IScheduleRepository {
-    Task<List<Schedule>> GetAllAsync();
-    Task<Schedule?> GetByIdAsync(Guid id);
-    Task<List<Schedule>> GetBySchedulesName(string scheduleName);
-    Task AddAsync(Schedule schedule);
+    Task<List<ScheduleDTO>> GetAllAsync();
+    Task<ScheduleDTO?> GetByIdAsync(Guid id);
+    Task<List<ScheduleDTO>> GetBySchedulesName(string scheduleName);
+    Task AddAsync(ScheduleDTO scheduleDTO);
     Task SaveAsync();
 }
 
@@ -18,42 +18,31 @@ public class ScheduleSQLRepository : IScheduleRepository {
         _context = context;
     }
 
-    public async Task<List<Schedule>> GetAllAsync() {
+    public async Task<List<ScheduleDTO>> GetAllAsync() {
         var scheduleDTOs = await _context.Schedules.ToListAsync();
-        return GetSchedulesFromDTOs(scheduleDTOs);
+        return scheduleDTOs;
     }
 
 
-    public async Task<Schedule> GetByIdAsync(Guid id) {
+    public async Task<ScheduleDTO> GetByIdAsync(Guid id) {
         var scheduleDTO = await _context.Schedules.FindAsync(id);
-        return ScheduleService.FromScheduleDTO(scheduleDTO);
+        return scheduleDTO;
     }
 
-    public async Task<List<Schedule>> GetBySchedulesName(string scheduleName) {
+    public async Task<List<ScheduleDTO>> GetBySchedulesName(string scheduleName) {
         var scheduleDTOs = await _context.Schedules
-                                        .Where(s => s.Name == scheduleName)
-                                        .ToListAsync();
+                                         .Where(s => s.Name == scheduleName)
+                                         .ToListAsync();
 
-        return GetSchedulesFromDTOs(scheduleDTOs);
+        return scheduleDTOs;
     }
 
-    public async Task AddAsync(Schedule schedule) {
-        var scheduleDTO = ScheduleService.ToScheduleDTO(schedule);
+    public async Task AddAsync(ScheduleDTO scheduleDTO) {
         await _context.Schedules.AddAsync(scheduleDTO);
     }
 
     public async Task SaveAsync() {
         await _context.SaveChangesAsync();
-    }
-
-    private static List<Schedule> GetSchedulesFromDTOs(List<ScheduleDTO> scheduleDTOs) {
-        var schedules = new List<Schedule>();
-        foreach (var dto in scheduleDTOs) {
-            Schedule schedule = ScheduleService.FromScheduleDTO(dto);
-            schedules.Add(schedule);
-        }
-
-        return schedules;
     }
 }
 

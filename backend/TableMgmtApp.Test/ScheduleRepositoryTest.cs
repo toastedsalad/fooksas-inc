@@ -33,9 +33,9 @@ public class ScheduleRepositoryTest {
 
     [Test]
     public async Task Can_Retrieve_By_Schedule_Name() {
-        var schedule1 = new Schedule();
+        var schedule1 = new ScheduleDTO();
         schedule1.Name = "daytime";
-        var schedule2 = new Schedule();
+        var schedule2 = new ScheduleDTO();
         schedule2.Name = "nighttime";
 
         await _repository.AddAsync(schedule1);
@@ -50,9 +50,9 @@ public class ScheduleRepositoryTest {
 
     [Test]
     public async Task Can_Retrieve_All_Schedules() {
-        var schedule1 = new Schedule();
+        var schedule1 = new ScheduleDTO();
         schedule1.Name = "daytime";
-        var schedule2 = new Schedule();
+        var schedule2 = new ScheduleDTO();
         schedule2.Name = "nighttime";
 
         await _repository.AddAsync(schedule1);
@@ -68,13 +68,15 @@ public class ScheduleRepositoryTest {
     [Test]
     public async Task Get_Real_Schedule_Check_Rate() {
         var schedule = ScheduleTest.GetSchedule();
+        var scheduleDTO = ScheduleService.ToScheduleDTO(schedule);
 
-        await _repository.AddAsync(schedule);
+        await _repository.AddAsync(scheduleDTO);
 
         await _repository.SaveAsync();
 
-        var schedulesFromRepo = await _repository.GetBySchedulesName("Default");
+        var schedulesFromRepoDTO = await _repository.GetBySchedulesName("Default");
+        var scheduleFromRepo = ScheduleService.FromScheduleDTO(schedulesFromRepoDTO[0]);
 
-        Assert.That(schedulesFromRepo[0].WeeklyRates[DayOfWeek.Wednesday][1].End, Is.EqualTo(new TimeSpan(23, 59, 59)));
+        Assert.That(scheduleFromRepo.WeeklyRates[DayOfWeek.Wednesday][1].End, Is.EqualTo(new TimeSpan(23, 59, 59)));
     }
 }

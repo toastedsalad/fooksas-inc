@@ -42,7 +42,7 @@ public class Schedule {
 public record ScheduleDTO {
     public Guid Id { get; set; }
     public string Name { get; set; } = default!;
-    public string WeeklyRates { get; set; } = default!;
+    public string? WeeklyRates { get; set; }
     public decimal DefaultRate { get; set; } = default!;
 }
 

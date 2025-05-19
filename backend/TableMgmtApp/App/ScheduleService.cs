@@ -37,6 +37,16 @@ public class ScheduleService {
         return schedule;
     }
 
+    private static List<Schedule> GetSchedulesFromDTOs(List<ScheduleDTO> scheduleDTOs) {
+        var schedules = new List<Schedule>();
+        foreach (var dto in scheduleDTOs) {
+            Schedule schedule = ScheduleService.FromScheduleDTO(dto);
+            schedules.Add(schedule);
+        }
+
+        return schedules;
+    }
+
     public static string ToJson(Schedule schedule) {
         return JsonSerializer.Serialize(schedule, new JsonSerializerOptions {WriteIndented = true});
     }
@@ -45,6 +55,4 @@ public class ScheduleService {
         return JsonSerializer.Deserialize<Schedule>(json);
     }
 }
-
-
 
