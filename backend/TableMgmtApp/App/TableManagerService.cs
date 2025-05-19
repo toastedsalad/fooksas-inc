@@ -18,7 +18,6 @@ public class TableManagerService {
     public void CreateAllTableManagersAsync(List<PoolTable> tables) {
         foreach (var table in tables) {
             if (!_tableManagers.ContainsKey(table.Number)) {
-                var timer = new RealTimer(1000);
                 var manager = new TableManager(table, _timeProvider, _repo);
                 _tableManagers.TryAdd(table.Number, manager);
             }
