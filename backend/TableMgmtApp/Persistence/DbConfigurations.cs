@@ -35,8 +35,9 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player> {
 public class TableConfiguration : IEntityTypeConfiguration<PoolTable> {
     public void Configure(EntityTypeBuilder<PoolTable> builder) {
         builder.ToTable("PoolTables");
-        builder.HasKey(t => t.Number);
-        builder.Property(t => t.Id).IsRequired();
+        builder.HasKey(t => t.Id);
+        builder.Property(t => t.Name).IsRequired();
+        builder.Property(t => t.Number).IsRequired();
     }
 }
 

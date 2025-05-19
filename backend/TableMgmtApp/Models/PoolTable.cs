@@ -1,11 +1,13 @@
 namespace TableMgmtApp;
 
 public class PoolTable {
-    public int Number { get; private set; }
     public Guid Id { get; private set; }
+    public string Name { get; private set; }
+    public int Number { get; private set; }
 
-    public PoolTable(int number) {
+    public PoolTable(int number, string name = "Pool") {
         Number = number;
+        Name = name;
         Id = Guid.NewGuid();
     }
 }
