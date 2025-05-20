@@ -5,20 +5,24 @@ namespace TableMgmtApp;
 
 public class TableManagerService {
     private readonly ITimeProvider _timeProvider;
-    private readonly IPlaySessionRepositoryFactory _repo;
+    private readonly IPlaySessionRepositoryFactory _sessionRepo;
+    private readonly ITableRepositoryFactory _tableRepo;
 
     // In-memory dictionary to track active TableManager instances
     private readonly ConcurrentDictionary<int, TableManager> _tableManagers = new();
 
-    public TableManagerService(ITimeProvider timeProvider, IPlaySessionRepositoryFactory repo) {
+    public TableManagerService(ITimeProvider timeProvider,
+                               IPlaySessionRepositoryFactory repo,
+                               ITableRepositoryFactory tableRepo) {
         _timeProvider = timeProvider;
-        _repo = repo;
+        _sessionRepo = repo;
+        _tableRepo = tableRepo;
     }
 
     public void CreateAllTableManagersAsync(List<PoolTable> tables) {
         foreach (var table in tables) {
             if (!_tableManagers.ContainsKey(table.Number)) {
-                var manager = new TableManager(table, _timeProvider, _repo);
+                var manager = new TableManager(table, _timeProvider, _sessionRepo);
                 _tableManagers.TryAdd(table.Number, manager);
             }
         }

@@ -33,3 +33,20 @@ public class PlaySessionRepositoryFactory : IPlaySessionRepositoryFactory {
     }
 }
 
+public interface ITableRepositoryFactory {
+    ScopedRepositoryWrapper<ITableRepository> CreateRepository();
+}
+
+public class TableRepositoryFactory : ITableRepositoryFactory {
+    private IServiceScopeFactory _scopeFactory;
+
+    public TableRepositoryFactory(IServiceScopeFactory scopeFactory) {
+        _scopeFactory = scopeFactory;
+    }
+
+    public ScopedRepositoryWrapper<ITableRepository> CreateRepository() {
+        var scope = _scopeFactory.CreateScope(); // Create a new scope
+        var repository = scope.ServiceProvider.GetRequiredService<ITableRepository>();
+        return new ScopedRepositoryWrapper<ITableRepository>(scope, repository);
+    }
+}

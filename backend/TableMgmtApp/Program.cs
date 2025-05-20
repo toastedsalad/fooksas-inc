@@ -22,6 +22,7 @@ public class Program {
         builder.Services.AddScoped<IPlayerRepository, PlayerSQLRepository>();
         builder.Services.AddScoped<IPlaySessionRepository, PlaySessionSQLRepository>();
         builder.Services.AddSingleton<IPlaySessionRepositoryFactory, PlaySessionRepositoryFactory>();
+        builder.Services.AddSingleton<ITableRepositoryFactory, TableRepositoryFactory>();
         builder.Services.AddSingleton<ITimeProvider, SystemTimeProvider>();
         builder.Services.AddSingleton<TableManagerService>();
 
