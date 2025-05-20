@@ -45,5 +45,25 @@ public class TableRepositoryTests {
 
         Assert.That(allTables.Count, Is.EqualTo(3));
     }
+
+    [Test]
+    public async Task Can_Delete_A_Table() {
+        var table1 = new PoolTable(1);
+        var table2 = new PoolTable(2);
+
+        await _repository.AddAsync(table1);
+        await _repository.AddAsync(table2);
+        await _repository.SaveAsync();
+
+        var allTables = await _repository.GetAllAsync();
+
+        Assert.That(allTables.Count, Is.EqualTo(2));
+
+        _repository.Remove(table1);
+        await _repository.SaveAsync();
+
+        allTables = await _repository.GetAllAsync();
+        Assert.That(allTables.Count, Is.EqualTo(1));
+    }
 }
 

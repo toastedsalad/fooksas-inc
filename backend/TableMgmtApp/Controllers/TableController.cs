@@ -30,6 +30,20 @@ namespace TableMgmtApp.Controllers {
             await _repository.SaveAsync();
             return CreatedAtAction(nameof(GetAllTables), new { id = table.Id }, table);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTable(Guid id) {
+            var table = await _repository.GetByIdAsync(id);
+
+            if (table == null) {
+                return NotFound($"No table found with ID {id}");
+            }
+
+            _repository.Remove(table);
+            await _repository.SaveAsync();
+
+            return NoContent();
+        }
     }
 }
 

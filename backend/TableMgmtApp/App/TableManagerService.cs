@@ -24,6 +24,23 @@ public class TableManagerService {
         }
     }
 
+    public void UpdateTableManagers() {
+        // Get all table tables from repo.
+        // Then for each table from repo 
+        // if tablefrom repo is in table managers 
+        //    continue
+        // else 
+        //    create new table manager with new table
+        //    add it the list of table managers
+        //
+        // 
+        // Then for each table from table managers
+        // if tablemanager is in repo
+        //    continure
+        // else 
+        //    remove table manager from table managers
+    }
+
     public List<object> GetAllTableManagersWithSessions() {
         return _tableManagers.Values
             .Select(manager => new {
