@@ -9,8 +9,7 @@ public class TableManagerService {
     private readonly ITableRepositoryFactory _tableRepo;
 
     // In-memory dictionary to track active TableManager instances
-    private readonly ConcurrentDictionary<int, TableManager> _tableManagers = new();
-    private readonly ConcurrentBag<TableManager> _tm = new();
+    private readonly ConcurrentDictionary<Guid, TableManager> _tableManagers = new();
 
     public TableManagerService(ITimeProvider timeProvider,
                                IPlaySessionRepositoryFactory repo,
@@ -23,39 +22,44 @@ public class TableManagerService {
     public void CreateAllTableManagersAsync(List<PoolTable> tables) {
         foreach (var table in tables) {
             var manager = new TableManager(table, _timeProvider, _sessionRepo);
-            _tm.Add(manager);
+            _tableManagers.TryAdd(table.Id, manager);
         }
     }
 
     public async Task UpdateTableManagers() {
-        // Get all table tables from repo.
-        // Then for each table from repo 
-        // if tablefrom repo is in table managers 
-        //    continue
-        // else 
-        //    create new table manager with new table
-        //    add it the list of table managers
         using var repoWrapper = _tableRepo.CreateRepository();
         var repo = repoWrapper.Repository;
         var tables = await repo.GetAllAsync();
 
-        // Then for each table from table managers
-        // if tablemanager is in repo
-        //    continure
-        // else 
-        //    remove table manager from table managers
+        foreach(var table in tables) {
+            var tm = GetTableManager(table.Id);
+            if(tm == null) {
+               var manager = new TableManager(table, _timeProvider, _sessionRepo);
+               _tableManagers.TryAdd(table.Id, manager);
+            }
+        }
+
+        foreach(var tm in _tableManagers) {
+            var table = await repo.GetByIdAsync(tm.Value.Table.Id);
+            if(table == null) {
+                _tableManagers.Remove(tm.Value.Table.Id, out var tableManager);
+            }
+        }
     }
 
     public List<object> GetAllTableManagersWithSessions() {
-        return _tm.Select(manager => new {
-                          TableId = manager.TableNumber,
-                          TableStatus = manager.State.ToString(),
-                          PlayTime = manager.SessionManager?.GetPlayTime(),
-                          RemainingTime = manager.SessionManager?.GetRemainingPlayTime(),
-                          Price = manager.SessionManager?.GetSessionPrice()}).ToList<object>();}
+        return _tableManagers.Values.Select(manager => new {
+                              TableId = manager.Table.Id,
+                              TableNumber = manager.Table.Number,
+                              TableName = manager.Table.Name,
+                              TableStatus = manager.State.ToString(),
+                              PlayTime = manager.SessionManager?.GetPlayTime(),
+                              RemainingTime = manager.SessionManager?.GetRemainingPlayTime(),
+                              Price = manager.SessionManager?.GetSessionPrice()}).ToList<object>();}
 
-    public TableManager? GetTableManager(int tableId) {
-        return _tm.FirstOrDefault(tm => tm.TableNumber == tableId);
+    public TableManager? GetTableManager(Guid tableId) {
+        _tableManagers.TryGetValue(tableId, out var tableManager);
+        return tableManager;
     }
 }
 

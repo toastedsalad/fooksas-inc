@@ -100,7 +100,7 @@ export default function TableManagers() {
               className={`${boxColor} p-4 rounded-xl shadow-md border border-gray-200 flex flex-col justify-between`}
             >
               <h3 className="text-3xl font-semibold text-white">
-                Table {table.tableId}
+                {table.tableName} {table.tableNumber}
               </h3>
               <p className="text-2xl text-white mt-2">
                 <span className="font-medium">Status:</span> {table.tableStatus}
@@ -213,7 +213,7 @@ export default function TableManagers() {
               className={`${boxColor} p-4 rounded-xl shadow-md border border-gray-200 flex flex-col justify-between`}
             >
               <h3 className="text-3xl font-semibold text-white">
-                Table {table.tableId}
+                {table.tableName} {table.tableNumber}
               </h3>
               <p className="text-2xl text-white mt-2">
                 <span className="font-medium">Status:</span> {table.tableStatus}

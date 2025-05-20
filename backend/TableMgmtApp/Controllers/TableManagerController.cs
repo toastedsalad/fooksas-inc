@@ -12,7 +12,7 @@ namespace TableMgmtApp.Controllers {
 
         // PUT: api/tablemanager/{id}/play
         [HttpPut("{id}/play")]
-        public async Task<IActionResult> SetPlay(int id, [FromQuery] int timedSeconds = 0) {
+        public async Task<IActionResult> SetPlay(Guid id, [FromQuery] int timedSeconds = 0) {
             var manager = _tableManagerService.GetTableManager(id);
             if (manager == null) return NotFound($"Table {id} not found");
             
@@ -24,7 +24,7 @@ namespace TableMgmtApp.Controllers {
 
         // PUT: api/tablemanager/{id}/standby
         [HttpPut("{id}/standby")]
-        public async Task<IActionResult> SetStandby(int id) {
+        public async Task<IActionResult> SetStandby(Guid id) {
             var manager = _tableManagerService.GetTableManager(id);
             if (manager == null) return NotFound($"Table {id} not found");
 
@@ -34,7 +34,7 @@ namespace TableMgmtApp.Controllers {
 
         // PUT: api/tablemanager/{id}/off
         [HttpPut("{id}/off")]
-        public async Task<IActionResult> SetOff(int id) {
+        public async Task<IActionResult> SetOff(Guid id) {
             var manager = _tableManagerService.GetTableManager(id);
             if (manager == null) return NotFound($"Table {id} not found");
 
