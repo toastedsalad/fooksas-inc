@@ -48,14 +48,23 @@ public class TableManagerService {
     }
 
     public List<object> GetAllTableManagersWithSessions() {
-        return _tableManagers.Values.Select(manager => new {
+        var tmData =  _tableManagers.Values.Select(manager => new {
                               TableId = manager.Table.Id,
                               TableNumber = manager.Table.Number,
                               TableName = manager.Table.Name,
                               TableStatus = manager.State.ToString(),
                               PlayTime = manager.SessionManager?.GetPlayTime(),
                               RemainingTime = manager.SessionManager?.GetRemainingPlayTime(),
-                              Price = manager.SessionManager?.GetSessionPrice()}).ToList<object>();}
+                              Price = manager.SessionManager?.GetSessionPrice()})
+                              .ToList();
+
+        var sortedTmData = tmData
+            .OrderBy(x => x.TableName)
+            .ThenBy(x => x.TableNumber)
+            .ToList();
+        
+        return sortedTmData.Cast<object>().ToList();
+    }
 
     public TableManager? GetTableManager(Guid tableId) {
         _tableManagers.TryGetValue(tableId, out var tableManager);

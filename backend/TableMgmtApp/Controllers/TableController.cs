@@ -6,9 +6,11 @@ namespace TableMgmtApp.Controllers {
     [Route("api/[controller]")]
     public class TablesController : ControllerBase {
         private readonly ITableRepository _repository;
+        private readonly TableManagerService _tm;
 
-        public TablesController(ITableRepository repository) {
+        public TablesController(ITableRepository repository, TableManagerService tm) {
             _repository = repository;
+            _tm = tm;
         }
 
         // GET: api/tables
@@ -28,6 +30,7 @@ namespace TableMgmtApp.Controllers {
             // TODO add result to repo methods.
             await _repository.AddAsync(table);
             await _repository.SaveAsync();
+            await _tm.UpdateTableManagers();
             return CreatedAtAction(nameof(GetAllTables), new { id = table.Id }, table);
         }
 
@@ -41,6 +44,7 @@ namespace TableMgmtApp.Controllers {
 
             _repository.Remove(table);
             await _repository.SaveAsync();
+            await _tm.UpdateTableManagers();
 
             return NoContent();
         }
