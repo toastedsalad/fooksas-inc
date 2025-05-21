@@ -12,7 +12,6 @@ public enum TableState {
 // This should become a TableManager
 // A smaller object should Table will be stored and retrieved from a db
 public class TableManager {
-    public int TableNumber { get; private set; }
     public PoolTable Table { get; private set; }
     public TableState State { get; private set; } = TableState.Off;
     public int PauseTimer { get; private set; }
@@ -30,7 +29,6 @@ public class TableManager {
     public TableManager(PoolTable table, ITimeProvider timeProvider, 
                         IPlaySessionRepositoryFactory playSessionRepoFactory, 
                         int pauseTimer = 1, ICustomTimer timer = null!) {
-        TableNumber = table.Number;
         Table = table;
         TimeProvider = timeProvider;
         PlaySessionRepoFactory = playSessionRepoFactory;

@@ -3,15 +3,6 @@ namespace TableMgmtApp.Test;
 [Parallelizable(ParallelScope.All)]
 public class TableManagerTest {
     [Test]
-    public void WhenNewTableInitializedItHasAttributes() {
-        var systemTimeProvider = new SystemTimeProvider();
-        var table = new PoolTable(1);
-
-        var tableManager = new TableManager(table, systemTimeProvider, TestHelpers.GetRepoFactoryMock().Object);
-        Assert.That(tableManager.TableNumber, Is.EqualTo(1));
-    }
-
-    [Test]
     public void WhenNewTableInitializedFourStatesAreAllowed() {
         var systemTimeProvider = new SystemTimeProvider();
         

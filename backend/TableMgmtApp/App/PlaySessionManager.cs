@@ -75,7 +75,7 @@ public class PlaySessionManager {
             _timer = TimerFactory.CreateTimer();
         }
         Session.StartTime = _timeProvider.Now;
-        Session.TableNumber = TableManager.TableNumber;
+        Session.TableNumber = TableManager.Table.Number;
         IsStopActive = false;
         _timer.Elapsed += TimedEvent;
         _timer.AutoReset = true;

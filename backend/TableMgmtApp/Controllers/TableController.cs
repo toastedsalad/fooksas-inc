@@ -31,6 +31,7 @@ namespace TableMgmtApp.Controllers {
             await _repository.AddAsync(table);
             await _repository.SaveAsync();
             await _tm.UpdateTableManagers();
+            // This is not recommended use. The return should make a URI with GetById
             return CreatedAtAction(nameof(GetAllTables), new { id = table.Id }, table);
         }
 
