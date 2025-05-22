@@ -29,7 +29,7 @@ export default function SchedulesPage() {
     },
   });
 
-  const createmutation = useMutation({
+  const createMutation = useMutation({
     mutationFn: async () => {
       const newSchedule = {
         name: "New Schedule",
