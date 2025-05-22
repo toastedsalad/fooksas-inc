@@ -1,6 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
+import TimePicker from "react-time-picker";
+
+import 'react-time-picker/dist/TimePicker.css';
+import 'react-clock/dist/Clock.css';
 
 const apiBase = "http://localhost:5267/api/schedules";
 
@@ -157,21 +161,21 @@ export default function SchedulesPage() {
                 <h3 className="text-lg font-semibold mt-4">{day}</h3>
                 {rates.map((rate, idx) => (
                   <div key={idx} className="flex gap-2 items-center my-1">
-                    <input
-                      type="time"
+                    <TimePicker
                       value={rate.start}
-                      onChange={(e) =>
-                        updateRates(day, idx, "start", e.target.value)
-                      }
-                      className="p-1 border rounded"
+                      onChange={(value) => updateRates(day, idx, "start", value || "00:00")}
+                      format="HH:mm"
+                      disableClock={true}
+                      clearIcon={null}
+                      className="react-time-picker"
                     />
-                    <input
-                      type="time"
+                    <TimePicker
                       value={rate.end}
-                      onChange={(e) =>
-                        updateRates(day, idx, "end", e.target.value)
-                      }
-                      className="p-1 border rounded"
+                      onChange={(value) => updateRates(day, idx, "end", value || "00:00")}
+                      format="HH:mm"
+                      disableClock={true}
+                      clearIcon={null}
+                      className="react-time-picker"
                     />
                     <input
                       type="number"
