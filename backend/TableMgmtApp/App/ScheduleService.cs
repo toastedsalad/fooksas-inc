@@ -10,8 +10,36 @@ public class ScheduleService {
         _repo = repo;
     }
 
+    public async Task<ScheduleDTO?> GetById(Guid id) {
+        return await _repo.GetByIdAsync(id);
+    }
+
     public async Task<List<ScheduleDTO>> GetAllScheduleDTOs() {
         return await _repo.GetAllAsync();
+    }
+
+    public async Task Add(ScheduleDTO schedule) {
+        if (schedule.Id == null || schedule.Id == Guid.Empty) {
+            Console.WriteLine("Got zeroes generating new guid");
+            schedule.Id = Guid.NewGuid();
+        }
+
+        var existing = await GetById(schedule.Id);
+
+        if (existing == null) {
+            await _repo.AddAsync(schedule);
+        } else {
+            existing.Name = schedule.Name;
+            existing.WeeklyRates = schedule.WeeklyRates;
+            existing.DefaultRate = schedule.DefaultRate;
+        }
+
+        await _repo.SaveAsync();
+    }
+
+    public async Task Delete(ScheduleDTO scheduleDTO) {
+        _repo.Remove(scheduleDTO);
+        await _repo.SaveAsync();
     }
 
     public async Task<List<Schedule>> GetAllSchedules() {
