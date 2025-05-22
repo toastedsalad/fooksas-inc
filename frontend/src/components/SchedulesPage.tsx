@@ -1,10 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
-import TimePicker from "react-time-picker";
-
-import 'react-time-picker/dist/TimePicker.css';
-import 'react-clock/dist/Clock.css';
+import Select from "react-select";
 
 const apiBase = "http://localhost:5267/api/schedules";
 
@@ -19,6 +16,13 @@ type ScheduleDTO = {
   defaultRate: number;
   weeklyRates: string | null;
 };
+
+const timeOptions = Array.from({ length: 24 * 4 }, (_, i) => {
+  const hours = String(Math.floor(i / 4)).padStart(2, "0");
+  const minutes = String((i % 4) * 15).padStart(2, "0");
+  const label = `${hours}:${minutes}`;
+  return { value: label, label };
+});
 
 export default function SchedulesPage() {
   const queryClient = useQueryClient();
@@ -48,7 +52,7 @@ export default function SchedulesPage() {
 
   const updateMutation = useMutation({
     mutationFn: async (schedule: ScheduleDTO) => {
-      await axios.post(apiBase, schedule); // same POST API handles add/update
+      await axios.post(apiBase, schedule);
     },
     onSuccess: () => queryClient.invalidateQueries(["schedules"]),
   });
@@ -101,11 +105,16 @@ export default function SchedulesPage() {
     setEditable({ ...editable!, weeklyRates: JSON.stringify(rates) });
   };
 
+  const isDirty = (() => {
+    if (!editable || !selectedId || !schedules) return false;
+    const original = schedules.find((s) => s.id === selectedId);
+    return JSON.stringify(editable) !== JSON.stringify(original);
+  })();
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <h1 className="text-3xl font-bold">Manage Schedules</h1>
 
-      {/* Create New */}
       <button
         onClick={() => createMutation.mutate()}
         className="bg-green-600 text-white px-4 py-2 rounded"
@@ -113,7 +122,6 @@ export default function SchedulesPage() {
         + New Schedule
       </button>
 
-      {/* List */}
       <div className="flex flex-wrap gap-2 mt-4">
         {schedules?.map((sched) => (
           <button
@@ -130,9 +138,13 @@ export default function SchedulesPage() {
         ))}
       </div>
 
-      {/* Editor */}
       {editable && (
-        <div className="border rounded p-4 bg-gray-50 shadow space-y-4">
+        <div className="border rounded p-4 bg-gray-50 shadow space-y-4 relative">
+          {isDirty && (
+            <div className="absolute top-2 right-4 text-orange-600 font-medium">
+              Unsaved changes
+            </div>
+          )}
           <div className="flex gap-4">
             <input
               value={editable.name}
@@ -153,7 +165,6 @@ export default function SchedulesPage() {
             />
           </div>
 
-          {/* TimeRates per day */}
           {daysOfWeek.map((day) => {
             const rates = getRatesObj()[day] ?? [];
             return (
@@ -161,21 +172,17 @@ export default function SchedulesPage() {
                 <h3 className="text-lg font-semibold mt-4">{day}</h3>
                 {rates.map((rate, idx) => (
                   <div key={idx} className="flex gap-2 items-center my-1">
-                    <TimePicker
-                      value={rate.start}
-                      onChange={(value) => updateRates(day, idx, "start", value || "00:00")}
-                      format="HH:mm"
-                      disableClock={true}
-                      clearIcon={null}
-                      className="react-time-picker"
+                    <Select
+                      className="w-32"
+                      options={timeOptions}
+                      value={timeOptions.find((opt) => opt.value === rate.start)}
+                      onChange={(selected) => updateRates(day, idx, "start", selected?.value || "00:00")}
                     />
-                    <TimePicker
-                      value={rate.end}
-                      onChange={(value) => updateRates(day, idx, "end", value || "00:00")}
-                      format="HH:mm"
-                      disableClock={true}
-                      clearIcon={null}
-                      className="react-time-picker"
+                    <Select
+                      className="w-32"
+                      options={timeOptions}
+                      value={timeOptions.find((opt) => opt.value === rate.end)}
+                      onChange={(selected) => updateRates(day, idx, "end", selected?.value || "00:00")}
                     />
                     <input
                       type="number"
@@ -203,14 +210,15 @@ export default function SchedulesPage() {
             );
           })}
 
-          {/* Actions */}
           <div className="flex gap-4 mt-4">
-            <button
-              onClick={() => updateMutation.mutate(editable)}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Save Changes
-            </button>
+            {isDirty && (
+              <button
+                onClick={() => updateMutation.mutate(editable)}
+                className="bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                Save Changes
+              </button>
+            )}
             <button
               onClick={() => deleteMutation.mutate(editable.id)}
               className="bg-red-600 text-white px-4 py-2 rounded"
