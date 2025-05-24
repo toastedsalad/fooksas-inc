@@ -37,6 +37,25 @@ public class Schedule {
     public string Name { get; set; } = "Default";
     public Dictionary<DayOfWeek, List<TimeRate>> WeeklyRates { get; set; } = new();
     public decimal DefaultRate { get; set; } = 5.0m;
+
+    public static void PrintScheduleRates(Schedule schedule) {
+    Console.WriteLine($"Schedule: {schedule.Name} (ID: {schedule.Id})");
+    Console.WriteLine("---------------------------------------------------");
+
+    foreach (var day in Enum.GetValues<DayOfWeek>()) {
+        if (schedule.WeeklyRates.TryGetValue(day, out var timeRates) && timeRates.Any()) {
+            Console.WriteLine($"{day}:");
+
+            foreach (var rate in timeRates) {
+                Console.WriteLine($"  Start: {rate.Start:hh\\:mm}, End: {rate.End:hh\\:mm}, Price: ${rate.Price:F2}");
+            }
+        }
+        else {
+            Console.WriteLine($"{day}: No specific rates. Using default rate: ${schedule.DefaultRate:F2}");
+        }
+    }
+    Console.WriteLine("---------------------------------------------------");
+    }
 }
 
 public record ScheduleDTO {

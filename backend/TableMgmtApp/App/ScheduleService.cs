@@ -1,4 +1,4 @@
-using System.Text.Json;
+using Newtonsoft.Json;
 using TableMgmtApp.Persistence;
 
 namespace TableMgmtApp;
@@ -28,7 +28,6 @@ public class ScheduleService : IScheduleService {
 
     public async Task Add(ScheduleDTO schedule) {
         if (schedule.Id == null || schedule.Id == Guid.Empty) {
-            Console.WriteLine("Got zeroes generating new guid");
             schedule.Id = Guid.NewGuid();
         }
 
@@ -74,7 +73,7 @@ public class ScheduleService : IScheduleService {
         var scheduleDTO = new ScheduleDTO();
         scheduleDTO.Id = schedule.Id;
         scheduleDTO.Name = schedule.Name;
-        scheduleDTO.WeeklyRates = JsonSerializer.Serialize(schedule.WeeklyRates);
+        scheduleDTO.WeeklyRates = JsonConvert.SerializeObject(schedule.WeeklyRates);
         scheduleDTO.DefaultRate = schedule.DefaultRate;
 
         return scheduleDTO;
@@ -84,7 +83,7 @@ public class ScheduleService : IScheduleService {
         var schedule = new Schedule();
         schedule.Id = scheduleDTO.Id;
         schedule.Name = scheduleDTO.Name;
-        schedule.WeeklyRates = JsonSerializer.Deserialize<Dictionary<DayOfWeek, List<TimeRate>>>(scheduleDTO.WeeklyRates);
+        schedule.WeeklyRates = JsonConvert.DeserializeObject<Dictionary<DayOfWeek, List<TimeRate>>>(scheduleDTO.WeeklyRates);
         schedule.DefaultRate = scheduleDTO.DefaultRate;
 
         return schedule;
@@ -101,11 +100,11 @@ public class ScheduleService : IScheduleService {
     }
 
     public static string ToJson(Schedule schedule) {
-        return JsonSerializer.Serialize(schedule, new JsonSerializerOptions { WriteIndented = true });
+        return JsonConvert.SerializeObject(schedule, Formatting.Indented);
     }
 
     public static Schedule FromJson(string json) {
-        return JsonSerializer.Deserialize<Schedule>(json);
+        return JsonConvert.DeserializeObject<Schedule>(json);
     }
 }
 
