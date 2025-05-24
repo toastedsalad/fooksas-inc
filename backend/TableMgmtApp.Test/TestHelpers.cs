@@ -13,4 +13,13 @@ public class TestHelpers {
 
         return mockFactory;
     }
+
+    public static Mock<IScheduleServiceFactory> GetServiceFactoryMock() {
+        var mockService = new Mock<IScheduleService>(); 
+        var mockServiceWrapper = new Mock<ScopedServiceWrapper<IScheduleService>>(It.IsAny<IServiceScope>(), mockService.Object);
+        var mockFactory = new Mock<IScheduleServiceFactory>();
+        mockFactory.Setup(f => f.CreateService()).Returns(mockServiceWrapper.Object);
+
+        return mockFactory;
+    }
 }

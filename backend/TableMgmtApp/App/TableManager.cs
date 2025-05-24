@@ -19,19 +19,20 @@ public class TableManager {
     public DateTime PauseStart { get; private set; }
     public RingBuffer<PlaySession> LatestSessions { get; private set; } = 
         new RingBuffer<PlaySession>(3);
-    // Do I really want this to be a prop?
-    // Maybe we can have something that gets the schedule...
-    public Schedule Schedule { get; set; } = new Schedule();
     public ITimeProvider TimeProvider { get; private set; }
     public IPlaySessionRepositoryFactory PlaySessionRepoFactory { get; private set; }
+
+    private IScheduleServiceFactory _scheduleServiceFactory;
     private ICustomTimer _timer;
 
     public TableManager(PoolTable table, ITimeProvider timeProvider, 
                         IPlaySessionRepositoryFactory playSessionRepoFactory, 
+                        IScheduleServiceFactory scheduleServiceFactory,
                         int pauseTimer = 1, ICustomTimer timer = null!) {
         Table = table;
         TimeProvider = timeProvider;
         PlaySessionRepoFactory = playSessionRepoFactory;
+        _scheduleServiceFactory = scheduleServiceFactory;
         PauseTimer = pauseTimer;
         _timer = timer;
     }
@@ -82,12 +83,25 @@ public class TableManager {
         }
     }
 
-    private void Play(int timedSeconds) {
+    private async Task Play(int timedSeconds) {
+        using var serviceWrapper = _scheduleServiceFactory.CreateService();
+        var service = serviceWrapper.Service;
+        Schedule schedule = null!;
+
+        var scheduleDTO = await service.GetById(Table.ScheduleId);
+        if (scheduleDTO != null) {
+            schedule = ScheduleService.FromScheduleDTO(scheduleDTO);
+        } else {
+            schedule = new Schedule();
+        }
+
+        serviceWrapper.Dispose();
+
         State = TableState.Play;
         if (timedSeconds == 0) {
-            SessionManager = new PlaySessionManager(Schedule, this, _timer);
+            SessionManager = new PlaySessionManager(schedule, this, _timer);
         } else {
-            SessionManager = new PlaySessionManager(Schedule, this, 
+            SessionManager = new PlaySessionManager(schedule, this, 
                                                     new TimeSpan(0, 0, timedSeconds),
                                                     _timer);
         }
@@ -106,7 +120,7 @@ public class TableManager {
         SessionManager = null!;
     }
 
-    public async void StartPauseTimer() {
+    public async Task StartPauseTimer() {
         await TimeProvider.DelayAsync(PauseTimer * 1000);
         if (State == TableState.Paused) {
             Standby();

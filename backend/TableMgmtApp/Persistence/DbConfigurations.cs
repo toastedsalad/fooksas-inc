@@ -38,6 +38,7 @@ public class TableConfiguration : IEntityTypeConfiguration<PoolTable> {
         builder.HasKey(t => t.Id);
         builder.Property(t => t.Name).IsRequired();
         builder.Property(t => t.Number).IsRequired();
+        builder.Property(t => t.ScheduleId).IsRequired();
     }
 }
 

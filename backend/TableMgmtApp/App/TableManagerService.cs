@@ -7,21 +7,25 @@ public class TableManagerService {
     private readonly ITimeProvider _timeProvider;
     private readonly IPlaySessionRepositoryFactory _sessionRepo;
     private readonly ITableRepositoryFactory _tableRepo;
+    private readonly IScheduleServiceFactory _scheduleService;
 
     // In-memory dictionary to track active TableManager instances
     private readonly ConcurrentDictionary<Guid, TableManager> _tableManagers = new();
 
     public TableManagerService(ITimeProvider timeProvider,
                                IPlaySessionRepositoryFactory repo,
-                               ITableRepositoryFactory tableRepo) {
+                               ITableRepositoryFactory tableRepo,
+                               IScheduleServiceFactory scheduleService) {
         _timeProvider = timeProvider;
         _sessionRepo = repo;
         _tableRepo = tableRepo;
+        _scheduleService = scheduleService;
     }
 
     public void CreateAllTableManagersAsync(List<PoolTable> tables) {
         foreach (var table in tables) {
-            var manager = new TableManager(table, _timeProvider, _sessionRepo);
+            var manager = new TableManager(table, _timeProvider, 
+                                           _sessionRepo, _scheduleService);
             _tableManagers.TryAdd(table.Id, manager);
         }
     }
@@ -34,7 +38,8 @@ public class TableManagerService {
         foreach(var table in tables) {
             var tm = GetTableManager(table.Id);
             if(tm == null) {
-               var manager = new TableManager(table, _timeProvider, _sessionRepo);
+               var manager = new TableManager(table, _timeProvider,
+                                              _sessionRepo, _scheduleService);
                _tableManagers.TryAdd(table.Id, manager);
             }
         }
@@ -44,6 +49,13 @@ public class TableManagerService {
             if(table == null) {
                 _tableManagers.Remove(tm.Value.Table.Id, out var tableManager);
             }
+        }
+    }
+
+    public void UpdateSchedule(Guid tableId, Guid scheduleId) {
+        var tm = GetTableManager(tableId);
+        if (tm != null) {
+            tm.Table.ScheduleId = scheduleId; 
         }
     }
 

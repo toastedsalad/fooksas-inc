@@ -3,7 +3,15 @@ using TableMgmtApp.Persistence;
 
 namespace TableMgmtApp;
 
-public class ScheduleService {
+public interface IScheduleService {
+    Task Add(ScheduleDTO schedule);
+    Task Delete(ScheduleDTO scheduleDTO);
+    Task<List<ScheduleDTO>> GetAllScheduleDTOs();
+    Task<List<Schedule>> GetAllSchedules();
+    Task<ScheduleDTO?> GetById(Guid id);
+}
+
+public class ScheduleService : IScheduleService {
     private readonly IScheduleRepository _repo;
 
     public ScheduleService(IScheduleRepository repo) {
@@ -28,7 +36,8 @@ public class ScheduleService {
 
         if (existing == null) {
             await _repo.AddAsync(schedule);
-        } else {
+        }
+        else {
             existing.Name = schedule.Name;
             existing.WeeklyRates = schedule.WeeklyRates;
             existing.DefaultRate = schedule.DefaultRate;
@@ -92,7 +101,7 @@ public class ScheduleService {
     }
 
     public static string ToJson(Schedule schedule) {
-        return JsonSerializer.Serialize(schedule, new JsonSerializerOptions {WriteIndented = true});
+        return JsonSerializer.Serialize(schedule, new JsonSerializerOptions { WriteIndented = true });
     }
 
     public static Schedule FromJson(string json) {

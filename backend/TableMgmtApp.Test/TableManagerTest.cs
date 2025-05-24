@@ -8,7 +8,7 @@ public class TableManagerTest {
         
         var table = new PoolTable(1);
 
-        var tableManager = new TableManager(table, systemTimeProvider, TestHelpers.GetRepoFactoryMock().Object);
+        var tableManager = new TableManager(table, systemTimeProvider, TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object);
 
         tableManager.SetStateBySwitch(TableState.Play);
         Assert.That(Enum.IsDefined(typeof(TableState), tableManager.State));
@@ -37,7 +37,9 @@ public class TableManagerTest {
         
         var table = new PoolTable(1);
         
-        var tableManager = new TableManager(table, systemTimeProvider, TestHelpers.GetRepoFactoryMock().Object);
+        var tableManager = new TableManager(table, systemTimeProvider, 
+                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetServiceFactoryMock().Object);
 
         tableManager.SetStateBySwitch(TableState.Play);
         tableManager.SetStateBySwitch(TableState.Off);
@@ -52,7 +54,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, systemTimeProvider, 
-                                            TestHelpers.GetRepoFactoryMock().Object, 5);
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 5);
 
         Assert.That(tableManager.PauseTimer, Is.EqualTo(5));
     }
@@ -64,7 +66,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider, 
-                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 
                                             1, fakeTimer); // Pause timer expires.
         tableManager.SetStateBySwitch(TableState.Play);
         tableManager.SetStateBySwitch(TableState.Off);
@@ -83,7 +85,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider, 
-                                            TestHelpers.GetRepoFactoryMock().Object,
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object,
                                             2, fakeTimer);
         tableManager.SetStateBySwitch(TableState.Play);
         tableManager.SetStateBySwitch(TableState.Off);
@@ -109,7 +111,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider, 
-                                            TestHelpers.GetRepoFactoryMock().Object, 1, fakeTimer);
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 1, fakeTimer);
 
         tableManager.SetStateBySwitch(TableState.Play);
         tableManager.SetStateBySwitch(TableState.Off);
@@ -130,7 +132,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, systemTimeProvider, 
-                                            TestHelpers.GetRepoFactoryMock().Object, 1);
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 1);
         tableManager.SetStateBySwitch(TableState.Play);
 
         Assert.That(tableManager.SessionManager.Session.Id, Is.Not.EqualTo(Guid.Empty));
@@ -142,7 +144,7 @@ public class TableManagerTest {
         
         var table = new PoolTable(1);
         
-        var tableManager = new TableManager(table, systemTimeProvider, TestHelpers.GetRepoFactoryMock().Object, 1);
+        var tableManager = new TableManager(table, systemTimeProvider, TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 1);
         tableManager.SetStateBySwitch(TableState.Play);
 
         Assert.That(tableManager.SessionManager.Session.StartTime.Minute, Is.EqualTo(DateTime.Now.Minute));
@@ -155,7 +157,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider,
-                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 
                                             1, fakeTimer);
         tableManager.SetStateBySwitch(TableState.Play);
         tableManager.SetStateBySwitch(TableState.Off);
@@ -176,7 +178,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider,
-                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 
                                             1, fakeTimer);
 
         Assert.That(tableManager.LatestSessions.circularArray.Length, Is.EqualTo(3));
@@ -190,7 +192,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider, 
-                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 
                                             1, fakeTimer);
 
         tableManager.SetStateBySwitch(TableState.Play);
@@ -216,7 +218,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider, 
-                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 
                                             1, fakeTimer);
 
         tableManager.SetStateBySwitch(TableState.Play);
@@ -253,7 +255,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider, 
-                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 
                                             1, fakeTimer);
 
         tableManager.SetPlay();
@@ -273,7 +275,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider,
-                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 
                                             1, fakeTimer);
 
         tableManager.SetPlay();
@@ -290,7 +292,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider, 
-                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 
                                             1, fakeTimer);
 
         tableManager.SetPlay();
@@ -308,7 +310,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider,
-                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 
                                             1, fakeTimer);
 
         tableManager.SetStateBySwitch(TableState.Play);
@@ -350,7 +352,7 @@ public class TableManagerTest {
         var fakeTimer = new FakeTimer();
         var table = new PoolTable(1);
         var tableManager = new TableManager(table, fakeTimeProvider, 
-                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 
                                             1, fakeTimer);
 
         tableManager.SetPlay(10);
@@ -371,7 +373,7 @@ public class TableManagerTest {
         var table = new PoolTable(1);
         
         var tableManager = new TableManager(table, fakeTimeProvider, 
-                                            TestHelpers.GetRepoFactoryMock().Object, 
+                                            TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object, 
                                             1, fakeTimer);
 
         tableManager.SetPlay(10);
@@ -421,7 +423,7 @@ public class TableManagerTest {
         
         var tableManager = new TableManager(table, fakeTimeProvider,
                                             TestHelpers.GetRepoFactoryMock().Object, 
-                                            1, fakeTimer);
+                                            TestHelpers.GetServiceFactoryMock().Object, 1, fakeTimer);
 
         tableManager.SetPlay(10);
         fakeTimer.TriggerElapsed();
@@ -445,9 +447,6 @@ public class TableManagerTest {
         Assert.That(tableManager.State, Is.EqualTo(TableState.Standby));
     }
 }
-
-
-
 
 
 
