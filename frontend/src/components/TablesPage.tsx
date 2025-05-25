@@ -163,7 +163,11 @@ export default function TablesPage() {
                     <>
                       <p className="text-sm mb-1 text-gray-600">
                         Assigned:{" "}
-                        <span className="font-medium">
+                        <span
+                          className={`font-medium ${
+                              activeSchedule ? "text-gray-800" : "text-red-600"
+                          }`}
+                          >
                           {activeSchedule?.name ?? "None"}
                         </span>
                       </p>
