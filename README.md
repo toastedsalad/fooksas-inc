@@ -8,7 +8,7 @@ TODOs:
 * Live session dumping and retrieval.
 * Bold the time and price.
 * Make table number bigger and bolder.
-
+* Make sure we always remove one second from end times in rates. Make the end time exclusionary.
 
 
 Instead of time remaining do play for money.

@@ -52,9 +52,6 @@ public class PlaySessionManager {
     private void TimedEvent(Object? source, ElapsedEventArgs args) {
         Session.PlayTime += TimeSpan.FromSeconds(1);
         Session.Price += ScheduleService.GetCurrentRate(_schedule, _timeProvider) / 60 / 60;
-        Console.WriteLine($"Current rate is {ScheduleService.GetCurrentRate(_schedule, _timeProvider)}");
-        Console.WriteLine($"Schedule is {_schedule.Name}");
-        Console.WriteLine($"Default rate is {_schedule.DefaultRate.ToString()}");
 
         if (_isTimedSession) {
             _remainingTime = TimedSessionSpan.Subtract(Session.PlayTime);

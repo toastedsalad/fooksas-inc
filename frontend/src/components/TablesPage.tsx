@@ -104,7 +104,7 @@ export default function TablesPage() {
 
   return (
     <div className="p-6 max-w-screen-xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">Manage Tables</h1>
+      <h1 className="text-3xl font-bold mb-4 dark:text-white">Manage Tables</h1>
 
       {/* Add Table Form */}
       <div className="mb-6 flex items-center gap-4 flex-wrap">
@@ -113,18 +113,18 @@ export default function TablesPage() {
           value={name}
           placeholder="Table Name"
           onChange={(e) => setName(e.target.value)}
-          className="p-2 rounded border border-gray-300"
+          className="p-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         <input
           type="number"
           value={number}
           placeholder="Table Number"
           onChange={(e) => setNumber(parseInt(e.target.value))}
-          className="p-2 rounded border border-gray-300"
+          className="p-2 rounded border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         <button
           onClick={handleAdd}
-          className="bg-blue-600 text-white px-4 py-2 rounded font-semibold"
+          className="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700"
         >
           Add Table
         </button>
@@ -132,7 +132,7 @@ export default function TablesPage() {
 
       {/* Table Cards Grid */}
       {isLoading ? (
-        <p>Loading tables...</p>
+        <p className="dark:text-gray-300">Loading tables...</p>
       ) : error ? (
         <p className="text-red-500">Error loading tables.</p>
       ) : (
@@ -145,7 +145,7 @@ export default function TablesPage() {
               return (
                 <div
                   key={table.id}
-                  className="relative bg-gray-100 p-4 pt-8 rounded-xl shadow-md border border-gray-300 min-h-[180px]"
+                  className="relative bg-gray-100 p-4 pt-8 rounded-xl shadow-md border border-gray-300 dark:bg-gray-800 dark:border-gray-700 min-h-[180px]"
                 >
                   {/* Delete Button */}
                   <button
@@ -156,24 +156,24 @@ export default function TablesPage() {
                     ×
                   </button>
 
-                  <h2 className="text-xl font-semibold mb-2">{table.name}</h2>
-                  <p className="text-lg mb-1">Number: {table.number}</p>
+                  <h2 className="text-xl font-semibold mb-2 dark:text-white">{table.name}</h2>
+                  <p className="text-lg mb-1 dark:text-gray-300">Number: {table.number}</p>
 
                   {schedules && (
                     <>
-                      <p className="text-sm mb-1 text-gray-600">
+                      <p className="text-sm mb-1 text-gray-600 dark:text-gray-400">
                         Schedule:{" "}
                         <span
                           className={`font-medium ${
-                              activeSchedule ? "text-gray-800" : "text-red-600"
+                            activeSchedule ? "text-gray-800 dark:text-gray-200" : "text-red-600"
                           }`}
-                          >
+                        >
                           {activeSchedule?.name ?? "None"}
                         </span>
                       </p>
                       <select
                         defaultValue=""
-                        className="w-full p-2 rounded border border-gray-300 text-sm"
+                        className="w-full p-2 rounded border border-gray-300 text-sm dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         onChange={(e) => {
                           const selectedScheduleId = e.target.value;
                           if (selectedScheduleId) {
@@ -205,11 +205,11 @@ export default function TablesPage() {
             <button
               onClick={() => setPage((p) => Math.max(p - 1, 0))}
               disabled={page === 0}
-              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50 dark:bg-gray-700 dark:text-white"
             >
               Prev
             </button>
-            <span className="text-lg font-semibold">Page {page + 1}</span>
+            <span className="text-lg font-semibold dark:text-white">Page {page + 1}</span>
             <button
               onClick={() =>
                 setPage((p) =>
@@ -217,7 +217,7 @@ export default function TablesPage() {
                 )
               }
               disabled={(page + 1) * tablesPerPage >= sortedTables.length}
-              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50 dark:bg-gray-700 dark:text-white"
             >
               Next
             </button>
