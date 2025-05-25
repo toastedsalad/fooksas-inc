@@ -6,6 +6,8 @@ TODOs:
 
 * Session frontend. Should allow me dowlnoad session for a specific time period formatted as csv.
 * Live session dumping and retrieval.
+* Bold the time and price.
+* Make table number bigger and bolder.
 
 
 

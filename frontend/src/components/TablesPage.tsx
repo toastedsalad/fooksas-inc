@@ -162,7 +162,7 @@ export default function TablesPage() {
                   {schedules && (
                     <>
                       <p className="text-sm mb-1 text-gray-600">
-                        Assigned:{" "}
+                        Schedule:{" "}
                         <span
                           className={`font-medium ${
                               activeSchedule ? "text-gray-800" : "text-red-600"
