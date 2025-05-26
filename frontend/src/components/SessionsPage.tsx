@@ -37,7 +37,6 @@ export default function SessionsPage() {
   const [start, setStart] = useState<string>("");
   const [end, setEnd] = useState<string>("");
   const isDarkMode = useDarkMode();
-
   const [preset, setPreset] = useState<"24h" | "7d" | "30d" | null>(null);
 
   useEffect(() => {
@@ -70,6 +69,27 @@ export default function SessionsPage() {
     enabled: !!start && !!end,
   });
 
+  const downloadCsv = async () => {
+    if (!start || !end) return;
+
+    try {
+      const response = await axios.get(`${apiBase}/csv`, {
+        params: { start, end },
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "sessions.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
+    }
+  };
+
   return (
     <div className="p-6 max-w-6xl mx-auto text-gray-900 dark:text-gray-100 space-y-6">
       <h1 className="text-3xl font-bold">Session Browser</h1>
@@ -96,7 +116,7 @@ export default function SessionsPage() {
           />
         </label>
 
-        <div className="flex gap-2 mt-4 lg:mt-6">
+        <div className="flex gap-2 mt-4 lg:mt-6 flex-wrap">
           {(["24h", "7d", "30d"] as const).map((p) => (
             <button
               key={p}
@@ -110,6 +130,13 @@ export default function SessionsPage() {
               Last {p}
             </button>
           ))}
+
+          <button
+            onClick={downloadCsv}
+            className="px-3 py-1 text-sm rounded border bg-green-600 text-white border-green-700 hover:bg-green-700 transition"
+          >
+            Download CSV
+          </button>
         </div>
       </div>
 
@@ -142,12 +169,10 @@ export default function SessionsPage() {
                     })
                     .replace(",", "")}
                 </p>
-                <p className="text-sm">
-                  Duration: {s.playTime}
-                </p>
+                <p className="text-sm">Duration: {s.playTime}</p>
               </div>
               <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                ${s.price.toFixed(2)}
+                €{s.price.toFixed(2)}
               </div>
             </div>
           ))
