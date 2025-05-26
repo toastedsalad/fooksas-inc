@@ -1,6 +1,12 @@
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { registerLocale } from "react-datepicker";
+import lt from "date-fns/locale/lt";
+
+registerLocale("lt", lt);
 
 const apiBase = "http://localhost:5267/api/sessions/range";
 
@@ -98,21 +104,35 @@ export default function SessionsPage() {
       <div className="flex flex-wrap items-center gap-4">
         <label className="flex flex-col">
           Start Time
-          <input
-            type="datetime-local"
+          <DatePicker
+            selected={start ? new Date(start) : null}
+            onChange={(date: Date | null) => {
+              if (date) setStart(toDatetimeLocalString(date));
+            }}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+            dateFormat="yyyy-MM-dd HH:mm"
+            timeCaption="Time"
+            locale="lt"
             className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border rounded p-2 border-gray-300 dark:border-gray-600"
-            value={start}
-            onChange={(e) => setStart(e.target.value)}
           />
         </label>
 
         <label className="flex flex-col">
           End Time
-          <input
-            type="datetime-local"
+          <DatePicker
+            selected={end ? new Date(end) : null}
+            onChange={(date: Date | null) => {
+              if (date) setEnd(toDatetimeLocalString(date));
+            }}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+            dateFormat="yyyy-MM-dd HH:mm"
+            timeCaption="Time"
+            locale="lt"
             className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border rounded p-2 border-gray-300 dark:border-gray-600"
-            value={end}
-            onChange={(e) => setEnd(e.target.value)}
           />
         </label>
 
