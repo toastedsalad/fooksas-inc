@@ -114,13 +114,13 @@ export default function SessionsPage() {
       </div>
 
       {/* Sessions List */}
-      <div className="border rounded p-4 bg-gray-50 dark:bg-gray-800 shadow max-h-[600px] overflow-y-auto space-y-2">
+      <div className="border rounded p-4 bg-gray-50 dark:bg-gray-800 shadow max-h-[600px] overflow-y-auto space-y-2 max-w-2xl w-full">
         {isLoading ? (
           <p>Loading...</p>
         ) : sessions?.length === 0 ? (
           <p>No sessions found in selected range.</p>
         ) : (
-          sessions?.slice(0, 50).map((s) => (
+          sessions?.slice(0, 100000).map((s) => (
             <div
               key={s.id}
               className="p-3 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col md:flex-row justify-between items-start md:items-center"
@@ -130,7 +130,17 @@ export default function SessionsPage() {
                   Table #{s.tableNumber} | Player: {s.playerId.slice(0, 6)}...
                 </p>
                 <p className="text-sm">
-                  Start: {new Date(s.startTime).toLocaleString()}
+                  Start:{" "}
+                  {new Date(s.startTime)
+                    .toLocaleString("lt-LT", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })
+                    .replace(",", "")}
                 </p>
                 <p className="text-sm">
                   Duration: {s.playTime}
@@ -142,9 +152,9 @@ export default function SessionsPage() {
             </div>
           ))
         )}
-        {sessions && sessions.length > 50 && (
+        {sessions && sessions.length > 100000 && (
           <div className="text-center text-sm text-gray-500 mt-2">
-            Showing first 50 sessions.
+            Showing first 100000 sessions.
           </div>
         )}
       </div>
