@@ -13,12 +13,6 @@ type PlaySession = {
   playerId: string;
 };
 
-function toDatetimeLocalString(date: Date): string {
-  const offset = date.getTimezoneOffset();
-  const local = new Date(date.getTime() - offset * 60 * 1000);
-  return local.toISOString().slice(0, 16);
-}
-
 function useDarkMode() {
   const [isDark, setIsDark] = useState(false);
   useEffect(() => {
@@ -31,6 +25,12 @@ function useDarkMode() {
     return () => observer.disconnect();
   }, []);
   return isDark;
+}
+
+function toDatetimeLocalString(date: Date): string {
+  const offset = date.getTimezoneOffset();
+  const local = new Date(date.getTime() - offset * 60 * 1000);
+  return local.toISOString().slice(0, 16);
 }
 
 export default function SessionsPage() {
@@ -114,7 +114,7 @@ export default function SessionsPage() {
       </div>
 
       {/* Sessions List */}
-      <div className="border rounded p-4 bg-gray-50 dark:bg-gray-800 shadow max-h-[600px] overflow-y-auto space-y-2  max-w-2xl w-full">
+      <div className="border rounded p-4 bg-gray-50 dark:bg-gray-800 shadow max-h-[600px] overflow-y-auto space-y-2">
         {isLoading ? (
           <p>Loading...</p>
         ) : sessions?.length === 0 ? (

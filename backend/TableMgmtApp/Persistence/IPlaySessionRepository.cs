@@ -8,6 +8,7 @@ public interface IPlaySessionRepository {
     Task<List<PlaySession>> GetByTableNumber(int tableNumber);
     Task AddAsync(PlaySession playSession);
     Task SaveAsync();
+    Task<IEnumerable<PlaySession>> GetSessionsInRangeAsync(DateTime start, DateTime end);
 }
 
 public class PlaySessionSQLRepository : IPlaySessionRepository {
@@ -31,6 +32,12 @@ public class PlaySessionSQLRepository : IPlaySessionRepository {
                              .ToListAsync();
     }
 
+    public async Task<IEnumerable<PlaySession>> GetSessionsInRangeAsync(DateTime start, DateTime end) {
+        return await _context.PlaySessions
+            .Where(s => s.StartTime >= start && s.StartTime <= end)
+            .ToListAsync();
+    }
+
     public async Task AddAsync(PlaySession playSession) {
         await _context.PlaySessions.AddAsync(playSession);
     }
@@ -38,6 +45,7 @@ public class PlaySessionSQLRepository : IPlaySessionRepository {
     public async Task SaveAsync() {
         await _context.SaveChangesAsync();
     }
+
 }
 
 
