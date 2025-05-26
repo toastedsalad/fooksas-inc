@@ -19,6 +19,8 @@ mono_crash.*
 # SQL lite:
 *.db-shm
 *.db-wal
+../backend/TableMgmtApp/*.db-shm
+../backend/TableMgmtApp/*.db-wal
 
 # Build results
 [Dd]ebug/
