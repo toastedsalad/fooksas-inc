@@ -2,6 +2,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import TableManagers from "./components/TableManagers";
 import TablesPage from "./components/TablesPage";
 import SchedulesPage from "./components/SchedulesPage";
+import SessionsPage from "./components/SessionsPage";
 import { useDarkMode } from "./context/DarkModeContext";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
           <Link to="/" className="text-blue-600 dark:text-blue-400 hover:underline">Home</Link>
           <Link to="/tables" className="text-blue-600 dark:text-blue-400 hover:underline">Tables</Link>
           <Link to="/schedules" className="text-blue-600 dark:text-blue-400 hover:underline">Schedules</Link>
+          <Link to="/sessions" className="text-blue-600 dark:text-blue-400 hover:underline">Sessions</Link>
         </div>
         <button
           onClick={toggleDarkMode}
@@ -27,6 +29,7 @@ function App() {
         <Route path="/" element={<TableManagers />} />
         <Route path="/tables" element={<TablesPage />} />
         <Route path="/schedules" element={<SchedulesPage />} />
+        <Route path="/sessions" element={<SessionsPage />} />
       </Routes>
     </div>
   );
