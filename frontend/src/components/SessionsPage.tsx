@@ -1,8 +1,10 @@
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-const apiBase = "http://localhost:5267/api/sessions/range";
+const apiBase = "http://localhost:5267/api/sessions";
 
 type PlaySession = {
   id: string;
@@ -27,17 +29,16 @@ function useDarkMode() {
   return isDark;
 }
 
-function toDatetimeLocalString(date: Date): string {
+function toISOStringLocal(date: Date): string {
   const offset = date.getTimezoneOffset();
   const local = new Date(date.getTime() - offset * 60 * 1000);
   return local.toISOString().slice(0, 16);
 }
 
 export default function SessionsPage() {
-  const [start, setStart] = useState<string>("");
-  const [end, setEnd] = useState<string>("");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const isDarkMode = useDarkMode();
-
   const [preset, setPreset] = useState<"24h" | "7d" | "30d" | null>(null);
 
   useEffect(() => {
@@ -54,45 +55,76 @@ export default function SessionsPage() {
       return;
     }
 
-    setStart(toDatetimeLocalString(from));
-    setEnd(toDatetimeLocalString(now));
+    setStartDate(from);
+    setEndDate(now);
   }, [preset]);
 
   const { data: sessions, isLoading } = useQuery({
-    queryKey: ["sessions", start, end],
+    queryKey: ["sessions", startDate, endDate],
     queryFn: async () => {
-      if (!start || !end) return [];
-      const { data } = await axios.get<PlaySession[]>(apiBase, {
-        params: { start, end },
+      if (!startDate || !endDate) return [];
+      const { data } = await axios.get<PlaySession[]>(`${apiBase}/range`, {
+        params: {
+          start: startDate.toISOString(),
+          end: endDate.toISOString(),
+        },
       });
       return data;
     },
-    enabled: !!start && !!end,
+    enabled: !!startDate && !!endDate,
   });
+
+  const downloadCsv = async () => {
+    if (!startDate || !endDate) return;
+    const start = encodeURIComponent(startDate.toISOString());
+    const end = encodeURIComponent(endDate.toISOString());
+    const url = `${apiBase}/range/csv?start=${start}&end=${end}`;
+
+    try {
+      const response = await axios.get(url, { responseType: "blob" });
+      const blob = new Blob([response.data], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `sessions_${start}_${end}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("CSV download failed:", err);
+    }
+  };
 
   return (
     <div className="p-6 max-w-6xl mx-auto text-gray-900 dark:text-gray-100 space-y-6">
       <h1 className="text-3xl font-bold">Session Browser</h1>
 
-      {/* Range Inputs + Presets */}
+      {/* Date Pickers + Presets */}
       <div className="flex flex-wrap items-center gap-4">
         <label className="flex flex-col">
           Start Time
-          <input
-            type="datetime-local"
+          <DatePicker
+            selected={startDate}
+            onChange={(date) => setStartDate(date)}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+            dateFormat="yyyy-MM-dd HH:mm"
+            timeCaption="Time"
             className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border rounded p-2 border-gray-300 dark:border-gray-600"
-            value={start}
-            onChange={(e) => setStart(e.target.value)}
           />
         </label>
 
         <label className="flex flex-col">
           End Time
-          <input
-            type="datetime-local"
+          <DatePicker
+            selected={endDate}
+            onChange={(date) => setEndDate(date)}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+            dateFormat="yyyy-MM-dd HH:mm"
+            timeCaption="Time"
             className="bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border rounded p-2 border-gray-300 dark:border-gray-600"
-            value={end}
-            onChange={(e) => setEnd(e.target.value)}
           />
         </label>
 
@@ -113,7 +145,16 @@ export default function SessionsPage() {
         </div>
       </div>
 
-      {/* Sessions List */}
+      {/* Download CSV Button */}
+      <button
+        onClick={downloadCsv}
+        disabled={!startDate || !endDate}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+      >
+        Download CSV
+      </button>
+
+      {/* Session List */}
       <div className="border rounded p-4 bg-gray-50 dark:bg-gray-800 shadow max-h-[600px] overflow-y-auto space-y-2 max-w-2xl w-full">
         {isLoading ? (
           <p>Loading...</p>
@@ -142,9 +183,7 @@ export default function SessionsPage() {
                     })
                     .replace(",", "")}
                 </p>
-                <p className="text-sm">
-                  Duration: {s.playTime}
-                </p>
+                <p className="text-sm">Duration: {s.playTime}</p>
               </div>
               <div className="text-lg font-bold text-green-600 dark:text-green-400">
                 ${s.price.toFixed(2)}
