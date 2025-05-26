@@ -48,7 +48,7 @@ namespace TableMgmtApp.Controllers {
                     $"{s.TableNumber}," +
                     $"{EscapeCsv(s.PlayerId.ToString())}," +
                     $"{s.StartTime:yyyy-MM-dd HH:mm}," +
-                    $"{s.PlayTime.TotalMinutes}," +
+                    $"{s.PlayTime.ToString()}," +
                     $"{s.Price:F2}"
                 );
             }
