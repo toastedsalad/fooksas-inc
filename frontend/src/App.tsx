@@ -3,6 +3,7 @@ import TableManagers from "./components/TableManagers";
 import TablesPage from "./components/TablesPage";
 import SchedulesPage from "./components/SchedulesPage";
 import SessionsPage from "./components/SessionsPage";
+import PlayersPage from "./components/PlayersPage";
 import { useDarkMode } from "./context/DarkModeContext";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Link to="/tables" className="text-blue-600 dark:text-blue-400 hover:underline">Tables</Link>
           <Link to="/schedules" className="text-blue-600 dark:text-blue-400 hover:underline">Schedules</Link>
           <Link to="/sessions" className="text-blue-600 dark:text-blue-400 hover:underline">Sessions</Link>
+          <Link to="/players" className="text-blue-600 dark:text-blue-400 hover:underline">Players</Link>
         </div>
         <button
           onClick={toggleDarkMode}
@@ -30,6 +32,7 @@ function App() {
         <Route path="/tables" element={<TablesPage />} />
         <Route path="/schedules" element={<SchedulesPage />} />
         <Route path="/sessions" element={<SessionsPage />} />
+        <Route path="/players" element={<PlayersPage />} />
       </Routes>
     </div>
   );

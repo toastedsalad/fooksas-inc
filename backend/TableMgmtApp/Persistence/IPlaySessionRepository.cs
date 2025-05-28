@@ -33,6 +33,7 @@ public class PlaySessionSQLRepository : IPlaySessionRepository {
     }
 
     public async Task<IEnumerable<PlaySession>> GetSessionsInRangeAsync(DateTime start, DateTime end) {
+        // TODO I need a join here with player table
         return await _context.PlaySessions
             .Where(s => s.StartTime >= start && s.StartTime <= end)
             .ToListAsync();
