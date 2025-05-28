@@ -25,6 +25,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player> {
     public void Configure(EntityTypeBuilder<Player> builder) {
         builder.ToTable("Players");
         builder.HasKey(u => u.Id);
+        builder.Property(u => u.CreatedAt).IsRequired().HasMaxLength(200);
         builder.Property(u => u.Name).IsRequired().HasMaxLength(100);
         builder.Property(u => u.Surname).IsRequired().HasMaxLength(100);
         builder.Property(u => u.Email).HasMaxLength(200);
@@ -52,7 +53,7 @@ public class PlaySessionConfiguration : IEntityTypeConfiguration<PlaySession> {
         builder.Property(p => p.TableNumber).IsRequired();
         builder.Property(p => p.PlayerId);
     }
-}
+}   
 
 public class ScheduleConfiguration : IEntityTypeConfiguration<ScheduleDTO> {
     public void Configure(EntityTypeBuilder<ScheduleDTO> builder) {

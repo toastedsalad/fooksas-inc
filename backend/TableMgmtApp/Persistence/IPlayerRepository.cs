@@ -9,6 +9,7 @@ public interface IPlayerRepository {
     Task<List<Player>> GetBySurnameAsync(string surname);
     Task<List<Player>> GetByEmail(string email);
     Task<List<Player>> SearchAsync(string? name, string? surname, string? email);
+    Task<List<Player>> GetRecentAsync(int count);
     Task AddAsync(Player player);
     void Delete(Player player);
     Task SaveAsync();
@@ -47,13 +48,13 @@ public class PlayerSQLRepository : IPlayerRepository {
         var query = _context.Players.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(name))
-            query = query.Where(p => p.Name.Contains(name));
+            query = query.Where(p => p.Name.ToLower().Contains(name.ToLower()));
 
         if (!string.IsNullOrWhiteSpace(surname))
-            query = query.Where(p => p.Surname.Contains(surname));
+            query = query.Where(p => p.Surname.ToLower().Contains(surname.ToLower()));
 
         if (!string.IsNullOrWhiteSpace(email))
-            query = query.Where(p => p.Email.Contains(email));
+            query = query.Where(p => p.Email.ToLower().Contains(email.ToLower()));
 
         return await query.ToListAsync();
     }
@@ -72,6 +73,13 @@ public class PlayerSQLRepository : IPlayerRepository {
 
     public async Task SaveAsync() {
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<Player>> GetRecentAsync(int count) {
+        return await _context.Players
+            .OrderByDescending(p => p.CreatedAt) // or .CreatedAt if you have a timestamp
+            .Take(count)
+            .ToListAsync();
     }
 }
 

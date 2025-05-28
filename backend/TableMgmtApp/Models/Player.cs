@@ -2,6 +2,7 @@ namespace TableMgmtApp;
 
 public class Player {
     public Guid Id { get; set; }
+    public DateTime CreatedAt { get; set; }
     public string Name { get; set; }
     public string Surname { get; set; }
     public string Email { get; set; }
@@ -9,6 +10,7 @@ public class Player {
 
     public Player(string name, string surname, string email, int discount) {
         Id = Guid.NewGuid();
+        CreatedAt = DateTime.Now;
         Name = name;
         Surname = surname;
         Email = email;

@@ -15,8 +15,8 @@ public class PlayerController : ControllerBase {
 
     // GET: api/player/all
     [HttpGet("all")]
-    public async Task<IActionResult> GetAllPlayers() {
-        var players = await _repository.GetAllAsync();
+    public async Task<IActionResult> GetRecentPlayers() {
+        var players = await _repository.GetRecentAsync(10);
         return Ok(players);
     }
 

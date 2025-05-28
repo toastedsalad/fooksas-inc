@@ -6,6 +6,7 @@ const apiBase = "http://localhost:5267/api/player";
 
 type Player = {
   id: string;
+  createdAt: string;
   name: string;
   surname: string;
   email: string;
@@ -37,12 +38,20 @@ export default function PlayersPage() {
   const { data: players, isLoading } = useQuery({
     queryKey: ["players", filters],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      if (filters.name) params.append("name", filters.name);
-      if (filters.surname) params.append("surname", filters.surname);
-      if (filters.email) params.append("email", filters.email);
-      const { data } = await axios.get<Player[]>(`${apiBase}/search?${params}`);
-      return data;
+      const hasFilters = filters.name || filters.surname || filters.email;
+  
+      if (hasFilters) {
+        const params = new URLSearchParams();
+        if (filters.name) params.append("name", filters.name);
+        if (filters.surname) params.append("surname", filters.surname);
+        if (filters.email) params.append("email", filters.email);
+        const { data } = await axios.get<Player[]>(`${apiBase}/search?${params}`);
+        return data;
+      } else {
+        // No filters — get 10 recent players
+        const { data } = await axios.get<Player[]>(`${apiBase}/all`);
+        return data;
+      }
     },
     keepPreviousData: true,
   });
@@ -207,6 +216,15 @@ export default function PlayersPage() {
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">{player.email}</p>
                     <p className="text-sm">Discount: {player.discount}%</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400"> Added: {new Date(player.createdAt).toLocaleString("lt-LT", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })
+                    .replace(",", "")} </p>
                   </div>
                   <div className="space-x-2">
                     <button
