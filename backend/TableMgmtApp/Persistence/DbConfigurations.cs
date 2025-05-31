@@ -8,6 +8,7 @@ public class TableMgmtAppDbContext : DbContext {
     public DbSet<PoolTable> PoolTables { get; set; }
     public DbSet<PlaySession> PlaySessions { get; set; }
     public DbSet<ScheduleDTO> Schedules { get; set; }
+    public DbSet<Discount> Discounts { get; set; }
 
     #nullable disable
     public TableMgmtAppDbContext(DbContextOptions<TableMgmtAppDbContext> options) : base(options) {}
@@ -18,20 +19,10 @@ public class TableMgmtAppDbContext : DbContext {
         modelBuilder.ApplyConfiguration(new TableConfiguration());
         modelBuilder.ApplyConfiguration(new PlaySessionConfiguration());
         modelBuilder.ApplyConfiguration(new ScheduleConfiguration());
+        modelBuilder.ApplyConfiguration(new DiscountConfiguration());
     }
 }
 
-public class PlayerConfiguration : IEntityTypeConfiguration<Player> {
-    public void Configure(EntityTypeBuilder<Player> builder) {
-        builder.ToTable("Players");
-        builder.HasKey(u => u.Id);
-        builder.Property(u => u.CreatedAt).IsRequired().HasMaxLength(200);
-        builder.Property(u => u.Name).IsRequired().HasMaxLength(100);
-        builder.Property(u => u.Surname).IsRequired().HasMaxLength(100);
-        builder.Property(u => u.Email).HasMaxLength(200);
-        builder.Property(u => u.Discount);
-    }
-}
 
 public class TableConfiguration : IEntityTypeConfiguration<PoolTable> {
     public void Configure(EntityTypeBuilder<PoolTable> builder) {
@@ -43,6 +34,18 @@ public class TableConfiguration : IEntityTypeConfiguration<PoolTable> {
     }
 }
 
+public class PlayerConfiguration : IEntityTypeConfiguration<Player> {
+    public void Configure(EntityTypeBuilder<Player> builder) {
+        builder.ToTable("Players");
+        builder.HasKey(u => u.Id);
+        builder.Property(u => u.CreatedAt).IsRequired();
+        builder.Property(u => u.Name).IsRequired().HasMaxLength(100);
+        builder.Property(u => u.Surname).IsRequired().HasMaxLength(100);
+        builder.Property(u => u.Email).HasMaxLength(200);
+        builder.Property(u => u.Discount);
+    }
+}
+
 public class PlaySessionConfiguration : IEntityTypeConfiguration<PlaySession> {
     public void Configure(EntityTypeBuilder<PlaySession> builder) {
         builder.ToTable("PlaySessions");
@@ -51,7 +54,13 @@ public class PlaySessionConfiguration : IEntityTypeConfiguration<PlaySession> {
         builder.Property(p => p.PlayTime).IsRequired();
         builder.Property(p => p.Price).IsRequired();
         builder.Property(p => p.TableNumber).IsRequired();
+        builder.Property(p => p.TableName).IsRequired();
         builder.Property(p => p.PlayerId);
+
+        builder.HasOne(p => p.Player)
+            .WithMany()
+            .HasForeignKey(p => p.PlayerId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }   
 
@@ -62,6 +71,15 @@ public class ScheduleConfiguration : IEntityTypeConfiguration<ScheduleDTO> {
         builder.Property(s => s.Name).IsRequired().HasMaxLength(100);
         builder.Property(s => s.WeeklyRates);
         builder.Property(s => s.DefaultRate).IsRequired();
+    }
+}
+public class DiscountConfiguration : IEntityTypeConfiguration<Discount> {
+    public void Configure(EntityTypeBuilder<Discount> builder) {
+        builder.ToTable("Discounts");
+        builder.HasKey(d => d.Id);
+        builder.Property(d => d.Type).IsRequired();
+        builder.Property(d => d.Name).IsRequired();
+        builder.Property(d => d.Rate).IsRequired();
     }
 }
 

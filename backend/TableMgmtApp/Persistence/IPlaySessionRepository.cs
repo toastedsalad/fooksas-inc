@@ -19,7 +19,9 @@ public class PlaySessionSQLRepository : IPlaySessionRepository {
     }
 
     public async Task<List<PlaySession>> GetAllAsync() {
-        return await _context.PlaySessions.ToListAsync();
+        return await _context.PlaySessions
+                     .Include(p => p.Player)
+                     .ToListAsync();
     }
 
     public async Task<PlaySession?> GetByIdAsync(Guid id) {
@@ -33,10 +35,10 @@ public class PlaySessionSQLRepository : IPlaySessionRepository {
     }
 
     public async Task<IEnumerable<PlaySession>> GetSessionsInRangeAsync(DateTime start, DateTime end) {
-        // TODO I need a join here with player table
         return await _context.PlaySessions
-            .Where(s => s.StartTime >= start && s.StartTime <= end)
-            .ToListAsync();
+                             .Include(p => p.Player)
+                             .Where(s => s.StartTime >= start && s.StartTime <= end)
+                             .ToListAsync();
     }
 
     public async Task AddAsync(PlaySession playSession) {
@@ -46,7 +48,6 @@ public class PlaySessionSQLRepository : IPlaySessionRepository {
     public async Task SaveAsync() {
         await _context.SaveChangesAsync();
     }
-
 }
 
 

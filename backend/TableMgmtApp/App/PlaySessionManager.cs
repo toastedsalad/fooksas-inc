@@ -64,18 +64,12 @@ public class PlaySessionManager {
     }
 
     public void Start() {
-        // TODO: Fix this
-        // We need to pass in a timer here.
-        // Okay seems like we need a timer per session.
-        // Timers need to be created here?
-        // I probably need a session factory that provides the timer we need.
-        // var timer = TimerFactory.CreateTimer(realTimer)
-        // "fakeTimer" "realTimer" is the default
         if (_timer == null) {
             _timer = TimerFactory.CreateTimer();
         }
         Session.StartTime = _timeProvider.Now;
         Session.TableNumber = TableManager.Table.Number;
+        Session.TableName = TableManager.Table.Name;
         IsStopActive = false;
         _timer.Elapsed += TimedEvent;
         _timer.AutoReset = true;
@@ -96,11 +90,9 @@ public class PlaySessionManager {
         if (IsStopActive) {
             using var repoWrapper = _playSessionRepoFactory.CreateRepository();
             var repo = repoWrapper.Repository;
+            Session.Price = Math.Round(Session.Price, 2, MidpointRounding.ToEven);
             await repo.AddAsync(Session);
             await repo.SaveAsync();
-            // Why am I not disposing of repo here?
-            // I think I should:
-            repoWrapper.Dispose();
             _timer.Elapsed -= TimedEvent;
             _timer.Dispose();
             _timer = null!;

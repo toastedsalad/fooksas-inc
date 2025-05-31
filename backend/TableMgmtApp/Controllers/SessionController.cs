@@ -16,7 +16,20 @@ namespace TableMgmtApp.Controllers {
         [HttpGet]
         public async Task<IActionResult> GetAllSessions() {
             var sessions = await _repository.GetAllAsync();
-            return Ok(sessions);
+
+            var sessionDtos = sessions.Select(s => new PlaySessionDTO {
+                    Id = s.Id,
+                    StartTime = s.StartTime,
+                    PlayTime = s.PlayTime,
+                    Price = s.Price,
+                    TableName = s.TableName,
+                    TableNumber = s.TableNumber,
+                    PlayerId = s.PlayerId ?? Guid.Empty,
+                    PlayerName = s.Player?.Name,
+                    PlayerSurname = s.Player?.Surname
+                    });
+
+            return Ok(sessionDtos);
         }
 
         [HttpGet("range")]
@@ -26,7 +39,20 @@ namespace TableMgmtApp.Controllers {
             }
 
             var sessions = await _repository.GetSessionsInRangeAsync(start, end);
-            return Ok(sessions);
+
+            var sessionDtos = sessions.Select(s => new PlaySessionDTO {
+                    Id = s.Id,
+                    StartTime = s.StartTime,
+                    PlayTime = s.PlayTime,
+                    Price = s.Price,
+                    TableName = s.TableName,
+                    TableNumber = s.TableNumber,
+                    PlayerId = s.PlayerId ?? Guid.Empty,
+                    PlayerName = s.Player?.Name,
+                    PlayerSurname = s.Player?.Surname
+                    });
+
+            return Ok(sessionDtos);
         }
 
         [HttpGet("range/csv")]
@@ -40,16 +66,19 @@ namespace TableMgmtApp.Controllers {
             var csv = new StringBuilder();
 
             // Header row
-            csv.AppendLine("TableNumber,PlayerId,StartTime,PlayTime,Price");
+            csv.AppendLine("TableName,TableNumber,PlayerId,StartTime,PlayTime,Price,PlayerName,PlayeSurname");
 
             foreach (var s in sessions) {
                 // Escape commas and quotes if needed here, or ensure your data doesn't contain them
                 csv.AppendLine(
+                    $"{s.TableName}," +
                     $"{s.TableNumber}," +
                     $"{EscapeCsv(s.PlayerId.ToString())}," +
                     $"{s.StartTime:yyyy-MM-dd HH:mm}," +
                     $"{s.PlayTime.ToString()}," +
-                    $"{s.Price:F2}"
+                    $"{s.Price:F2}," +
+                    $"{s.Player?.Name}," +
+                    $"{s.Player?.Surname}" 
                 );
             }
 

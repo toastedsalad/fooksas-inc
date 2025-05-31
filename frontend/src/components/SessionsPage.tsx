@@ -15,8 +15,11 @@ type PlaySession = {
   startTime: string;
   playTime: string;
   price: number;
+  tableName: string;
   tableNumber: number;
   playerId: string;
+  playerName: string;
+  playerSurname: string;
 };
 
 function useDarkMode() {
@@ -174,7 +177,10 @@ export default function SessionsPage() {
             >
               <div className="space-y-1">
                 <p className="font-medium">
-                  Table #{s.tableNumber} | Player: {s.playerId.slice(0, 6)}...
+                  {s.tableName} #{s.tableNumber}
+                  {(s.playerName !== null && s.playerSurname !== null) && (
+                    <> | Player: {s.playerName} {s.playerSurname}</>
+                  )}
                 </p>
                 <p className="text-sm">
                   Start:{" "}

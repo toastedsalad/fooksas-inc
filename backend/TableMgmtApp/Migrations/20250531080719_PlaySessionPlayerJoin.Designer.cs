@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TableMgmtApp.Persistence;
 
@@ -10,9 +11,11 @@ using TableMgmtApp.Persistence;
 namespace TableMgmtApp.Migrations
 {
     [DbContext(typeof(TableMgmtAppDbContext))]
-    partial class TableMgmtAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250531080719_PlaySessionPlayerJoin")]
+    partial class PlaySessionPlayerJoin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -48,7 +51,10 @@ namespace TableMgmtApp.Migrations
                     b.Property<TimeSpan>("PlayTime")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("PlayerId")
+                    b.Property<Guid>("Player")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("PlayerId")
                         .HasColumnType("TEXT");
 
                     b.Property<decimal>("Price")
@@ -65,8 +71,6 @@ namespace TableMgmtApp.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PlayerId");
 
                     b.ToTable("PlaySessions", (string)null);
                 });
@@ -145,16 +149,6 @@ namespace TableMgmtApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Schedules", (string)null);
-                });
-
-            modelBuilder.Entity("TableMgmtApp.PlaySession", b =>
-                {
-                    b.HasOne("TableMgmtApp.Player", "Player")
-                        .WithMany()
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Player");
                 });
 #pragma warning restore 612, 618
         }

@@ -6,8 +6,10 @@ namespace TableMgmtApp.Persistence;
 [TestFixture]
 public class PlaySessionRepositoryTests {
     private IPlaySessionRepository _repository;
+    private IPlayerRepository _playerRepository;
     private TableMgmtAppDbContext _dbContext;
     private SqliteConnection _connection;
+    private Player _player;
 
     [SetUp]
     public void Setup() {
@@ -22,6 +24,11 @@ public class PlaySessionRepositoryTests {
         _dbContext.Database.EnsureCreated();
 
         _repository = new PlaySessionSQLRepository(_dbContext);
+        _playerRepository = new PlayerSQLRepository(_dbContext);
+
+        _player = new Player("None", "None", "None", 10);
+        _playerRepository.AddAsync(_player);
+        _playerRepository.SaveAsync();
     }
 
     [TearDown]
@@ -37,21 +44,21 @@ public class PlaySessionRepositoryTests {
         session1.PlayTime = TimeSpan.Zero;
         session1.Price = 0.0m;
         session1.TableNumber = 2;
-        session1.PlayerId = Guid.NewGuid();
+        session1.PlayerId = _player.Id;
 
         var session2 = new PlaySession();
         session2.StartTime = DateTime.Now;
         session2.PlayTime = TimeSpan.Zero;
         session2.Price = 0.0m;
         session2.TableNumber = 2;
-        session2.PlayerId = Guid.NewGuid();
+        session2.PlayerId = _player.Id;
 
         var session3 = new PlaySession();
         session3.StartTime = DateTime.Now;
         session3.PlayTime = TimeSpan.Zero;
         session3.Price = 0.0m;
         session3.TableNumber = 3;
-        session3.PlayerId = Guid.NewGuid();
+        session3.PlayerId = _player.Id;
 
         await _repository.AddAsync(session1);
         await _repository.AddAsync(session2);
@@ -72,21 +79,21 @@ public class PlaySessionRepositoryTests {
         session1.PlayTime = TimeSpan.Zero;
         session1.Price = 0.0m;
         session1.TableNumber = 2;
-        session1.PlayerId = Guid.NewGuid();
+        session1.PlayerId = _player.Id;
 
         var session2 = new PlaySession();
         session2.StartTime = DateTime.Now;
         session2.PlayTime = TimeSpan.Zero;
         session2.Price = 0.0m;
         session2.TableNumber = 2;
-        session2.PlayerId = Guid.NewGuid();
+        session2.PlayerId = _player.Id;
 
         var session3 = new PlaySession();
         session3.StartTime = DateTime.Now;
         session3.PlayTime = TimeSpan.Zero;
         session3.Price = 0.0m;
         session3.TableNumber = 3;
-        session3.PlayerId = Guid.NewGuid();
+        session3.PlayerId = _player.Id;
 
         await _repository.AddAsync(session1);
         await _repository.AddAsync(session2);
