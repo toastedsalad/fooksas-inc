@@ -8,8 +8,10 @@ public class PlaySession {
     public string TableName { get; set; } = "None";
     public int TableNumber { get; set; }
     public Guid? PlayerId { get; set; }
+    public Guid? DiscountId { get; set; }
 
     public Player? Player { get; set; } // Navigation property
+    public Discount? Discount { get; set; } // Navigation property
 }
 
 public record PlaySessionDTO {
@@ -22,5 +24,9 @@ public record PlaySessionDTO {
     public Guid PlayerId { get; init; }
     public string? PlayerName { get; init; }
     public string? PlayerSurname { get; init; }
+    public Guid DiscountId { get; init; }
+    public string? DiscountType { get; init; }
+    public string? DiscountName { get; init; }
+    public int? DiscountRate { get; init; }
 }
 

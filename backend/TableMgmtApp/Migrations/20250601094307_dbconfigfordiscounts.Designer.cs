@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TableMgmtApp.Persistence;
 
@@ -10,9 +11,11 @@ using TableMgmtApp.Persistence;
 namespace TableMgmtApp.Migrations
 {
     [DbContext(typeof(TableMgmtAppDbContext))]
-    partial class TableMgmtAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250601094307_dbconfigfordiscounts")]
+    partial class dbconfigfordiscounts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");

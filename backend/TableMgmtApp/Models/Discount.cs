@@ -6,6 +6,9 @@ public class Discount {
     public string Name { get; set; }
     public int Rate { get; set; }
 
+    // Navigation property
+    public ICollection<PlaySession> PlaySessions { get; set; } = new List<PlaySession>();
+
     public Discount(string type, string name, int rate){
         Id = Guid.NewGuid();
         Type = type;

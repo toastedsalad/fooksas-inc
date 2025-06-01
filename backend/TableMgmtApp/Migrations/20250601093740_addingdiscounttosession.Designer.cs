@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TableMgmtApp.Persistence;
 
@@ -10,9 +11,11 @@ using TableMgmtApp.Persistence;
 namespace TableMgmtApp.Migrations
 {
     [DbContext(typeof(TableMgmtAppDbContext))]
-    partial class TableMgmtAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250601093740_addingdiscounttosession")]
+    partial class addingdiscounttosession
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -154,9 +157,8 @@ namespace TableMgmtApp.Migrations
             modelBuilder.Entity("TableMgmtApp.PlaySession", b =>
                 {
                     b.HasOne("TableMgmtApp.Discount", "Discount")
-                        .WithMany("PlaySessions")
-                        .HasForeignKey("DiscountId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .WithMany()
+                        .HasForeignKey("DiscountId");
 
                     b.HasOne("TableMgmtApp.Player", "Player")
                         .WithMany("PlaySessions")
@@ -166,11 +168,6 @@ namespace TableMgmtApp.Migrations
                     b.Navigation("Discount");
 
                     b.Navigation("Player");
-                });
-
-            modelBuilder.Entity("TableMgmtApp.Discount", b =>
-                {
-                    b.Navigation("PlaySessions");
                 });
 
             modelBuilder.Entity("TableMgmtApp.Player", b =>

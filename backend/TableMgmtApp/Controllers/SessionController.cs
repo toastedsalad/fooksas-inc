@@ -26,7 +26,11 @@ namespace TableMgmtApp.Controllers {
                     TableNumber = s.TableNumber,
                     PlayerId = s.PlayerId ?? Guid.Empty,
                     PlayerName = s.Player?.Name,
-                    PlayerSurname = s.Player?.Surname
+                    PlayerSurname = s.Player?.Surname,
+                    DiscountId = s.DiscountId ?? Guid.Empty,
+                    DiscountType = s.Discount?.Type,
+                    DiscountName = s.Discount?.Name,
+                    DiscountRate = s.Discount?.Rate,
                     });
 
             return Ok(sessionDtos);
@@ -49,7 +53,11 @@ namespace TableMgmtApp.Controllers {
                     TableNumber = s.TableNumber,
                     PlayerId = s.PlayerId ?? Guid.Empty,
                     PlayerName = s.Player?.Name,
-                    PlayerSurname = s.Player?.Surname
+                    PlayerSurname = s.Player?.Surname,
+                    DiscountId = s.DiscountId ?? Guid.Empty,
+                    DiscountType = s.Discount?.Type,
+                    DiscountName = s.Discount?.Name,
+                    DiscountRate = s.Discount?.Rate,
                     });
 
             return Ok(sessionDtos);
@@ -66,7 +74,7 @@ namespace TableMgmtApp.Controllers {
             var csv = new StringBuilder();
 
             // Header row
-            csv.AppendLine("TableName,TableNumber,PlayerId,StartTime,PlayTime,Price,PlayerName,PlayeSurname");
+            csv.AppendLine("TableName,TableNumber,PlayerId,StartTime,PlayTime,Price,PlayerName,PlayeSurname,DiscountType,DiscountName,DiscountRate");
 
             foreach (var s in sessions) {
                 // Escape commas and quotes if needed here, or ensure your data doesn't contain them
@@ -78,7 +86,10 @@ namespace TableMgmtApp.Controllers {
                     $"{s.PlayTime.ToString()}," +
                     $"{s.Price:F2}," +
                     $"{s.Player?.Name}," +
-                    $"{s.Player?.Surname}" 
+                    $"{s.Player?.Surname}," +
+                    $"{s.Discount?.Type}," +
+                    $"{s.Discount?.Name}," +
+                    $"{s.Discount?.Rate}"
                 );
             }
 
