@@ -49,9 +49,22 @@ public class PlaySessionManager {
         return Math.Round(Session.Price, 2, MidpointRounding.ToEven);
     }
 
+    private decimal ApplyDiscount(decimal rate) {
+        if (Session.Discount == null) {
+            return rate;
+        }
+        if (Session.Discount.Rate == 0) {
+            return rate;
+        }
+
+        decimal discount = 1.0m - ((decimal)Session.Discount.Rate / 100);
+        return rate * discount;
+    }
+
     private void TimedEvent(Object? source, ElapsedEventArgs args) {
         Session.PlayTime += TimeSpan.FromSeconds(1);
-        Session.Price += ScheduleService.GetCurrentRate(_schedule, _timeProvider) / 60 / 60;
+        var currentTick = ApplyDiscount(ScheduleService.GetCurrentRate(_schedule, _timeProvider) / 60 / 60);
+        Session.Price += currentTick;
 
         if (_isTimedSession) {
             _remainingTime = TimedSessionSpan.Subtract(Session.PlayTime);

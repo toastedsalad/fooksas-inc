@@ -546,6 +546,72 @@ public class PlaySessionManagerTest {
 
         Assert.That(sessionManager.GetSessionPrice(), Is.EqualTo(0.02m));
     }
+
+    [Test]
+    public void PlaySessionManagerAppliesDiscounts() {
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new PoolTable(1);
+         
+        var tableManager = new TableManager(table, fakeTimeProvider, TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object);
+        var schedule = new Schedule();
+        schedule.DefaultRate = 6;
+        var sessionManager = new PlaySessionManager(schedule, tableManager, fakeTimer);
+
+        var discount = new Discount("player", "default", 75);
+        sessionManager.Start();
+        sessionManager.Session.Discount = discount;
+
+        for (var i = 0; i < 600; i++) {
+            fakeTimer.TriggerElapsed();
+        }
+
+        Assert.That(sessionManager.GetSessionPrice(), Is.EqualTo(0.25m));
+    }
+
+    [Test]
+    public void FullDiscountGivesNoPrice() {
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new PoolTable(1);
+         
+        var tableManager = new TableManager(table, fakeTimeProvider, TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object);
+        var schedule = new Schedule();
+        schedule.DefaultRate = 6;
+        var sessionManager = new PlaySessionManager(schedule, tableManager, fakeTimer);
+
+        var discount = new Discount("player", "default", 100);
+        sessionManager.Start();
+        sessionManager.Session.Discount = discount;
+
+        for (var i = 0; i < 600; i++) {
+            fakeTimer.TriggerElapsed();
+        }
+
+        Assert.That(sessionManager.GetSessionPrice(), Is.EqualTo(0));
+    }
+
+    [Test]
+    public void ZeroDiscountGivesFullPrice() {
+        var fakeTimeProvider = new FakeTimeProvider();
+        var fakeTimer = new FakeTimer();
+        var table = new PoolTable(1);
+         
+        var tableManager = new TableManager(table, fakeTimeProvider, TestHelpers.GetRepoFactoryMock().Object, TestHelpers.GetServiceFactoryMock().Object);
+        var schedule = new Schedule();
+        schedule.DefaultRate = 6;
+        var sessionManager = new PlaySessionManager(schedule, tableManager, fakeTimer);
+
+        var discount = new Discount("player", "default", 0);
+        sessionManager.Start();
+        sessionManager.Session.Discount = discount;
+
+        for (var i = 0; i < 600; i++) {
+            fakeTimer.TriggerElapsed();
+        }
+
+        Assert.That(sessionManager.GetSessionPrice(), Is.EqualTo(1));
+    }
 }
 
 
