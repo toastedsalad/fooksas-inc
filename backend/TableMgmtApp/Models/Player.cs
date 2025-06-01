@@ -8,6 +8,9 @@ public class Player {
     public string Email { get; set; }
     public int Discount { get; set; }
 
+    // Navigation property
+    public ICollection<PlaySession> PlaySessions { get; set; } = new List<PlaySession>();
+
     public Player(string name, string surname, string email, int discount) {
         Id = Guid.NewGuid();
         CreatedAt = DateTime.Now;

@@ -58,7 +58,7 @@ public class PlaySessionConfiguration : IEntityTypeConfiguration<PlaySession> {
         builder.Property(p => p.PlayerId);
 
         builder.HasOne(p => p.Player)
-            .WithMany()
+            .WithMany(p => p.PlaySessions)
             .HasForeignKey(p => p.PlayerId)
             .OnDelete(DeleteBehavior.SetNull);
     }
