@@ -26,6 +26,13 @@ public class DiscountController : ControllerBase {
         return Ok(discount);
     }
 
+    [HttpGet("type/{type}")]
+    public async Task<IActionResult> GetByDiscountType(string type) {
+        var discount = await _repository.GetByTypeAsync(type);
+
+        return Ok(discount);
+    }
+
     [HttpGet("search")]
     public async Task<IActionResult> Search(
             [FromQuery] string? type,

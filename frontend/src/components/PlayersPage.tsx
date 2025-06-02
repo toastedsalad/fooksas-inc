@@ -72,7 +72,7 @@ export default function PlayersPage() {
   // Fetch discounts
   useEffect(() => {
     axios
-      .get(`${discountApi}/all`)
+      .get(`${discountApi}/type/Player`)
       .then((res) => setDiscounts(res.data))
       .catch((err) => console.error("Failed to load discounts:", err));
   }, []);
