@@ -3,6 +3,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 const apiBase = "http://localhost:5267/api/player";
+const discountApi = "http://localhost:5267/api/discount";
 
 type Player = {
   id: string;
@@ -10,9 +11,16 @@ type Player = {
   name: string;
   surname: string;
   email: string;
-  discountType: string;
-  discountName: string;
-  discountRate: number;
+  discountId?: string;
+  discountName?: string;
+  discountRate?: number;
+};
+
+type Discount = {
+  id: string;
+  name: string;
+  type: string;
+  rate: number;
 };
 
 function useDarkMode() {
@@ -32,31 +40,42 @@ function useDarkMode() {
 export default function PlayersPage() {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState({ name: "", surname: "", email: "" });
-  const [newPlayer, setNewPlayer] = useState({ name: "", surname: "", email: "", discountRate: 0 });
+  const [newPlayer, setNewPlayer] = useState({
+    name: "",
+    surname: "",
+    email: "",
+    discountId: "",
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Player>>({});
+  const [discounts, setDiscounts] = useState<Discount[]>([]);
   const isDark = useDarkMode();
 
+  // Fetch players
   const { data: players, isLoading } = useQuery({
     queryKey: ["players", filters],
     queryFn: async () => {
       const hasFilters = filters.name || filters.surname || filters.email;
-  
-      if (hasFilters) {
-        const params = new URLSearchParams();
-        if (filters.name) params.append("name", filters.name);
-        if (filters.surname) params.append("surname", filters.surname);
-        if (filters.email) params.append("email", filters.email);
-        const { data } = await axios.get<Player[]>(`${apiBase}/search?${params}`);
-        return data;
-      } else {
-        // No filters — get 10 recent players
-        const { data } = await axios.get<Player[]>(`${apiBase}/all`);
-        return data;
-      }
+      const params = new URLSearchParams();
+      if (filters.name) params.append("name", filters.name);
+      if (filters.surname) params.append("surname", filters.surname);
+      if (filters.email) params.append("email", filters.email);
+      const url = hasFilters
+        ? `${apiBase}/search?${params}`
+        : `${apiBase}/all`;
+      const { data } = await axios.get<Player[]>(url);
+      return data;
     },
     keepPreviousData: true,
   });
+
+  // Fetch discounts
+  useEffect(() => {
+    axios
+      .get(`${discountApi}/all`)
+      .then((res) => setDiscounts(res.data))
+      .catch((err) => console.error("Failed to load discounts:", err));
+  }, []);
 
   const addMutation = useMutation({
     mutationFn: async () => {
@@ -65,7 +84,7 @@ export default function PlayersPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["players"]);
-      setNewPlayer({ name: "", surname: "", email: "", discountRate: 0 });
+      setNewPlayer({ name: "", surname: "", email: "", discountId: "" });
     },
   });
 
@@ -83,6 +102,7 @@ export default function PlayersPage() {
     onSuccess: () => {
       queryClient.invalidateQueries(["players"]);
       setEditingId(null);
+      setEditForm({});
     },
   });
 
@@ -92,7 +112,10 @@ export default function PlayersPage() {
 
   const startEdit = (player: Player) => {
     setEditingId(player.id);
-    setEditForm({ ...player });
+    setEditForm({
+      ...player,
+      discountId: player.discountId ?? "",
+    });
   };
 
   const cancelEdit = () => {
@@ -126,15 +149,18 @@ export default function PlayersPage() {
             value={newPlayer.email}
             onChange={(e) => setNewPlayer({ ...newPlayer, email: e.target.value })}
           />
-          <input
-            type="number"
-            placeholder="Discount %"
+          <select
             className="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-            value={newPlayer.discountRate}
-            onChange={(e) =>
-              setNewPlayer({ ...newPlayer, discountRate: parseFloat(e.target.value) || 0 })
-            }
-          />
+            value={newPlayer.discountId}
+            onChange={(e) => setNewPlayer({ ...newPlayer, discountId: e.target.value })}
+          >
+            <option value="">Select Discount</option>
+            {discounts.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name} ({d.rate}%)
+              </option>
+            ))}
+          </select>
         </div>
         <button
           onClick={() => addMutation.mutate()}
@@ -186,14 +212,18 @@ export default function PlayersPage() {
                     value={editForm.email}
                     onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
                   />
-                  <input
-                    type="number"
+                  <select
                     className="p-1 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
-                    value={editForm.discountRate}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, discountRate: parseFloat(e.target.value) || 0 })
-                    }
-                  />
+                    value={editForm.discountId}
+                    onChange={(e) => setEditForm({ ...editForm, discountId: e.target.value })}
+                  >
+                    <option value="">Select Discount</option>
+                    {discounts.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name} ({d.rate}%)
+                      </option>
+                    ))}
+                  </select>
                   <button
                     onClick={() => updateMutation.mutate(editForm as Player)}
                     className="bg-blue-600 text-white px-2 py-1 rounded"
@@ -217,16 +247,21 @@ export default function PlayersPage() {
                       {player.name} {player.surname}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">{player.email}</p>
-                    <p className="text-sm">Discount: {player.discountRate}%</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400"> Added: {new Date(player.createdAt).toLocaleString("lt-LT", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                    })
-                    .replace(",", "")} </p>
+                    <p className="text-sm">
+                      Discount: {player.discountName || "None"}{" "}
+                      {player.discountRate != null && `(${player.discountRate}%)`}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Added:{" "}
+                      {new Date(player.createdAt).toLocaleString("lt-LT", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      }).replace(",", "")}
+                    </p>
                   </div>
                   <div className="space-x-2">
                     <button

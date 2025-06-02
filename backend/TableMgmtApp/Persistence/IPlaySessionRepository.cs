@@ -25,11 +25,13 @@ public class PlaySessionSQLRepository : IPlaySessionRepository {
     }
 
     public async Task<PlaySession?> GetByIdAsync(Guid id) {
-        return await _context.PlaySessions.FindAsync(id);
+        return await _context.PlaySessions.Include(p => p.Player)
+                                          .FirstOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<List<PlaySession>> GetByTableNumber(int tableNumber) {
         return await _context.PlaySessions
+                             .Include(p => p.Player)
                              .Where(p => p.TableNumber == tableNumber)
                              .ToListAsync();
     }

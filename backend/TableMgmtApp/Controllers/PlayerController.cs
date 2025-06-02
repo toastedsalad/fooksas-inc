@@ -77,6 +77,7 @@ public class PlayerController : ControllerBase {
         }
 
         var player = new Player(playerDto.Name, playerDto.Surname, playerDto.Email);
+        player.DiscountId = playerDto.DiscountId;
 
         await _repository.AddAsync(player);
         await _repository.SaveAsync();
