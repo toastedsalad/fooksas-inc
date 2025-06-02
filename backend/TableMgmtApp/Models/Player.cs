@@ -9,9 +9,9 @@ public class Player {
     public Guid? DiscountId { get; init; }
     public int DiscountManual { get; set; }
 
-    // Navigation property
+    // Navigation properties
     public ICollection<PlaySession> PlaySessions { get; set; } = new List<PlaySession>();
-    // Need another prop here to link discounts.
+    public Discount? Discount { get; set; }
 
     public Player(string name, string surname, string email, int discountManual) {
         Id = Guid.NewGuid();
