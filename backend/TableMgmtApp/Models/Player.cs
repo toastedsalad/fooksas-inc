@@ -6,6 +6,7 @@ public class Player {
     public string Name { get; set; }
     public string Surname { get; set; }
     public string Email { get; set; }
+    public Guid? DiscountId { get; init; }
     public int DiscountManual { get; set; }
 
     // Navigation property
@@ -31,5 +32,5 @@ public record PlayerDTO {
     public Guid DiscountId { get; init; }
     public string? DiscountType { get; init; }
     public string? DiscountName { get; init; }
-    public int DiscountManual { get; init; }
+    public int DiscountRate { get; init; }
 }

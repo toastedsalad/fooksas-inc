@@ -10,7 +10,7 @@ type Player = {
   name: string;
   surname: string;
   email: string;
-  discountManual: number;
+  discountRate: number;
 };
 
 function useDarkMode() {
@@ -30,7 +30,7 @@ function useDarkMode() {
 export default function PlayersPage() {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState({ name: "", surname: "", email: "" });
-  const [newPlayer, setNewPlayer] = useState({ name: "", surname: "", email: "", discountManual: 0 });
+  const [newPlayer, setNewPlayer] = useState({ name: "", surname: "", email: "", discountRate: 0 });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Player>>({});
   const isDark = useDarkMode();
@@ -63,7 +63,7 @@ export default function PlayersPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["players"]);
-      setNewPlayer({ name: "", surname: "", email: "", discountManual: 0 });
+      setNewPlayer({ name: "", surname: "", email: "", discountRate: 0 });
     },
   });
 
@@ -128,9 +128,9 @@ export default function PlayersPage() {
             type="number"
             placeholder="Discount %"
             className="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
-            value={newPlayer.discountManual}
+            value={newPlayer.discountRate}
             onChange={(e) =>
-              setNewPlayer({ ...newPlayer, discountManual: parseFloat(e.target.value) || 0 })
+              setNewPlayer({ ...newPlayer, discountRate: parseFloat(e.target.value) || 0 })
             }
           />
         </div>
@@ -187,9 +187,9 @@ export default function PlayersPage() {
                   <input
                     type="number"
                     className="p-1 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
-                    value={editForm.discountManual}
+                    value={editForm.discountRate}
                     onChange={(e) =>
-                      setEditForm({ ...editForm, discountManual: parseFloat(e.target.value) || 0 })
+                      setEditForm({ ...editForm, discountRate: parseFloat(e.target.value) || 0 })
                     }
                   />
                   <button
@@ -215,7 +215,7 @@ export default function PlayersPage() {
                       {player.name} {player.surname}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">{player.email}</p>
-                    <p className="text-sm">Discount: {player.discountManual}%</p>
+                    <p className="text-sm">Discount: {player.discountRate}%</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400"> Added: {new Date(player.createdAt).toLocaleString("lt-LT", {
                       year: "numeric",
                       month: "2-digit",

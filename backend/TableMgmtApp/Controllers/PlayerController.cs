@@ -23,7 +23,7 @@ public class PlayerController : ControllerBase {
                 Name = p.Name,
                 Surname = p.Surname,
                 Email = p.Email,
-                DiscountManual = p.DiscountManual,
+                DiscountRate = p.DiscountManual,
                 });
         return Ok(playerDtos);
     }
@@ -37,7 +37,7 @@ public class PlayerController : ControllerBase {
             Name = player.Name,
             Surname = player.Surname,
             Email = player.Email,
-            DiscountManual = player.DiscountManual,
+            DiscountRate = player.DiscountManual,
         };
         return Ok(playerDto);
     }
@@ -55,7 +55,7 @@ public class PlayerController : ControllerBase {
                 Name = s.Name,
                 Surname = s.Surname,
                 Email = s.Email,
-                DiscountManual = s.DiscountManual,
+                DiscountRate = s.DiscountManual,
                 });
 
         return Ok(playerDtos);
@@ -68,7 +68,7 @@ public class PlayerController : ControllerBase {
         }
 
         var player = new Player(playerDto.Name, playerDto.Surname, 
-                                playerDto.Email, playerDto.DiscountManual);
+                                playerDto.Email, playerDto.DiscountRate);
 
         await _repository.AddAsync(player);
         await _repository.SaveAsync();
@@ -88,7 +88,7 @@ public class PlayerController : ControllerBase {
         existingPlayer.Name = updatedPlayer.Name;
         existingPlayer.Surname = updatedPlayer.Surname;
         existingPlayer.Email = updatedPlayer.Email;
-        existingPlayer.DiscountManual = updatedPlayer.DiscountManual;
+        existingPlayer.DiscountManual = updatedPlayer.DiscountRate;
 
         await _repository.SaveAsync();
 
