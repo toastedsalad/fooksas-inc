@@ -10,6 +10,8 @@ type Player = {
   name: string;
   surname: string;
   email: string;
+  discountType: string;
+  discountName: string;
   discountRate: number;
 };
 

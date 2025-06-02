@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Mvc;
 using TableMgmtApp.Persistence;
 
@@ -18,13 +17,15 @@ public class PlayerController : ControllerBase {
     public async Task<IActionResult> GetRecentPlayers() {
         var players = await _repository.GetRecentAsync(10);
         var playerDtos = players.Select(p => new PlayerDTO {
-                Id = p.Id,
-                CreatedAt = p.CreatedAt,
-                Name = p.Name,
-                Surname = p.Surname,
-                Email = p.Email,
-                DiscountRate = p.Discount.Rate,
-                });
+            Id = p.Id,
+            CreatedAt = p.CreatedAt,
+            Name = p.Name,
+            Surname = p.Surname,
+            Email = p.Email,
+            DiscountType = p.Discount?.Type,
+            DiscountName = p.Discount?.Name,
+            DiscountRate = p.Discount?.Rate,
+        });
         return Ok(playerDtos);
     }
 
@@ -37,7 +38,9 @@ public class PlayerController : ControllerBase {
             Name = player.Name,
             Surname = player.Surname,
             Email = player.Email,
-            DiscountRate = player.Discount.Rate,
+            DiscountType = player.Discount?.Type,
+            DiscountName = player.Discount?.Name,
+            DiscountRate = player.Discount?.Rate,
         };
         return Ok(playerDto);
     }
@@ -51,13 +54,15 @@ public class PlayerController : ControllerBase {
         var players = await _repository.SearchAsync(name, surname, email);
 
         var playerDtos = players.Select(s => new PlayerDTO { 
-                Id = s.Id,
-                CreatedAt = s.CreatedAt,
-                Name = s.Name,
-                Surname = s.Surname,
-                Email = s.Email,
-                DiscountRate = s.Discount.Rate,
-                });
+            Id = s.Id,
+            CreatedAt = s.CreatedAt,
+            Name = s.Name,
+            Surname = s.Surname,
+            Email = s.Email,
+            DiscountType = s.Discount?.Type,
+            DiscountName = s.Discount?.Name,
+            DiscountRate = s.Discount?.Rate,
+        });
 
         return Ok(playerDtos);
     }
