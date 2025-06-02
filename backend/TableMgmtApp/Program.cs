@@ -20,6 +20,7 @@ public class Program {
         // TODO move timer settings to config.
         builder.Services.AddScoped<ITableRepository, TableSQLRepository>();
         builder.Services.AddScoped<IPlayerRepository, PlayerSQLRepository>();
+        builder.Services.AddScoped<IDiscountRepository, DiscountSQLRepository>();
         builder.Services.AddScoped<IPlaySessionRepository, PlaySessionSQLRepository>();
         builder.Services.AddScoped<IScheduleService, ScheduleService>();
         builder.Services.AddScoped<IScheduleRepository, ScheduleSQLRepository>();

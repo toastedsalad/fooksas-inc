@@ -40,8 +40,8 @@ public class DiscountSQLRepository : IDiscountRepository {
     public async Task<List<Discount>> SearchAsync(string? type, string? name) {
         var query = _context.Discounts.AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(name))
-            query = query.Where(p => p.Type.ToLower().Contains(name.ToLower()));
+        if (!string.IsNullOrWhiteSpace(type))
+            query = query.Where(p => p.Type.ToLower().Contains(type.ToLower()));
 
         if (!string.IsNullOrWhiteSpace(name))
             query = query.Where(p => p.Name.ToLower().Contains(name.ToLower()));
