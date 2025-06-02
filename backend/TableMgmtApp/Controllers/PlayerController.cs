@@ -17,13 +17,13 @@ public class PlayerController : ControllerBase {
     [HttpGet("all")]
     public async Task<IActionResult> GetRecentPlayers() {
         var players = await _repository.GetRecentAsync(10);
-        var playerDtos = players.Select(s => new PlayerDTO {
-                Id = s.Id,
-                CreatedAt = s.CreatedAt,
-                Name = s.Name,
-                Surname = s.Surname,
-                Email = s.Email,
-                DiscountManual = s.DiscountManual,
+        var playerDtos = players.Select(p => new PlayerDTO {
+                Id = p.Id,
+                CreatedAt = p.CreatedAt,
+                Name = p.Name,
+                Surname = p.Surname,
+                Email = p.Email,
+                DiscountManual = p.DiscountManual,
                 });
         return Ok(playerDtos);
     }
@@ -108,12 +108,5 @@ public class PlayerController : ControllerBase {
         return NoContent();
     }
 }
-
-
-
-
-
-
-
 
 
