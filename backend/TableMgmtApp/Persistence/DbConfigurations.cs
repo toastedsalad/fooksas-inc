@@ -42,7 +42,7 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player> {
         builder.Property(u => u.Name).IsRequired().HasMaxLength(100);
         builder.Property(u => u.Surname).IsRequired().HasMaxLength(100);
         builder.Property(u => u.Email).HasMaxLength(200);
-        builder.Property(u => u.Discount);
+        builder.Property(u => u.DiscountManual);
     }
 }
 

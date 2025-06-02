@@ -6,17 +6,17 @@ public class Player {
     public string Name { get; set; }
     public string Surname { get; set; }
     public string Email { get; set; }
-    public int Discount { get; set; }
+    public int DiscountManual { get; set; }
 
     // Navigation property
     public ICollection<PlaySession> PlaySessions { get; set; } = new List<PlaySession>();
 
-    public Player(string name, string surname, string email, int discount) {
+    public Player(string name, string surname, string email, int discountManual) {
         Id = Guid.NewGuid();
         CreatedAt = DateTime.Now;
         Name = name;
         Surname = surname;
         Email = email;
-        Discount = discount;
+        DiscountManual = discountManual;
     }
 }

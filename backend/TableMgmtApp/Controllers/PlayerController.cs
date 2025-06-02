@@ -61,7 +61,7 @@ public class PlayerController : ControllerBase {
         existingPlayer.Name = updatedPlayer.Name;
         existingPlayer.Surname = updatedPlayer.Surname;
         existingPlayer.Email = updatedPlayer.Email;
-        existingPlayer.Discount = updatedPlayer.Discount;
+        existingPlayer.DiscountManual = updatedPlayer.DiscountManual;
 
         await _repository.SaveAsync();
 
