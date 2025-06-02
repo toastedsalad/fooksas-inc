@@ -28,6 +28,7 @@ public record PlayerDTO {
     public string? Name { get; init; }
     public string? Surname { get; init; }
     public string? Email { get; init; }
+    public Guid DiscountId { get; init; }
     public string? DiscountType { get; init; }
     public string? DiscountName { get; init; }
     public int DiscountManual { get; init; }
