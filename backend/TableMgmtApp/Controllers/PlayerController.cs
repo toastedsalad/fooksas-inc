@@ -17,14 +17,29 @@ public class PlayerController : ControllerBase {
     [HttpGet("all")]
     public async Task<IActionResult> GetRecentPlayers() {
         var players = await _repository.GetRecentAsync(10);
-        return Ok(players);
+        var playerDtos = players.Select(s => new PlayerDTO {
+                Id = s.Id,
+                CreatedAt = s.CreatedAt,
+                Name = s.Name,
+                Surname = s.Surname,
+                Email = s.Email,
+                DiscountManual = s.DiscountManual,
+                });
+        return Ok(playerDtos);
     }
-
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetPlayerById(Guid id) {
-        var players = await _repository.GetByIdAsync(id);
-        return Ok(players);
+        var player = await _repository.GetByIdAsync(id);
+        var playerDto = new PlayerDTO {
+            Id = player.Id,
+            CreatedAt = player.CreatedAt,
+            Name = player.Name,
+            Surname = player.Surname,
+            Email = player.Email,
+            DiscountManual = player.DiscountManual,
+        };
+        return Ok(playerDto);
     }
 
     [HttpGet("search")]
@@ -32,15 +47,28 @@ public class PlayerController : ControllerBase {
             [FromQuery] string? name,
             [FromQuery] string? surname,
             [FromQuery] string? email) {
+
         var players = await _repository.SearchAsync(name, surname, email);
-        return Ok(players);
+
+        var playerDtos = players.Select(s => new PlayerDTO { Id = s.Id,
+                CreatedAt = s.CreatedAt,
+                Name = s.Name,
+                Surname = s.Surname,
+                Email = s.Email,
+                DiscountManual = s.DiscountManual,
+                });
+
+        return Ok(playerDtos);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddPlayer([FromBody] Player player) {
-        if (player == null) {
+    public async Task<IActionResult> AddPlayer([FromBody] PlayerDTO playerDto) {
+        if (playerDto == null) {
             return BadRequest("Player is null");
         }
+
+        var player = new Player(playerDto.Name, playerDto.Surname, 
+                                playerDto.Email, playerDto.DiscountManual);
 
         await _repository.AddAsync(player);
         await _repository.SaveAsync();
@@ -49,8 +77,7 @@ public class PlayerController : ControllerBase {
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePlayer(Guid id, [FromBody] Player updatedPlayer)
-    {
+    public async Task<IActionResult> UpdatePlayer(Guid id, [FromBody] PlayerDTO updatedPlayer) {
         if (id != updatedPlayer.Id)
             return BadRequest("Player ID mismatch");
 
@@ -68,7 +95,6 @@ public class PlayerController : ControllerBase {
         return NoContent(); // 204 success
     }
 
-
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id) {
         var player = await _repository.GetByIdAsync(id);
@@ -82,10 +108,6 @@ public class PlayerController : ControllerBase {
         return NoContent();
     }
 }
-
-
-
-
 
 
 
