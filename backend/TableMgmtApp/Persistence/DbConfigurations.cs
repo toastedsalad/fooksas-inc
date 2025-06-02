@@ -42,7 +42,11 @@ public class PlayerConfiguration : IEntityTypeConfiguration<Player> {
         builder.Property(u => u.Name).IsRequired().HasMaxLength(100);
         builder.Property(u => u.Surname).IsRequired().HasMaxLength(100);
         builder.Property(u => u.Email).HasMaxLength(200);
-        builder.Property(u => u.DiscountManual);
+
+        builder.HasOne(p => p.Discount)
+            .WithMany() // Add a relationship the other way around, look at playsessions.
+            .HasForeignKey(p => p.DiscountId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
 
@@ -55,7 +59,6 @@ public class PlaySessionConfiguration : IEntityTypeConfiguration<PlaySession> {
         builder.Property(p => p.Price).IsRequired();
         builder.Property(p => p.TableNumber).IsRequired();
         builder.Property(p => p.TableName).IsRequired();
-        builder.Property(p => p.PlayerId);
 
         builder.HasOne(p => p.Player)
             .WithMany(p => p.PlaySessions)

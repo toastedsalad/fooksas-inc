@@ -23,7 +23,7 @@ public class PlayerController : ControllerBase {
                 Name = p.Name,
                 Surname = p.Surname,
                 Email = p.Email,
-                DiscountRate = p.DiscountManual,
+                DiscountRate = p.Discount.Rate,
                 });
         return Ok(playerDtos);
     }
@@ -37,7 +37,7 @@ public class PlayerController : ControllerBase {
             Name = player.Name,
             Surname = player.Surname,
             Email = player.Email,
-            DiscountRate = player.DiscountManual,
+            DiscountRate = player.Discount.Rate,
         };
         return Ok(playerDto);
     }
@@ -50,12 +50,13 @@ public class PlayerController : ControllerBase {
 
         var players = await _repository.SearchAsync(name, surname, email);
 
-        var playerDtos = players.Select(s => new PlayerDTO { Id = s.Id,
+        var playerDtos = players.Select(s => new PlayerDTO { 
+                Id = s.Id,
                 CreatedAt = s.CreatedAt,
                 Name = s.Name,
                 Surname = s.Surname,
                 Email = s.Email,
-                DiscountRate = s.DiscountManual,
+                DiscountRate = s.Discount.Rate,
                 });
 
         return Ok(playerDtos);
@@ -67,8 +68,7 @@ public class PlayerController : ControllerBase {
             return BadRequest("Player is null");
         }
 
-        var player = new Player(playerDto.Name, playerDto.Surname, 
-                                playerDto.Email, playerDto.DiscountRate);
+        var player = new Player(playerDto.Name, playerDto.Surname, playerDto.Email);
 
         await _repository.AddAsync(player);
         await _repository.SaveAsync();
@@ -88,7 +88,7 @@ public class PlayerController : ControllerBase {
         existingPlayer.Name = updatedPlayer.Name;
         existingPlayer.Surname = updatedPlayer.Surname;
         existingPlayer.Email = updatedPlayer.Email;
-        existingPlayer.DiscountManual = updatedPlayer.DiscountRate;
+        existingPlayer.DiscountId = updatedPlayer.DiscountId;
 
         await _repository.SaveAsync();
 

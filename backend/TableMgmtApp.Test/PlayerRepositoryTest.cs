@@ -32,9 +32,9 @@ public class PlayerRepositoryTests {
 
     [Test]
     public async Task Can_Retrieve_Players_By_Surname() {
-        var player1 = new Player("John", "Doe", "john@doe.com", 10);
-        var player2 = new Player("Jane", "Doe", "jane@doe.com", 15);
-        var player3 = new Player("Jack", "Smith", "jack@smith.com", 5);
+        var player1 = new Player("John", "Doe", "john@doe.com");
+        var player2 = new Player("Jane", "Doe", "jane@doe.com");
+        var player3 = new Player("Jack", "Smith", "jack@smith.com");
 
         await _repository.AddAsync(player1);
         await _repository.AddAsync(player2);

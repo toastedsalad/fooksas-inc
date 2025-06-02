@@ -3,23 +3,23 @@ namespace TableMgmtApp;
 public class Player {
     public Guid Id { get; set; }
     public DateTime CreatedAt { get; set; }
-    public string Name { get; set; }
-    public string Surname { get; set; }
-    public string Email { get; set; }
-    public Guid? DiscountId { get; init; }
-    public int DiscountManual { get; set; }
+    public string? Name { get; set; }
+    public string? Surname { get; set; }
+    public string? Email { get; set; }
+    public Guid? DiscountId { get; set; }
 
-    // Navigation properties
-    public ICollection<PlaySession> PlaySessions { get; set; } = new List<PlaySession>();
+    // Navigation properties. 
+    // Can have one discount:
     public Discount? Discount { get; set; }
+    // Can have maney sessions:
+    public ICollection<PlaySession> PlaySessions { get; set; } = new List<PlaySession>();
 
-    public Player(string name, string surname, string email, int discountManual) {
+    public Player(string name, string surname, string email) {
         Id = Guid.NewGuid();
         CreatedAt = DateTime.Now;
         Name = name;
         Surname = surname;
         Email = email;
-        DiscountManual = discountManual;
     }
 }
 
@@ -32,5 +32,5 @@ public record PlayerDTO {
     public Guid DiscountId { get; init; }
     public string? DiscountType { get; init; }
     public string? DiscountName { get; init; }
-    public int DiscountRate { get; init; }
+    public int? DiscountRate { get; init; }
 }

@@ -26,7 +26,7 @@ public class PlaySessionRepositoryTests {
         _repository = new PlaySessionSQLRepository(_dbContext);
         _playerRepository = new PlayerSQLRepository(_dbContext);
 
-        _player = new Player("None", "None", "None", 10);
+        _player = new Player("None", "None", "None");
         _playerRepository.AddAsync(_player);
         _playerRepository.SaveAsync();
     }
