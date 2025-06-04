@@ -48,6 +48,8 @@ namespace TableMgmtApp.Controllers {
             return Ok(tableData);
         }
 
+        // Need a new endpoint here that takes table id and DiscountDTO and updates
+        // the in memmory session with that discount.
     }
 }
 

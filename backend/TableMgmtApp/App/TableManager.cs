@@ -98,7 +98,20 @@ public class TableManager {
         serviceWrapper.Dispose();
 
         State = TableState.Play;
+        // We need to somehow pass the discount here.
+        // OR handle it on the frontend as we have the APIs there already?
+        // This will be interesting...
+        //
+        //
+        // 1. Press button
+        // 2. A list of discounts appear
+        // 3. Select discount.
+        // 4. From the table manager get table.
+        // 5. From table get session.
+        // 6. Edit session to add a discount.
+        // 7. Post the update to in mem object.
         if (timedSeconds == 0) {
+            // Or resolve the discount inside the session.
             SessionManager = new PlaySessionManager(schedule, this, _timer);
         } else {
             SessionManager = new PlaySessionManager(schedule, this, 

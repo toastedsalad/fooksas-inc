@@ -82,5 +82,13 @@ public class TableManagerService {
         _tableManagers.TryGetValue(tableId, out var tableManager);
         return tableManager;
     }
+
+    public PlaySession? GetPlaySessionForTableId(Guid tableId) {
+        _tableManagers.TryGetValue(tableId, out var tableManager);
+        if (tableManager is not null) {
+            return tableManager.SessionManager.Session;
+        }
+        return null;
+    }
 }
 
