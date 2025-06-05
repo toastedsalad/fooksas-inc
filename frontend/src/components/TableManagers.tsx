@@ -184,7 +184,7 @@ export default function TableManagers() {
 
         {discount && (
           <p className="text-white text-lg mt-2">
-            <span className="font-medium">Selected Discount:</span> {discount.name} ({discount.rate}%)
+            <span className="font-medium">Discount:</span> {discount.name} ({discount.rate}%)
           </p>
         )}
 
