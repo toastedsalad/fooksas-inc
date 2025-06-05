@@ -32,6 +32,11 @@ public class DiscountSQLRepository : IDiscountRepository {
     }
 
     public async Task<List<Discount>> GetByTypeAsync(string type) {
+        if (type == "other") {
+            return await _context.Discounts
+                                 .Where(p => !p.Type.Contains("Player"))
+                                 .ToListAsync();
+        }
         return await _context.Discounts
                              .Where(p => p.Type.Contains(type))
                              .ToListAsync();

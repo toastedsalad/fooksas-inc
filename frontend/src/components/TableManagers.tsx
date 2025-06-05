@@ -30,7 +30,7 @@ function Clock() {
   }, []);
 
   return (
-    <div className="text-9xl font-semibold text-gray-200">
+    <div className="text-9xl font-semibold text-gray-200 dark:text-gray-100">
       {time.toLocaleTimeString("en-GB")}
     </div>
   );
@@ -107,7 +107,18 @@ export default function TableManagers() {
         <p className="text-2xl text-white">
           <span className="font-medium">Remaining:</span> {table.remainingTime}
         </p>
-        <p className="text-4xl text-white font-extrabold mt-4">€ {table.price}</p>
+
+        <div className="mt-4 flex items-center justify-between">
+          <p className="text-4xl text-white font-extrabold">€ {table.price}</p>
+        
+          {table.tableStatus.toLowerCase() !== "off" && (
+            <button
+              className="ml-4 px-4 py-2 rounded-lg font-bold bg-white dark:bg-gray-800 text-green-700 dark:text-green-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              %
+            </button>
+          )}
+        </div>
 
         {table.tableStatus.toLowerCase() === "off" && (
           <input
