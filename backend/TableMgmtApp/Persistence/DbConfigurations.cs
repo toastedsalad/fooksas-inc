@@ -23,7 +23,6 @@ public class TableMgmtAppDbContext : DbContext {
     }
 }
 
-
 public class TableConfiguration : IEntityTypeConfiguration<PoolTable> {
     public void Configure(EntityTypeBuilder<PoolTable> builder) {
         builder.ToTable("PoolTables");
@@ -66,7 +65,7 @@ public class PlaySessionConfiguration : IEntityTypeConfiguration<PlaySession> {
             .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(p => p.Discount)
-            .WithMany(p => p.PlaySessions)
+            .WithMany()
             .HasForeignKey(p => p.DiscountId)
             .OnDelete(DeleteBehavior.SetNull);
     }

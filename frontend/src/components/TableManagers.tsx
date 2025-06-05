@@ -2,8 +2,21 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+// Types
+type Discount = {
+  id: string;
+  type: string;
+  name: string;
+  rate: number;
+};
+
 const fetchTableManagers = async () => {
   const { data } = await axios.get("http://localhost:5267/api/tablemanager/all");
+  return data;
+};
+
+const fetchDiscounts = async () => {
+  const { data } = await axios.get("http://localhost:5267/api/discount/type/other");
   return data;
 };
 
@@ -19,6 +32,16 @@ const updateTableState = async ({
   await axios.put(`http://localhost:5267/api/tablemanager/${tableId}/${newState}`, null, {
     params: { timedSeconds },
   });
+};
+
+const updateDiscount = async ({
+  tableId,
+  discount,
+}: {
+  tableId: number;
+  discount: Discount;
+}) => {
+  await axios.put(`http://localhost:5267/api/tablemanager/${tableId}/session/discount/${discount.id}/update`);
 };
 
 function Clock() {
@@ -39,6 +62,8 @@ function Clock() {
 export default function TableManagers() {
   const queryClient = useQueryClient();
   const [timedSessions, setTimedSessions] = useState<{ [key: number]: string }>({});
+  const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["tableManagers"],
@@ -46,20 +71,41 @@ export default function TableManagers() {
     refetchInterval: 1000,
   });
 
-  const mutation = useMutation({
+  const { data: discounts } = useQuery({
+    queryKey: ["discounts", "other"],
+    queryFn: fetchDiscounts,
+    enabled: showDiscountModal,
+  });
+
+  const stateMutation = useMutation({
     mutationFn: updateTableState,
-    onSuccess: () => {
-      queryClient.invalidateQueries(["tableManagers"]);
-    },
+    onSuccess: () => queryClient.invalidateQueries(["tableManagers"]),
+  });
+
+  const discountMutation = useMutation({
+    mutationFn: updateDiscount,
+    onSuccess: () => queryClient.invalidateQueries(["tableManagers"]),
   });
 
   const handleStateChange = (tableId: number, newState: string) => {
     if (newState === "play") {
       const timedSeconds = parseInt(timedSessions[tableId] || "0") * 60;
-      mutation.mutate({ tableId, newState, timedSeconds });
+      stateMutation.mutate({ tableId, newState, timedSeconds });
       setTimedSessions((prev) => ({ ...prev, [tableId]: "" }));
     } else {
-      mutation.mutate({ tableId, newState });
+      stateMutation.mutate({ tableId, newState });
+    }
+  };
+
+  const openDiscountModal = (tableId: number) => {
+    setSelectedTableId(tableId);
+    setShowDiscountModal(true);
+  };
+
+  const applyDiscount = (discount: Discount) => {
+    if (selectedTableId) {
+      discountMutation.mutate({ tableId: selectedTableId, discount });
+      setShowDiscountModal(false);
     }
   };
 
@@ -108,12 +154,12 @@ export default function TableManagers() {
           <span className="font-medium">Remaining:</span> {table.remainingTime}
         </p>
 
-        <div className="mt-4 flex items-center justify-between">
+        <div className="flex items-center justify-between mt-4">
           <p className="text-4xl text-white font-extrabold">€ {table.price}</p>
-        
           {table.tableStatus.toLowerCase() !== "off" && (
             <button
-              className="ml-4 px-4 py-2 rounded-lg font-bold bg-white dark:bg-gray-800 text-green-700 dark:text-green-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+              onClick={() => openDiscountModal(table.tableId)}
+              className="bg-white dark:bg-gray-800 dark:text-blue-400 text-green-700 px-3 py-2 rounded-lg font-bold text-l hover:bg-green-600 transition"
             >
               %
             </button>
@@ -185,19 +231,39 @@ export default function TableManagers() {
   return (
     <div className="p-6 bg-white dark:bg-gray-900 min-h-screen">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-6">
-        {/* First Row: 5 table cards + clock */}
         {firstRow.map(renderTableCard)}
-
         <div
           key="clock"
           className="hidden xl:flex col-span-3 bg-gray-800 dark:bg-gray-700 text-white dark:text-gray-200 p-4 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 items-center justify-center"
         >
           <Clock />
         </div>
-
-        {/* Remaining cards in rows of 8 */}
         {remainingTables.map(renderTableCard)}
       </div>
+
+      {/* Discount Modal */}
+      {showDiscountModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96 shadow-lg space-y-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Select Discount</h2>
+            {discounts?.map((discount: Discount) => (
+              <button
+                key={discount.id}
+                onClick={() => applyDiscount(discount)}
+                className="w-full text-left px-4 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+              >
+                {discount.name} ({discount.rate}%)
+              </button>
+            ))}
+            <button
+              onClick={() => setShowDiscountModal(false)}
+              className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

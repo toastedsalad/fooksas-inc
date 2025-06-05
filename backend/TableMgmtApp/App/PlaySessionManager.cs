@@ -104,8 +104,9 @@ public class PlaySessionManager {
             using var repoWrapper = _playSessionRepoFactory.CreateRepository();
             var repo = repoWrapper.Repository;
             Session.Price = Math.Round(Session.Price, 2, MidpointRounding.ToEven);
-            await repo.AddAsync(Session);
-            await repo.SaveAsync();
+            await repo.AttachAndUpdate(Session);
+            // await repo.AddAsync(Session)
+            // await repo.SaveAsync();
             _timer.Elapsed -= TimedEvent;
             _timer.Dispose();
             _timer = null!;
