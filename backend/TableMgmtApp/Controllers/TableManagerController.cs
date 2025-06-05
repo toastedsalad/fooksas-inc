@@ -50,6 +50,20 @@ namespace TableMgmtApp.Controllers {
 
         // Need a new endpoint here that takes table id and DiscountDTO and updates
         // the in memmory session with that discount.
+        [HttpPut("{id}/session/discount/update")]
+        public IActionResult UpdateSessionDiscount(Guid id, 
+                                                   [FromBody] Discount discount) {
+
+            var session = _tableManagerService.GetPlaySessionForTableId(id);
+            if (session == null) {
+                return NotFound();
+            }
+
+            session.Discount = discount;
+            session.DiscountId = discount.Id;
+
+            return NoContent(); 
+        }
     }
 }
 
