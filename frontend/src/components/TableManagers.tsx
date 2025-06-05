@@ -62,6 +62,7 @@ function Clock() {
 export default function TableManagers() {
   const queryClient = useQueryClient();
   const [timedSessions, setTimedSessions] = useState<{ [key: number]: string }>({});
+  const [pendingDiscounts, setPendingDiscounts] = useState<{ [key: number]: Discount | null }>({});
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
 
@@ -87,10 +88,22 @@ export default function TableManagers() {
     onSuccess: () => queryClient.invalidateQueries(["tableManagers"]),
   });
 
-  const handleStateChange = (tableId: number, newState: string) => {
+  const handleStateChange = async (tableId: number, newState: string) => {
     if (newState === "play") {
       const timedSeconds = parseInt(timedSessions[tableId] || "0") * 60;
-      stateMutation.mutate({ tableId, newState, timedSeconds });
+
+      await stateMutation.mutateAsync({ tableId, newState, timedSeconds });
+
+      const discount = pendingDiscounts[tableId];
+      if (discount) {
+        await discountMutation.mutateAsync({ tableId, discount });
+        setPendingDiscounts((prev) => {
+          const copy = { ...prev };
+          delete copy[tableId];
+          return copy;
+        });
+      }
+
       setTimedSessions((prev) => ({ ...prev, [tableId]: "" }));
     } else {
       stateMutation.mutate({ tableId, newState });
@@ -103,9 +116,22 @@ export default function TableManagers() {
   };
 
   const applyDiscount = (discount: Discount) => {
-    if (selectedTableId) {
-      discountMutation.mutate({ tableId: selectedTableId, discount });
+    if (selectedTableId !== null) {
+      setPendingDiscounts((prev) => ({
+        ...prev,
+        [selectedTableId]: discount,
+      }));
       setShowDiscountModal(false);
+
+      const table = data.find((t: any) => t.tableId === selectedTableId);
+      if (table && table.tableStatus.toLowerCase() !== "off") {
+        discountMutation.mutate({ tableId: selectedTableId, discount });
+        setPendingDiscounts((prev) => {
+          const copy = { ...prev };
+          delete copy[selectedTableId];
+          return copy;
+        });
+      }
     }
   };
 
@@ -134,6 +160,8 @@ export default function TableManagers() {
         break;
     }
 
+    const discount = pendingDiscounts[table.tableId];
+
     return (
       <div
         key={table.tableId}
@@ -154,16 +182,20 @@ export default function TableManagers() {
           <span className="font-medium">Remaining:</span> {table.remainingTime}
         </p>
 
+        {discount && (
+          <p className="text-white text-lg mt-2">
+            <span className="font-medium">Selected Discount:</span> {discount.name} ({discount.rate}%)
+          </p>
+        )}
+
         <div className="flex items-center justify-between mt-4">
           <p className="text-4xl text-white font-extrabold">€ {table.price}</p>
-          {table.tableStatus.toLowerCase() !== "off" && (
-            <button
-              onClick={() => openDiscountModal(table.tableId)}
-              className="bg-white dark:bg-gray-800 dark:text-blue-400 text-green-700 px-3 py-2 rounded-lg font-bold text-l hover:bg-green-600 transition"
-            >
-              %
-            </button>
-          )}
+          <button
+            onClick={() => openDiscountModal(table.tableId)}
+            className="bg-white dark:bg-gray-800 dark:text-blue-400 text-green-700 px-3 py-2 rounded-lg font-bold text-l hover:bg-green-600 transition"
+          >
+            %
+          </button>
         </div>
 
         {table.tableStatus.toLowerCase() === "off" && (
@@ -179,15 +211,6 @@ export default function TableManagers() {
             placeholder="Minutes (optional)"
             className="w-full p-2 mt-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-white"
           />
-        )}
-
-        {table.tableStatus.toLowerCase() === "play" && (
-          <button
-            className="invisible opacity-0 w-full px-4 py-2 rounded-lg font-bold"
-            style={{ height: "2.5rem" }}
-          >
-            Invisible Button
-          </button>
         )}
 
         <div className="mt-4 flex flex-col space-y-2">
@@ -267,4 +290,3 @@ export default function TableManagers() {
     </div>
   );
 }
-
