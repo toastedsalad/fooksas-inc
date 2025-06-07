@@ -10,6 +10,13 @@ type Discount = {
   rate: number;
 };
 
+type Player = {
+  id: string;
+  name: string;
+  surname: string;
+  email: string;
+};
+
 type Table = {
   tableId: number;
   tableName: string;
@@ -54,6 +61,16 @@ const updateDiscount = async ({
   await axios.put(`http://localhost:5267/api/tablemanager/${tableId}/session/discount/${discount.id}/update`);
 };
 
+const updatePlayer = async ({
+  tableId,
+  playerId,
+}: {
+  tableId: number;
+  playerId: string;
+}) => {
+  await axios.put(`http://localhost:5267/api/tablemanager/${tableId}/session/player/${playerId}/update`);
+};
+
 function Clock() {
   const [time, setTime] = useState(new Date());
 
@@ -90,11 +107,11 @@ export default function TableManagers() {
   const queryClient = useQueryClient();
   const [timedSessions, setTimedSessions] = useState<{ [key: number]: string }>({});
   const [pendingDiscounts, setPendingDiscounts] = useState<{ [key: number]: Discount | null }>({});
+  const [pendingPlayers, setPendingPlayers] = useState<{ [key: number]: Player | null }>({});
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [discountModalTab, setDiscountModalTab] = useState<"discounts" | "players">("discounts");
   const [playerFilters, setPlayerFilters] = useState({ name: "", surname: "", email: "" });
-  // Removed selectedPlayerId state as it's not needed anymore
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["tableManagers"],
@@ -131,10 +148,8 @@ export default function TableManagers() {
     onSuccess: () => queryClient.invalidateQueries(["tableManagers"]),
   });
 
-  const assignPlayerMutation = useMutation({
-    mutationFn: async (playerId: string) => {
-      await axios.put(`http://localhost:5267/api/tablemanager/${selectedTableId}/session/player/${playerId}/update`);
-    },
+  const playerMutation = useMutation({
+    mutationFn: updatePlayer,
     onSuccess: () => {
       queryClient.invalidateQueries(["tableManagers"]);
       setShowDiscountModal(false);
@@ -154,11 +169,24 @@ export default function TableManagers() {
     }
   };
 
+  const applyPendingPlayerIfAny = async (tableId: number) => {
+    const player = pendingPlayers[tableId];
+    if (player) {
+      await playerMutation.mutateAsync({ tableId, playerId: player.id });
+      setPendingPlayers((prev) => {
+        const copy = { ...prev };
+        delete copy[tableId];
+        return copy;
+      });
+    }
+  };
+
   const handleStateChange = async (tableId: number, newState: string) => {
     if (newState === "play") {
       const timedSeconds = parseInt(timedSessions[tableId] || "0") * 60;
       await stateMutation.mutateAsync({ tableId, newState, timedSeconds });
       await applyPendingDiscountIfAny(tableId);
+      await applyPendingPlayerIfAny(tableId);
       setTimedSessions((prev) => ({ ...prev, [tableId]: "" }));
     } else {
       stateMutation.mutate({ tableId, newState });
@@ -187,6 +215,22 @@ export default function TableManagers() {
     }
   };
 
+  const applyPlayer = (player: Player) => {
+    if (selectedTableId !== null) {
+      const table = data.find((t: Table) => t.tableId === selectedTableId);
+      if (!table) return;
+
+      if (table.tableStatus.toLowerCase() === "off") {
+        // Save pending player and close modal, assign when session starts
+        setPendingPlayers((prev) => ({ ...prev, [selectedTableId]: player }));
+        setShowDiscountModal(false);
+      } else {
+        // Assign immediately and close modal
+        playerMutation.mutate({ tableId: selectedTableId, playerId: player.id });
+      }
+    }
+  };
+
   if (error)
     return <p className="text-center text-red-500 dark:text-red-400">Error loading data</p>;
   if (isLoading || !data)
@@ -197,13 +241,21 @@ export default function TableManagers() {
   const renderTableCard = (table: Table) => {
     let boxColor = "";
     switch (table.tableStatus.toLowerCase()) {
-      case "play": boxColor = "bg-red-800"; break;
-      case "standby": boxColor = "bg-blue-800"; break;
-      case "off": boxColor = "bg-green-800"; break;
-      default: boxColor = "bg-gray-500";
+      case "play":
+        boxColor = "bg-red-800";
+        break;
+      case "standby":
+        boxColor = "bg-blue-800";
+        break;
+      case "off":
+        boxColor = "bg-green-800";
+        break;
+      default:
+        boxColor = "bg-gray-500";
     }
 
     const discount = pendingDiscounts[table.tableId];
+    const pendingPlayer = pendingPlayers[table.tableId];
 
     return (
       <div
@@ -215,13 +267,25 @@ export default function TableManagers() {
         </div>
 
         <h3 className="text-3xl font-semibold text-white">{table.tableName}</h3>
-        <p className="text-2xl text-white mt-2"><span className="font-medium">Status:</span> {table.tableStatus}</p>
-        <p className="text-2xl text-white"><span className="font-medium">Play Time:</span> {table.playTime}</p>
-        <p className="text-2xl text-white"><span className="font-medium">Remaining:</span> {table.remainingTime}</p>
+        <p className="text-2xl text-white mt-2">
+          <span className="font-medium">Status:</span> {table.tableStatus}
+        </p>
+        <p className="text-2xl text-white">
+          <span className="font-medium">Play Time:</span> {table.playTime}
+        </p>
+        <p className="text-2xl text-white">
+          <span className="font-medium">Remaining:</span> {table.remainingTime}
+        </p>
 
         {discount && (
           <p className="text-white text-lg mt-2">
             <span className="font-medium">Discount:</span> {discount.name} ({discount.rate}%)
+          </p>
+        )}
+
+        {pendingPlayer && (
+          <p className="text-white text-lg mt-1">
+            <span className="font-medium">Player:</span> {pendingPlayer.name} {pendingPlayer.surname}
           </p>
         )}
 
@@ -239,7 +303,9 @@ export default function TableManagers() {
           <input
             type="number"
             value={timedSessions[table.tableId] || ""}
-            onChange={(e) => setTimedSessions((prev) => ({ ...prev, [table.tableId]: e.target.value }))}
+            onChange={(e) =>
+              setTimedSessions((prev) => ({ ...prev, [table.tableId]: e.target.value }))
+            }
             placeholder="Minutes (optional)"
             className="w-full p-2 mt-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-white"
           />
@@ -247,21 +313,33 @@ export default function TableManagers() {
 
         <div className="mt-4 flex flex-col space-y-2">
           {table.tableStatus.toLowerCase() === "off" && (
-            <ActionButton onClick={() => handleStateChange(table.tableId, "play")} colorClasses="dark:text-green-400 text-green-700">
+            <ActionButton
+              onClick={() => handleStateChange(table.tableId, "play")}
+              colorClasses="dark:text-green-400 text-green-700"
+            >
               Play
             </ActionButton>
           )}
           {table.tableStatus.toLowerCase() === "play" && (
-            <ActionButton onClick={() => handleStateChange(table.tableId, "standby")} colorClasses="dark:text-blue-400 text-blue-700">
+            <ActionButton
+              onClick={() => handleStateChange(table.tableId, "standby")}
+              colorClasses="dark:text-blue-400 text-blue-700"
+            >
               Standby
             </ActionButton>
           )}
           {table.tableStatus.toLowerCase() === "standby" && (
             <>
-              <ActionButton onClick={() => handleStateChange(table.tableId, "play")} colorClasses="dark:text-green-400 text-green-700">
+              <ActionButton
+                onClick={() => handleStateChange(table.tableId, "play")}
+                colorClasses="dark:text-green-400 text-green-700"
+              >
                 Play
               </ActionButton>
-              <ActionButton onClick={() => handleStateChange(table.tableId, "off")} colorClasses="dark:text-red-400 text-red-700">
+              <ActionButton
+                onClick={() => handleStateChange(table.tableId, "off")}
+                colorClasses="dark:text-red-400 text-red-700"
+              >
                 Off
               </ActionButton>
             </>
@@ -288,20 +366,32 @@ export default function TableManagers() {
       </div>
 
       {showDiscountModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" role="dialog" aria-modal="true">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+          role="dialog"
+          aria-modal="true"
+        >
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-[600px] shadow-lg space-y-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Session Options</h2>
 
             <div className="flex space-x-2">
               <button
                 onClick={() => setDiscountModalTab("discounts")}
-                className={`px-4 py-2 rounded-t ${discountModalTab === "discounts" ? "bg-blue-600 text-white" : "bg-gray-300 dark:bg-gray-700 text-black dark:text-white"}`}
+                className={`px-4 py-2 rounded-t ${
+                  discountModalTab === "discounts"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-300 dark:bg-gray-700 text-black dark:text-white"
+                }`}
               >
                 Select Discount
               </button>
               <button
                 onClick={() => setDiscountModalTab("players")}
-                className={`px-4 py-2 rounded-t ${discountModalTab === "players" ? "bg-blue-600 text-white" : "bg-gray-300 dark:bg-gray-700 text-black dark:text-white"}`}
+                className={`px-4 py-2 rounded-t ${
+                  discountModalTab === "players"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-300 dark:bg-gray-700 text-black dark:text-white"
+                }`}
               >
                 Assign Player
               </button>
@@ -310,66 +400,65 @@ export default function TableManagers() {
             <div className="border border-t-0 rounded-b p-4 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 max-h-[400px] overflow-y-auto">
               {discountModalTab === "discounts" && (
                 <>
-                  {isLoadingDiscounts ? (
-                    <p className="text-gray-600 dark:text-gray-300">Loading discounts...</p>
-                  ) : (
-                    discounts?.map((discount: Discount) => (
-                      <button
+                  {isLoadingDiscounts && <p>Loading discounts...</p>}
+                  {!isLoadingDiscounts && discounts?.length === 0 && <p>No discounts available.</p>}
+                  {!isLoadingDiscounts &&
+                    discounts?.map((discount) => (
+                      <div
                         key={discount.id}
+                        className="cursor-pointer p-2 rounded hover:bg-blue-200 dark:hover:bg-blue-700"
                         onClick={() => applyDiscount(discount)}
-                        className="w-full text-left px-4 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 mb-2"
                       >
                         {discount.name} ({discount.rate}%)
-                      </button>
-                    ))
-                  )}
+                      </div>
+                    ))}
                 </>
               )}
 
               {discountModalTab === "players" && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <>
+                  <div className="mb-4 space-y-2">
                     <input
+                      type="text"
                       placeholder="Name"
                       value={playerFilters.name}
-                      onChange={(e) => setPlayerFilters({ ...playerFilters, name: e.target.value })}
-                      className="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                      onChange={(e) =>
+                        setPlayerFilters((prev) => ({ ...prev, name: e.target.value }))
+                      }
+                      className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
                     />
                     <input
+                      type="text"
                       placeholder="Surname"
                       value={playerFilters.surname}
-                      onChange={(e) => setPlayerFilters({ ...playerFilters, surname: e.target.value })}
-                      className="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                      onChange={(e) =>
+                        setPlayerFilters((prev) => ({ ...prev, surname: e.target.value }))
+                      }
+                      className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
                     />
                     <input
+                      type="email"
                       placeholder="Email"
                       value={playerFilters.email}
-                      onChange={(e) => setPlayerFilters({ ...playerFilters, email: e.target.value })}
-                      className="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                      onChange={(e) =>
+                        setPlayerFilters((prev) => ({ ...prev, email: e.target.value }))
+                      }
+                      className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
                     />
                   </div>
-
-                  {isSearchingPlayers ? (
-                    <p className="text-gray-500">Searching players...</p>
-                  ) : players?.length > 0 ? (
-                    <ul className="space-y-2 max-h-48 overflow-auto">
-                      {players.map((player: any) => (
-                        <li
-                          key={player.id}
-                          onClick={() => selectedTableId && assignPlayerMutation.mutate(player.id)}
-                          className={`p-2 border rounded cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-700`}
-                        >
-                          <div className="font-medium">{player.name} {player.surname}</div>
-                          <div className="text-sm text-gray-500">{player.email}</div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>No players found.</p>
-                  )}
-
-                  {/* Removed Assign Selected Player button */}
-                </div>
+                  {isSearchingPlayers && <p>Searching players...</p>}
+                  {!isSearchingPlayers && players?.length === 0 && <p>No players found.</p>}
+                  {!isSearchingPlayers &&
+                    players?.map((player) => (
+                      <div
+                        key={player.id}
+                        className="cursor-pointer p-2 rounded hover:bg-blue-200 dark:hover:bg-blue-700"
+                        onClick={() => applyPlayer(player)}
+                      >
+                        {player.name} {player.surname} - {player.email}
+                      </div>
+                    ))}
+                </>
               )}
             </div>
 
