@@ -58,7 +58,9 @@ const updateDiscount = async ({
   tableId: number;
   discount: Discount;
 }) => {
-  await axios.put(`http://localhost:5267/api/tablemanager/${tableId}/session/discount/${discount.id}/update`);
+  await axios.put(
+    `http://localhost:5267/api/tablemanager/${tableId}/session/discount/${discount.id}/update`
+  );
 };
 
 const updatePlayer = async ({
@@ -68,7 +70,9 @@ const updatePlayer = async ({
   tableId: number;
   playerId: string;
 }) => {
-  await axios.put(`http://localhost:5267/api/tablemanager/${tableId}/session/player/${playerId}/update`);
+  await axios.put(
+    `http://localhost:5267/api/tablemanager/${tableId}/session/player/${playerId}/update`
+  );
 };
 
 function Clock() {
@@ -201,10 +205,19 @@ export default function TableManagers() {
 
   const applyDiscount = (discount: Discount) => {
     if (selectedTableId !== null) {
-      setPendingDiscounts((prev) => ({ ...prev, [selectedTableId]: discount }));
-      setShowDiscountModal(false);
       const table = data.find((t: Table) => t.tableId === selectedTableId);
-      if (table && table.tableStatus.toLowerCase() !== "off") {
+      if (!table) return;
+
+      if (table.tableStatus.toLowerCase() === "off") {
+        // Clear any pending player before setting discount
+        setPendingPlayers((prev) => {
+          const copy = { ...prev };
+          delete copy[selectedTableId];
+          return copy;
+        });
+        setPendingDiscounts((prev) => ({ ...prev, [selectedTableId]: discount }));
+        setShowDiscountModal(false);
+      } else {
         discountMutation.mutate({ tableId: selectedTableId, discount });
         setPendingDiscounts((prev) => {
           const copy = { ...prev };
@@ -221,22 +234,32 @@ export default function TableManagers() {
       if (!table) return;
 
       if (table.tableStatus.toLowerCase() === "off") {
-        // Save pending player and close modal, assign when session starts
+        // Clear any pending discount before setting player
+        setPendingDiscounts((prev) => {
+          const copy = { ...prev };
+          delete copy[selectedTableId];
+          return copy;
+        });
         setPendingPlayers((prev) => ({ ...prev, [selectedTableId]: player }));
         setShowDiscountModal(false);
       } else {
-        // Assign immediately and close modal
         playerMutation.mutate({ tableId: selectedTableId, playerId: player.id });
       }
     }
   };
 
   if (error)
-    return <p className="text-center text-red-500 dark:text-red-400">Error loading data</p>;
+    return (
+      <p className="text-center text-red-500 dark:text-red-400">Error loading data</p>
+    );
   if (isLoading || !data)
-    return <p className="text-center text-gray-500 dark:text-gray-400">Loading tables...</p>;
+    return (
+      <p className="text-center text-gray-500 dark:text-gray-400">Loading tables...</p>
+    );
   if (data.length === 0)
-    return <p className="text-center text-gray-500 dark:text-gray-400">No tables found.</p>;
+    return (
+      <p className="text-center text-gray-500 dark:text-gray-400">No tables found.</p>
+    );
 
   const renderTableCard = (table: Table) => {
     let boxColor = "";
@@ -279,13 +302,15 @@ export default function TableManagers() {
 
         {discount && (
           <p className="text-white text-lg mt-2">
-            <span className="font-medium">Discount:</span> {discount.name} ({discount.rate}%)
+            <span className="font-medium">Discount:</span> {discount.name} ({discount.rate}
+            %)
           </p>
         )}
 
         {pendingPlayer && (
           <p className="text-white text-lg mt-1">
-            <span className="font-medium">Player:</span> {pendingPlayer.name} {pendingPlayer.surname}
+            <span className="font-medium">Player:</span> {pendingPlayer.name}{" "}
+            {pendingPlayer.surname}
           </p>
         )}
 
@@ -365,106 +390,107 @@ export default function TableManagers() {
         {remainingTables.map(renderTableCard)}
       </div>
 
-      {showDiscountModal && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-[600px] shadow-lg space-y-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Session Options</h2>
-
-            <div className="flex space-x-2">
+      {showDiscountModal && selectedTableId !== null && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold mb-4 text-center">
+              {discountModalTab === "discounts" ? "Select Discount" : "Select Player"}
+            </h2>
+            <div className="flex justify-center mb-4">
               <button
                 onClick={() => setDiscountModalTab("discounts")}
-                className={`px-4 py-2 rounded-t ${
+                className={`px-4 py-2 rounded-l-lg font-semibold ${
                   discountModalTab === "discounts"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-300 dark:bg-gray-700 text-black dark:text-white"
+                    ? "bg-green-700 text-white"
+                    : "bg-gray-200 dark:bg-gray-700"
                 }`}
               >
-                Select Discount
+                Discounts
               </button>
               <button
                 onClick={() => setDiscountModalTab("players")}
-                className={`px-4 py-2 rounded-t ${
+                className={`px-4 py-2 rounded-r-lg font-semibold ${
                   discountModalTab === "players"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-300 dark:bg-gray-700 text-black dark:text-white"
+                    ? "bg-green-700 text-white"
+                    : "bg-gray-200 dark:bg-gray-700"
                 }`}
               >
-                Assign Player
+                Players
               </button>
             </div>
 
-            <div className="border border-t-0 rounded-b p-4 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 max-h-[400px] overflow-y-auto">
-              {discountModalTab === "discounts" && (
-                <>
-                  {isLoadingDiscounts && <p>Loading discounts...</p>}
-                  {!isLoadingDiscounts && discounts?.length === 0 && <p>No discounts available.</p>}
-                  {!isLoadingDiscounts &&
-                    discounts?.map((discount) => (
-                      <div
-                        key={discount.id}
-                        className="cursor-pointer p-2 rounded hover:bg-blue-200 dark:hover:bg-blue-700"
-                        onClick={() => applyDiscount(discount)}
-                      >
-                        {discount.name} ({discount.rate}%)
-                      </div>
-                    ))}
-                </>
-              )}
+            {discountModalTab === "discounts" && (
+              <>
+                {isLoadingDiscounts && <p>Loading discounts...</p>}
+                {!isLoadingDiscounts && discounts && discounts.length === 0 && (
+                  <p>No discounts available</p>
+                )}
+                <ul>
+                  {discounts?.map((discount: Discount) => (
+                    <li
+                      key={discount.id}
+                      className="cursor-pointer p-2 hover:bg-green-100 dark:hover:bg-green-900 rounded"
+                      onClick={() => applyDiscount(discount)}
+                    >
+                      {discount.name} ({discount.rate}%)
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
 
-              {discountModalTab === "players" && (
-                <>
-                  <div className="mb-4 space-y-2">
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={playerFilters.name}
-                      onChange={(e) =>
-                        setPlayerFilters((prev) => ({ ...prev, name: e.target.value }))
-                      }
-                      className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Surname"
-                      value={playerFilters.surname}
-                      onChange={(e) =>
-                        setPlayerFilters((prev) => ({ ...prev, surname: e.target.value }))
-                      }
-                      className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
-                    />
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      value={playerFilters.email}
-                      onChange={(e) =>
-                        setPlayerFilters((prev) => ({ ...prev, email: e.target.value }))
-                      }
-                      className="w-full p-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
-                    />
-                  </div>
-                  {isSearchingPlayers && <p>Searching players...</p>}
-                  {!isSearchingPlayers && players?.length === 0 && <p>No players found.</p>}
-                  {!isSearchingPlayers &&
-                    players?.map((player) => (
-                      <div
-                        key={player.id}
-                        className="cursor-pointer p-2 rounded hover:bg-blue-200 dark:hover:bg-blue-700"
-                        onClick={() => applyPlayer(player)}
-                      >
-                        {player.name} {player.surname} - {player.email}
-                      </div>
-                    ))}
-                </>
-              )}
-            </div>
+            {discountModalTab === "players" && (
+              <>
+                <div className="mb-4 space-y-2">
+                  <input
+                    type="text"
+                    placeholder="Name"
+                    value={playerFilters.name}
+                    onChange={(e) =>
+                      setPlayerFilters((prev) => ({ ...prev, name: e.target.value }))
+                    }
+                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Surname"
+                    value={playerFilters.surname}
+                    onChange={(e) =>
+                      setPlayerFilters((prev) => ({ ...prev, surname: e.target.value }))
+                    }
+                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={playerFilters.email}
+                    onChange={(e) =>
+                      setPlayerFilters((prev) => ({ ...prev, email: e.target.value }))
+                    }
+                    className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                  />
+                </div>
+                {isSearchingPlayers && <p>Searching players...</p>}
+                {!isSearchingPlayers && players && players.length === 0 && (
+                  <p>No players found</p>
+                )}
+                <ul>
+                  {players?.map((player: Player) => (
+                    <li
+                      key={player.id}
+                      className="cursor-pointer p-2 hover:bg-green-100 dark:hover:bg-green-900 rounded"
+                      onClick={() => applyPlayer(player)}
+                    >
+                      {player.name} {player.surname} ({player.email})
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
 
             <button
               onClick={() => setShowDiscountModal(false)}
-              className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded"
+              className="mt-4 w-full bg-gray-300 dark:bg-gray-600 rounded py-2 font-bold"
             >
               Close
             </button>
