@@ -94,7 +94,7 @@ export default function TableManagers() {
   const [showDiscountModal, setShowDiscountModal] = useState(false);
   const [discountModalTab, setDiscountModalTab] = useState<"discounts" | "players">("discounts");
   const [playerFilters, setPlayerFilters] = useState({ name: "", surname: "", email: "" });
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  // Removed selectedPlayerId state as it's not needed anymore
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["tableManagers"],
@@ -138,7 +138,6 @@ export default function TableManagers() {
     onSuccess: () => {
       queryClient.invalidateQueries(["tableManagers"]);
       setShowDiscountModal(false);
-      setSelectedPlayerId(null);
       setPlayerFilters({ name: "", surname: "", email: "" });
     },
   });
@@ -357,10 +356,8 @@ export default function TableManagers() {
                       {players.map((player: any) => (
                         <li
                           key={player.id}
-                          onClick={() => setSelectedPlayerId(player.id)}
-                          className={`p-2 border rounded cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-700 ${
-                            selectedPlayerId === player.id ? "bg-green-100 dark:bg-green-800" : ""
-                          }`}
+                          onClick={() => selectedTableId && assignPlayerMutation.mutate(player.id)}
+                          className={`p-2 border rounded cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-700`}
                         >
                           <div className="font-medium">{player.name} {player.surname}</div>
                           <div className="text-sm text-gray-500">{player.email}</div>
@@ -371,20 +368,14 @@ export default function TableManagers() {
                     <p>No players found.</p>
                   )}
 
-                  <button
-                    disabled={!selectedPlayerId || assignPlayerMutation.isPending}
-                    onClick={() => selectedPlayerId && assignPlayerMutation.mutate(selectedPlayerId)}
-                    className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    {assignPlayerMutation.isPending ? "Assigning..." : "Assign Selected Player"}
-                  </button>
+                  {/* Removed Assign Selected Player button */}
                 </div>
               )}
             </div>
 
             <button
               onClick={() => setShowDiscountModal(false)}
-              className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+              className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded"
             >
               Close
             </button>
