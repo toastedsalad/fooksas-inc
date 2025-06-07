@@ -69,7 +69,15 @@ function Clock() {
   );
 }
 
-const ActionButton = ({ onClick, children, colorClasses }: { onClick: () => void; children: React.ReactNode; colorClasses: string }) => (
+const ActionButton = ({
+  onClick,
+  children,
+  colorClasses,
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+  colorClasses: string;
+}) => (
   <button
     onClick={onClick}
     className={`bg-white dark:bg-gray-800 ${colorClasses} px-4 py-2 rounded-lg font-bold w-full`}
@@ -84,6 +92,9 @@ export default function TableManagers() {
   const [pendingDiscounts, setPendingDiscounts] = useState<{ [key: number]: Discount | null }>({});
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
   const [showDiscountModal, setShowDiscountModal] = useState(false);
+  const [discountModalTab, setDiscountModalTab] = useState<"discounts" | "players">("discounts");
+  const [playerFilters, setPlayerFilters] = useState({ name: "", surname: "", email: "" });
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["tableManagers"],
@@ -94,7 +105,20 @@ export default function TableManagers() {
   const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
     queryKey: ["discounts", "other"],
     queryFn: fetchDiscounts,
-    enabled: showDiscountModal,
+    enabled: showDiscountModal && discountModalTab === "discounts",
+  });
+
+  const { data: players, isLoading: isSearchingPlayers } = useQuery({
+    queryKey: ["searchPlayers", playerFilters],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (playerFilters.name) params.append("name", playerFilters.name);
+      if (playerFilters.surname) params.append("surname", playerFilters.surname);
+      if (playerFilters.email) params.append("email", playerFilters.email);
+      const res = await axios.get(`http://localhost:5267/api/player/search?${params}`);
+      return res.data;
+    },
+    enabled: showDiscountModal && discountModalTab === "players",
   });
 
   const stateMutation = useMutation({
@@ -105,6 +129,18 @@ export default function TableManagers() {
   const discountMutation = useMutation({
     mutationFn: updateDiscount,
     onSuccess: () => queryClient.invalidateQueries(["tableManagers"]),
+  });
+
+  const assignPlayerMutation = useMutation({
+    mutationFn: async (playerId: string) => {
+      await axios.put(`http://localhost:5267/api/tablemanager/${selectedTableId}/session/player/${playerId}/update`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["tableManagers"]);
+      setShowDiscountModal(false);
+      setSelectedPlayerId(null);
+      setPlayerFilters({ name: "", surname: "", email: "" });
+    },
   });
 
   const applyPendingDiscountIfAny = async (tableId: number) => {
@@ -133,6 +169,7 @@ export default function TableManagers() {
   const openDiscountModal = (tableId: number) => {
     setSelectedTableId(tableId);
     setShowDiscountModal(true);
+    setDiscountModalTab("discounts");
   };
 
   const applyDiscount = (discount: Discount) => {
@@ -253,26 +290,103 @@ export default function TableManagers() {
 
       {showDiscountModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" role="dialog" aria-modal="true">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96 shadow-lg space-y-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Select Discount</h2>
-            {isLoadingDiscounts ? (
-              <p className="text-gray-600 dark:text-gray-300">Loading discounts...</p>
-            ) : (
-              discounts?.map((discount: Discount) => (
-                <button
-                  key={discount.id}
-                  onClick={() => applyDiscount(discount)}
-                  className="w-full text-left px-4 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-                >
-                  {discount.name} ({discount.rate}%)
-                </button>
-              ))
-            )}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-[600px] shadow-lg space-y-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Session Options</h2>
+
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setDiscountModalTab("discounts")}
+                className={`px-4 py-2 rounded-t ${discountModalTab === "discounts" ? "bg-blue-600 text-white" : "bg-gray-300 dark:bg-gray-700 text-black dark:text-white"}`}
+              >
+                Select Discount
+              </button>
+              <button
+                onClick={() => setDiscountModalTab("players")}
+                className={`px-4 py-2 rounded-t ${discountModalTab === "players" ? "bg-blue-600 text-white" : "bg-gray-300 dark:bg-gray-700 text-black dark:text-white"}`}
+              >
+                Assign Player
+              </button>
+            </div>
+
+            <div className="border border-t-0 rounded-b p-4 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 max-h-[400px] overflow-y-auto">
+              {discountModalTab === "discounts" && (
+                <>
+                  {isLoadingDiscounts ? (
+                    <p className="text-gray-600 dark:text-gray-300">Loading discounts...</p>
+                  ) : (
+                    discounts?.map((discount: Discount) => (
+                      <button
+                        key={discount.id}
+                        onClick={() => applyDiscount(discount)}
+                        className="w-full text-left px-4 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 mb-2"
+                      >
+                        {discount.name} ({discount.rate}%)
+                      </button>
+                    ))
+                  )}
+                </>
+              )}
+
+              {discountModalTab === "players" && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <input
+                      placeholder="Name"
+                      value={playerFilters.name}
+                      onChange={(e) => setPlayerFilters({ ...playerFilters, name: e.target.value })}
+                      className="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                    />
+                    <input
+                      placeholder="Surname"
+                      value={playerFilters.surname}
+                      onChange={(e) => setPlayerFilters({ ...playerFilters, surname: e.target.value })}
+                      className="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                    />
+                    <input
+                      placeholder="Email"
+                      value={playerFilters.email}
+                      onChange={(e) => setPlayerFilters({ ...playerFilters, email: e.target.value })}
+                      className="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                    />
+                  </div>
+
+                  {isSearchingPlayers ? (
+                    <p className="text-gray-500">Searching players...</p>
+                  ) : players?.length > 0 ? (
+                    <ul className="space-y-2 max-h-48 overflow-auto">
+                      {players.map((player: any) => (
+                        <li
+                          key={player.id}
+                          onClick={() => setSelectedPlayerId(player.id)}
+                          className={`p-2 border rounded cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-700 ${
+                            selectedPlayerId === player.id ? "bg-green-100 dark:bg-green-800" : ""
+                          }`}
+                        >
+                          <div className="font-medium">{player.name} {player.surname}</div>
+                          <div className="text-sm text-gray-500">{player.email}</div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No players found.</p>
+                  )}
+
+                  <button
+                    disabled={!selectedPlayerId || assignPlayerMutation.isPending}
+                    onClick={() => selectedPlayerId && assignPlayerMutation.mutate(selectedPlayerId)}
+                    className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {assignPlayerMutation.isPending ? "Assigning..." : "Assign Selected Player"}
+                  </button>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={() => setShowDiscountModal(false)}
               className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
             >
-              Cancel
+              Close
             </button>
           </div>
         </div>
