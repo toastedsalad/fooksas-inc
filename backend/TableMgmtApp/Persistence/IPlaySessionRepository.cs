@@ -56,6 +56,11 @@ public class PlaySessionSQLRepository : IPlaySessionRepository {
             _context.Entry(playsession.Discount).State = EntityState.Unchanged;
         }
 
+        if (playsession.Player != null) {
+            _context.Attach(playsession.Player);
+            _context.Entry(playsession.Player).State = EntityState.Unchanged;
+        }
+
         await _context.SaveChangesAsync();
     }
 

@@ -10,6 +10,16 @@ type Discount = {
   rate: number;
 };
 
+type Table = {
+  tableId: number;
+  tableName: string;
+  tableNumber: number;
+  tableStatus: string;
+  playTime: string;
+  remainingTime: string;
+  price: number;
+};
+
 const fetchTableManagers = async () => {
   const { data } = await axios.get("http://localhost:5267/api/tablemanager/all");
   return data;
@@ -59,6 +69,15 @@ function Clock() {
   );
 }
 
+const ActionButton = ({ onClick, children, colorClasses }: { onClick: () => void; children: React.ReactNode; colorClasses: string }) => (
+  <button
+    onClick={onClick}
+    className={`bg-white dark:bg-gray-800 ${colorClasses} px-4 py-2 rounded-lg font-bold w-full`}
+  >
+    {children}
+  </button>
+);
+
 export default function TableManagers() {
   const queryClient = useQueryClient();
   const [timedSessions, setTimedSessions] = useState<{ [key: number]: string }>({});
@@ -69,10 +88,10 @@ export default function TableManagers() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["tableManagers"],
     queryFn: fetchTableManagers,
-    refetchInterval: 1000,
+    refetchInterval: 3000,
   });
 
-  const { data: discounts } = useQuery({
+  const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
     queryKey: ["discounts", "other"],
     queryFn: fetchDiscounts,
     enabled: showDiscountModal,
@@ -88,22 +107,23 @@ export default function TableManagers() {
     onSuccess: () => queryClient.invalidateQueries(["tableManagers"]),
   });
 
+  const applyPendingDiscountIfAny = async (tableId: number) => {
+    const discount = pendingDiscounts[tableId];
+    if (discount) {
+      await discountMutation.mutateAsync({ tableId, discount });
+      setPendingDiscounts((prev) => {
+        const copy = { ...prev };
+        delete copy[tableId];
+        return copy;
+      });
+    }
+  };
+
   const handleStateChange = async (tableId: number, newState: string) => {
     if (newState === "play") {
       const timedSeconds = parseInt(timedSessions[tableId] || "0") * 60;
-
       await stateMutation.mutateAsync({ tableId, newState, timedSeconds });
-
-      const discount = pendingDiscounts[tableId];
-      if (discount) {
-        await discountMutation.mutateAsync({ tableId, discount });
-        setPendingDiscounts((prev) => {
-          const copy = { ...prev };
-          delete copy[tableId];
-          return copy;
-        });
-      }
-
+      await applyPendingDiscountIfAny(tableId);
       setTimedSessions((prev) => ({ ...prev, [tableId]: "" }));
     } else {
       stateMutation.mutate({ tableId, newState });
@@ -117,13 +137,9 @@ export default function TableManagers() {
 
   const applyDiscount = (discount: Discount) => {
     if (selectedTableId !== null) {
-      setPendingDiscounts((prev) => ({
-        ...prev,
-        [selectedTableId]: discount,
-      }));
+      setPendingDiscounts((prev) => ({ ...prev, [selectedTableId]: discount }));
       setShowDiscountModal(false);
-
-      const table = data.find((t: any) => t.tableId === selectedTableId);
+      const table = data.find((t: Table) => t.tableId === selectedTableId);
       if (table && table.tableStatus.toLowerCase() !== "off") {
         discountMutation.mutate({ tableId: selectedTableId, discount });
         setPendingDiscounts((prev) => {
@@ -137,27 +153,18 @@ export default function TableManagers() {
 
   if (error)
     return <p className="text-center text-red-500 dark:text-red-400">Error loading data</p>;
-  if (!data || data.length === 0)
+  if (isLoading || !data)
+    return <p className="text-center text-gray-500 dark:text-gray-400">Loading tables...</p>;
+  if (data.length === 0)
     return <p className="text-center text-gray-500 dark:text-gray-400">No tables found.</p>;
 
-  const firstRow = data.slice(0, 5);
-  const remainingTables = data.slice(5);
-
-  const renderTableCard = (table: any) => {
+  const renderTableCard = (table: Table) => {
     let boxColor = "";
     switch (table.tableStatus.toLowerCase()) {
-      case "play":
-        boxColor = "bg-red-800";
-        break;
-      case "standby":
-        boxColor = "bg-blue-800";
-        break;
-      case "off":
-        boxColor = "bg-green-800";
-        break;
-      default:
-        boxColor = "bg-gray-500";
-        break;
+      case "play": boxColor = "bg-red-800"; break;
+      case "standby": boxColor = "bg-blue-800"; break;
+      case "off": boxColor = "bg-green-800"; break;
+      default: boxColor = "bg-gray-500";
     }
 
     const discount = pendingDiscounts[table.tableId];
@@ -172,15 +179,9 @@ export default function TableManagers() {
         </div>
 
         <h3 className="text-3xl font-semibold text-white">{table.tableName}</h3>
-        <p className="text-2xl text-white mt-2">
-          <span className="font-medium">Status:</span> {table.tableStatus}
-        </p>
-        <p className="text-2xl text-white">
-          <span className="font-medium">Play Time:</span> {table.playTime}
-        </p>
-        <p className="text-2xl text-white">
-          <span className="font-medium">Remaining:</span> {table.remainingTime}
-        </p>
+        <p className="text-2xl text-white mt-2"><span className="font-medium">Status:</span> {table.tableStatus}</p>
+        <p className="text-2xl text-white"><span className="font-medium">Play Time:</span> {table.playTime}</p>
+        <p className="text-2xl text-white"><span className="font-medium">Remaining:</span> {table.remainingTime}</p>
 
         {discount && (
           <p className="text-white text-lg mt-2">
@@ -202,12 +203,7 @@ export default function TableManagers() {
           <input
             type="number"
             value={timedSessions[table.tableId] || ""}
-            onChange={(e) =>
-              setTimedSessions((prev) => ({
-                ...prev,
-                [table.tableId]: e.target.value,
-              }))
-            }
+            onChange={(e) => setTimedSessions((prev) => ({ ...prev, [table.tableId]: e.target.value }))}
             placeholder="Minutes (optional)"
             className="w-full p-2 mt-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-white"
           />
@@ -215,41 +211,32 @@ export default function TableManagers() {
 
         <div className="mt-4 flex flex-col space-y-2">
           {table.tableStatus.toLowerCase() === "off" && (
-            <button
-              onClick={() => handleStateChange(table.tableId, "play")}
-              className="bg-white dark:bg-gray-800 dark:text-green-400 text-green-700 px-4 py-2 rounded-lg font-bold w-full"
-            >
+            <ActionButton onClick={() => handleStateChange(table.tableId, "play")} colorClasses="dark:text-green-400 text-green-700">
               Play
-            </button>
+            </ActionButton>
           )}
           {table.tableStatus.toLowerCase() === "play" && (
-            <button
-              onClick={() => handleStateChange(table.tableId, "standby")}
-              className="bg-white dark:bg-gray-800 dark:text-blue-400 text-blue-700 px-4 py-2 rounded-lg font-bold w-full"
-            >
+            <ActionButton onClick={() => handleStateChange(table.tableId, "standby")} colorClasses="dark:text-blue-400 text-blue-700">
               Standby
-            </button>
+            </ActionButton>
           )}
           {table.tableStatus.toLowerCase() === "standby" && (
             <>
-              <button
-                onClick={() => handleStateChange(table.tableId, "play")}
-                className="bg-white dark:bg-gray-800 dark:text-green-400 text-green-700 px-4 py-2 rounded-lg font-bold w-full"
-              >
+              <ActionButton onClick={() => handleStateChange(table.tableId, "play")} colorClasses="dark:text-green-400 text-green-700">
                 Play
-              </button>
-              <button
-                onClick={() => handleStateChange(table.tableId, "off")}
-                className="bg-white dark:bg-gray-800 dark:text-red-400 text-red-700 px-4 py-2 rounded-lg font-bold w-full"
-              >
+              </ActionButton>
+              <ActionButton onClick={() => handleStateChange(table.tableId, "off")} colorClasses="dark:text-red-400 text-red-700">
                 Off
-              </button>
+              </ActionButton>
             </>
           )}
         </div>
       </div>
     );
   };
+
+  const firstRow = data.slice(0, 5);
+  const remainingTables = data.slice(5);
 
   return (
     <div className="p-6 bg-white dark:bg-gray-900 min-h-screen">
@@ -264,20 +251,23 @@ export default function TableManagers() {
         {remainingTables.map(renderTableCard)}
       </div>
 
-      {/* Discount Modal */}
       {showDiscountModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50" role="dialog" aria-modal="true">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-96 shadow-lg space-y-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Select Discount</h2>
-            {discounts?.map((discount: Discount) => (
-              <button
-                key={discount.id}
-                onClick={() => applyDiscount(discount)}
-                className="w-full text-left px-4 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-              >
-                {discount.name} ({discount.rate}%)
-              </button>
-            ))}
+            {isLoadingDiscounts ? (
+              <p className="text-gray-600 dark:text-gray-300">Loading discounts...</p>
+            ) : (
+              discounts?.map((discount: Discount) => (
+                <button
+                  key={discount.id}
+                  onClick={() => applyDiscount(discount)}
+                  className="w-full text-left px-4 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+                >
+                  {discount.name} ({discount.rate}%)
+                </button>
+              ))
+            )}
             <button
               onClick={() => setShowDiscountModal(false)}
               className="mt-4 w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
@@ -290,3 +280,4 @@ export default function TableManagers() {
     </div>
   );
 }
+

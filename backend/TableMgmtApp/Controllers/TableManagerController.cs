@@ -8,11 +8,14 @@ namespace TableMgmtApp;
 public class TableManagerController : ControllerBase {
     private readonly TableManagerService _tableManagerService;
     private readonly IDiscountRepository _discountRepo;
+    private readonly IPlayerRepository _playerRepo;
 
     public TableManagerController(TableManagerService tableManagerService,
-                                  IDiscountRepository discountRepository) {
+                                  IDiscountRepository discountRepository,
+                                  IPlayerRepository playerRepository) {
         _tableManagerService = tableManagerService;
         _discountRepo = discountRepository;
+        _playerRepo = playerRepository;
     }
 
     // PUT: api/tablemanager/{id}/play
@@ -57,10 +60,6 @@ public class TableManagerController : ControllerBase {
     // the in memmory session with that discount.
     [HttpPut("{tableId}/session/discount/{discountId}/update")]
     public async Task<IActionResult> UpdateSessionDiscount(Guid tableId, Guid discountId) {
-
-        Console.WriteLine($"Session: {tableId}");
-        Console.WriteLine($"Discount: {discountId}");
-
         var session = _tableManagerService.GetPlaySessionForTableId(tableId);
         if (session == null) {
             return NotFound();
@@ -74,6 +73,35 @@ public class TableManagerController : ControllerBase {
 
         session.Discount = discountEntity;
         session.DiscountId = discountEntity.Id;
+
+        return NoContent(); 
+    }
+
+    [HttpPut("{tableId}/session/player/{playerId}/update")]
+    public async Task<IActionResult> UpdateSessionPlayer(Guid tableId, Guid playerId) {
+        var session = _tableManagerService.GetPlaySessionForTableId(tableId);
+        if (session == null) {
+            return NotFound();
+        }
+
+        var playerEntity = await _playerRepo.GetByIdAsync(playerId);
+
+        if (playerEntity == null) {
+            return NotFound();
+        }
+
+        session.Player = playerEntity;
+        session.PlayerId = playerEntity.Id;
+
+        if (playerEntity.DiscountId != null) {
+            var discountEntity = await _discountRepo.GetByIdAsync(playerEntity.DiscountId.Value);
+
+            if (discountEntity != null) {
+                session.Discount = discountEntity;
+                session.DiscountId = discountEntity.Id;
+            }
+
+        }
 
         return NoContent(); 
     }

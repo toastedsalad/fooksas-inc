@@ -24,7 +24,7 @@ public record PlaySessionDTO {
     public Guid PlayerId { get; init; }
     public string? PlayerName { get; init; }
     public string? PlayerSurname { get; init; }
-    public Guid DiscountId { get; init; }
+    public Guid? DiscountId { get; init; }
     public string? DiscountType { get; init; }
     public string? DiscountName { get; init; }
     public int? DiscountRate { get; init; }
